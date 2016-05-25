@@ -1,6 +1,9 @@
 \name{plot-predict-simulate}
+\alias{predict.ctm}
 \alias{predict.mlt}
+\alias{simulate.ctm}
 \alias{simulate.mlt}
+\alias{plot.ctm}
 \alias{plot.mlt}
 \title{
   Plots, Predictions and Samples from mlt Objects
@@ -9,19 +12,23 @@
   Plot, predict and sample from objects of class mlt
 }
 \usage{
-\method{plot}{mlt}(x, newdata, type = c("distribution", "survivor", "density", 
+\method{plot}{ctm}(x, newdata, type = c("distribution", "survivor", "density", 
      "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
      q = NULL, p = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, 
      ...)
-\method{predict}{mlt}(object, newdata = object$data, type = c("trafo", "distribution", 
+\method{plot}{mlt}(x, ...)
+\method{predict}{ctm}(object, newdata, type = c("trafo", "distribution", 
          "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", 
          "quantile"), terms = c("bresponse", "binteracting", "bshifting"), 
          q = NULL, p = NULL, K = 50, interpolate = TRUE, ...)
-\method{simulate}{mlt}(object, nsim = 1, seed = NULL, newdata = object$data, K = 50, 
+\method{predict}{mlt}(object, newdata = object$data, ...)
+\method{simulate}{ctm}(object, nsim = 1, seed = NULL, newdata, K = 50, q = NULL,
          interpolate = TRUE, ...)
+\method{simulate}{mlt}(object, nsim = 1, seed = NULL, newdata = object$data, ...)
 }
 \arguments{
-  \item{object}{a fitted conditional transformation model as returned by \code{\link{mlt}}}
+  \item{object}{a fitted conditional transformation model as returned by \code{\link{mlt}}
+                or an unfitted conditional transformation model as returned by \code{\link{ctm}}}
   \item{x}{a fitted conditional transformation model as returned by \code{\link{mlt}}}
   \item{newdata}{an optional data frame of observations}
   \item{type}{type of prediction or plot to generate}
@@ -43,6 +50,8 @@
   \code{type}). \code{predict} evaluates the transformation function over a grid
   of \code{q} values for all observations in \code{newdata} and returns the
   result as a matrix (where _columns_ correspond to _rows_ in \code{newdata}).
+  Note that the \code{predict} method for \code{ctm} objects requires all
+  model coefficients to be specified in this unfitted model.
   \code{simulate} draws samples from \code{object} by numerical inversion of the
   quantile function.
 }

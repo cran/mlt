@@ -1,12 +1,12 @@
 
-plot.mlt <- function(x, newdata, type = c("distribution",
+plot.ctm <- function(x, newdata, type = c("distribution",
     "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
     q = NULL, p = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, ...) {
 
     args <- list(...)
 
     if (is.null(q))
-        q <- mkgrid(x, n = K)[[x$response]]
+        q <- mkgrid(x, n = K)[[y <- variable.names(x, "response")]]
     type <- match.arg(type)
     pr <- predict(x, newdata = newdata, type = type, q = q, p = p)
     pr[!is.finite(pr)] <- NA
@@ -26,7 +26,7 @@ plot.mlt <- function(x, newdata, type = c("distribution",
         args$x <- unclass(q)
         args$y <- rep(rpr[1], length(q))
         args$ylim <- ylim
-        args$xlab <- ifelse(is.null(args$xlab), x$response, args$xlab)
+        args$xlab <- ifelse(is.null(args$xlab), y, args$xlab)
         args$ylab <- ifelse(is.null(args$ylab), type, args$ylab)
         args$type <- "n"
         args$axes <- FALSE
@@ -39,11 +39,17 @@ plot.mlt <- function(x, newdata, type = c("distribution",
         axis(2)
         box()
     }
-    y <- as.vars(x)[[x$response]]
+    y <- as.vars(x)[[y]]
     if (inherits(y, "continuous_var")) {
         for (i in 1:ncol(pr)) lines(q, pr[,i], col = col[i])
     } else {
         for (i in 1:ncol(pr)) lines(stepfun(q, c(ylim[1], pr[,i])), col = col[i])
     }
     invisible(pr)
+}
+
+plot.mlt <- function(x, ...) {
+    ctmobj <- x$model
+    coef(ctmobj) <- coef(x)
+    plot(ctmobj, ...)
 }

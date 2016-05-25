@@ -1,6 +1,6 @@
 
-R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
-Copyright (C) 2015 The R Foundation for Statistical Computing
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -126,10 +126,10 @@ Loading required package: variables
 > m <- ctm(response = Bb, 
 +            interacting = as.basis(~ g, data = mydata),
 +            todist = "MinExtrVal")
-> coef(opt <- mlt(m, data = mydata, maxit = 5000))
 Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'kronecker',
  target signature 'dgTMatrix#dgCMatrix'.
  "TsparseMatrix#sparseMatrix" would also be valid
+> coef(opt <- mlt(m, data = mydata, maxit = 5000))
 Bs1(y):(Intercept) Bs2(y):(Intercept) Bs3(y):(Intercept) Bs4(y):(Intercept) 
         -1.9229311          1.0990214          1.0990214          1.0990214 
 Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2 
@@ -159,4 +159,4 @@ Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2
 > 
 > proc.time()
    user  system elapsed 
-  3.212   0.044   3.252 
+  3.056   0.064   3.114 

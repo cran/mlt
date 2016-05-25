@@ -1,9 +1,10 @@
 
 ### <FIXME> rename fixed to coef and allow for specification of coefs, 
 ###         ie fitted models? </FIXME>
-.mlt_setup <- function(model, data, y, offset = NULL, fixed = NULL) {
+.mlt_setup <- function(model, data, y, offset = NULL, 
+                       fixed = coef(model)) {
 
-    response <- model$response
+    response <- variable.names(model, "response")
     stopifnot(length(response) == 1)
     todistr <- model$todistr
 
@@ -18,6 +19,11 @@
 
     ui <- attr(Y, "constraint")$ui
     ci <- attr(Y, "constraint")$ci
+
+    if (!is.null(fixed)) {
+        fixed <- fixed[!is.na(fixed)]
+        if (length(fixed) == 0) fixed <- NULL
+    }
 
     if (!is.null(fixed)) {
         stopifnot(all(names(fixed) %in% colnames(Y)))
@@ -36,18 +42,22 @@
 
     exact <- .exact(y)
 
+    ret_ll <- numeric(nrow(data))
     ll <- function(beta) {
-        ret <- numeric(nrow(data))
+        ret <- ret_ll ### numeric(nrow(data))
         if (any(exact))
             ret[exact] <- .mlt_loglik_exact(todistr, eY$Y, eY$Yprime, offset[exact], eY$trunc)(.parm(beta))
-        ret[!exact] <- .mlt_loglik_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc)(.parm(beta))
+        if (any(!exact))
+            ret[!exact] <- .mlt_loglik_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc)(.parm(beta))
         return(ret)
     }
+    ret_sc <- matrix(0, nrow = nrow(data), ncol = length(fix))
     sc <- function(beta) {
-        ret <- matrix(0, nrow = nrow(data), ncol = length(fix))
+        ret <- ret_sc ###matrix(0, nrow = nrow(data), ncol = length(fix))
         if (any(exact))
             ret[exact,] <- .mlt_score_exact(todistr, eY$Y, eY$Yprime, offset[exact], eY$trunc)(.parm(beta))
-        ret[!exact,] <- .mlt_score_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc)(.parm(beta))
+        if (any(!exact))
+            ret[!exact,] <- .mlt_score_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc)(.parm(beta))
         return(ret[, !fix, drop = FALSE])
     }
     he <- function(beta, weights) {
@@ -124,7 +134,6 @@
     ret$model <- model
     ret$data <- data
     ret$offset <- offset
-    ret$response <- response
     ret$todistr <- todistr
     ret$loglik <- loglikfct
     ret$score <- score
@@ -139,7 +148,7 @@
     stopifnot(length(pstart) == nrow(data))
     if (is.null(offset)) offset <- rep(0, nrow(data))
 
-    response <- model$response
+    response <- variable.names(model, "response")
     stopifnot(length(response) == 1)
 
     eY <- .mm_exact(model, data = data, response = response, object = y)
@@ -230,7 +239,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
                 checkGrad = FALSE, trace = FALSE, quiet = TRUE, dofit = TRUE, ...) {
 
     vars <- as.vars(model)
-    response <- model$response
+    response <- variable.names(model, "response")
     responsevar <- vars[[response]]
     bounds <- bounds(responsevar)
     stopifnot(length(response) == 1)
@@ -267,7 +276,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     ret
 }
 
-update.mlt_fit <- function(object, weights, theta, ...) {
+update.mlt_fit <- function(object, weights, theta = coef(object), ...) {
 
     stopifnot(length(weights) == NROW(object$data))
     args <- list(...)
@@ -279,11 +288,7 @@ update.mlt_fit <- function(object, weights, theta, ...) {
     } else {
         args$weights <- weights
     }
-    if (missing(theta)) {
-        args$theta <- object$theta
-    } else {
-        args$theta <- theta
-    }
+    args$theta <- theta
     args$scale <- object$scale
     args$trace <- object$trace
     args$checkGrad <- object$checkGrad

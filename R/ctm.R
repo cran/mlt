@@ -32,12 +32,53 @@ ctm <- function(response, interacting = NULL, shifting = NULL, data = NULL,
     ret <- list(model = mod, response = variable.names(response), 
                 todistr = todistr, bases = bases)
     class(ret) <- "ctm"
+    nd <- lapply(mkgrid(ret, n = 1), function(x) x[1]) ### integer may have more values
+    nd <- do.call("expand.grid", nd)
+    X <- model.matrix(ret, data = nd)
+    cf <- numeric(NCOL(X))
+    names(cf) <- colnames(X)
+    cf[] <- NA
+    ret$coef <- cf
     return(ret)
 }
 
 model.matrix.ctm <- function(object, data, ...)
     return(model.matrix(object$model, data = data, ...))
 
-variable.names.ctm <- function(object, ...)
-    variable.names(object$model)
+variable.names.ctm <- function(object, 
+    which = c("all", "response", "interacting", "shifting"), 
+    ...) {
 
+    which <- match.arg(which)
+    m <- object$bases
+    if (which == "all")
+        return(variable.names(object$model))
+    if (which == "response")
+        return(variable.names(m$response))
+    if (which == "interacting") {
+        if (!is.null(m$interacting))
+            return(variable.names(m$interacting))
+        return(NULL)
+    }
+    if (which == "shifting") {
+        if (!is.null(m$shifting))
+            return(variable.names(m$shifting))
+        return(NULL)
+    }
+}
+
+coef.ctm <- function(object, ...)
+    object$coef
+
+"coef<-.ctm" <- function(object, value) {
+    cf <- coef(object)
+    stopifnot(length(cf) == length(value))
+    if (!is.null(names(value))) {
+        stopifnot(all(names(value) %in% names(cf)))
+    } else {
+        stopifnot(length(value) == length(cf))
+        names(value) <- names(cf)
+    }
+    object$coef[names(value)] <- value
+    object
+}

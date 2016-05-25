@@ -1,5 +1,5 @@
 
-predict.mlt <- function(object, newdata = object$data, type = c("trafo", "distribution", "survivor", 
+predict.ctm <- function(object, newdata, type = c("trafo", "distribution", "survivor", 
     "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile"), 
     terms = c("bresponse", "binteracting", "bshifting"), q = NULL, p = NULL, K = 50,
     interpolate = TRUE, ...) {
@@ -10,9 +10,11 @@ predict.mlt <- function(object, newdata = object$data, type = c("trafo", "distri
     if (type == "quantile")
         stopifnot(!is.null(p) && (min(p) > 0 & max(p) < 1))
 
-    if (!is.data.frame(newdata)) {
-        if (type != "quantile")
-            stopifnot(object$response %in% names(newdata))
+    if (!is.null(newdata)) {
+        if (!is.data.frame(newdata)) {
+            if (type != "quantile")
+                stopifnot(variable.names(object, "response") %in% names(newdata))
+        }
     }
 
     ret <- switch(type, 
@@ -28,4 +30,10 @@ predict.mlt <- function(object, newdata = object$data, type = c("trafo", "distri
                           p = p, interpolate = interpolate))
 
     return(ret)
+}
+
+predict.mlt <- function(object, newdata = object$data, ...) {
+    ctmobj <- object$model
+    coef(ctmobj) <- coef(object)
+    predict(ctmobj, newdata = newdata, ...)
 }

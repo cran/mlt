@@ -14,6 +14,8 @@
 \alias{bounds.mlt}
 \alias{variable.names.mlt}
 \alias{update.mlt_fit}
+\alias{as.mlt}
+\alias{as.mlt.mlt}
 \title{
   Methods for mlt Objects
 }
@@ -24,7 +26,7 @@
 \method{coef}{mlt}(object, fixed = TRUE, ...)
 coef(object) <- value
 \method{weights}{mlt}(object, ...)
-\method{logLik}{mlt}(object, parm = coef(object, fixed = FALSE), w = weights(object), ...)
+\method{logLik}{mlt}(object, parm = coef(object, fixed = FALSE), w = weights(object), newdata, ...)
 \method{vcov}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
 Hessian(object, ...)
 \method{Hessian}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
@@ -36,6 +38,7 @@ Gradient(object, ...)
 \method{bounds}{mlt}(object)
 \method{variable.names}{mlt}(object, ...)
 \method{update}{mlt_fit}(object, weights, theta, ...)
+\method{as.mlt}{mlt}(object)
 }
 \arguments{
   \item{object}{a fitted conditional transformation model as returned by \code{\link{mlt}}}
@@ -45,6 +48,10 @@ Gradient(object, ...)
   \item{parm}{model parameters}
   \item{w}{model weights}
   \item{weights}{model weights}
+  \item{newdata}{an optional data frame of new observations. Allows
+                 evaluation of the log-likelihood for a given
+                 model \code{object} on these new observations. The
+                 parameters \code{parm} and \code{w} are ignored in this situation.}
   \item{n}{number of grid points}
   \item{theta}{optional starting values for the model parameters}
   \item{\dots}{additional arguments}

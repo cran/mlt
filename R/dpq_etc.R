@@ -6,12 +6,12 @@
 }
 
 ### transformation function
-tmlt <- function(object, newdata = object$data, q = NULL, ...) {
+tmlt <- function(object, newdata = NULL, q = NULL, ...) {
 
-    vn <- unlist(variable.names(object$model$model))
-    vnx <- vn[!(vn %in% object$response)]
-    y <- object$response
-    model <- object$model$model
+    vn <- unlist(variable.names(object))
+    y <- variable.names(object, "response")
+    vnx <- vn[!(vn %in% y)]
+    model <- object$model
 
     stopifnot(!is.null(newdata[[y]]) || !is.null(q))
 
@@ -40,7 +40,7 @@ tmlt <- function(object, newdata = object$data, q = NULL, ...) {
             } else {
                 ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
-                b <- object$bounds[[y]]
+                b <- bounds(as.vars(object)[[y]])[[1]]
                 ret[f < (b[1] - .Machine$double.eps)] <- -Inf
                 ret[f > (b[2] - .Machine$double.eps)] <- Inf
             }
@@ -58,7 +58,7 @@ tmlt <- function(object, newdata = object$data, q = NULL, ...) {
         names(dim) <- c(y, vnx[1])
         newdata <- as.list(newdata)
         newdata[[y]] <- q
-        ret <- predict(object$model$model, newdata = newdata, 
+        ret <- predict(object$model, newdata = newdata, 
                        coef = coef(object), dim = dim, ...)
         dn <- vector(mode = "list", length = 2)
         names(dn) <- c(y, "newdata") ### deparse(substitute(newdata))) ?
@@ -74,7 +74,7 @@ tmlt <- function(object, newdata = object$data, q = NULL, ...) {
         } else {
             ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
-            b <- object$bounds[[y]]
+            b <- bounds(as.vars(object)[[y]])[[1]]
             ret[f < (b[1] - .Machine$double.eps)] <- -Inf
             ret[f > (b[2] - .Machine$double.eps)] <- Inf
         }
@@ -87,7 +87,7 @@ tmlt <- function(object, newdata = object$data, q = NULL, ...) {
     stopifnot(is.atomic(newdata[[y]]))
     stopifnot(is.null(q))
     stopifnot(y %in% names(newdata))
-    ret <- predict(object$model$model, newdata = newdata, 
+    ret <- predict(object$model, newdata = newdata, 
                    coef = coef(object), dim = TRUE, ...)
     dn <- lapply(newdata, .frmt)
     dimnames(ret) <- dn
@@ -107,7 +107,7 @@ tmlt <- function(object, newdata = object$data, q = NULL, ...) {
     } else {
         ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
-        b <- object$bounds[[y]]
+        b <- bounds(as.vars(object)[[y]])[[1]]
         i <- (f < (b[1] - .Machine$double.eps))
         if (any(i)) {
             args <- lapply(names(dn), function(d) {
@@ -133,16 +133,16 @@ tmlt <- function(object, newdata = object$data, q = NULL, ...) {
 }
 
 ### distribution function
-pmlt <- function(object, newdata = object$data, q = NULL)
-    object$model$todistr$p(tmlt(object = object, newdata = newdata,
+pmlt <- function(object, newdata = NULL, q = NULL)
+    object$todistr$p(tmlt(object = object, newdata = newdata,
                                 q = q))
 
 ### survivor function
-smlt <- function(object, newdata = object$data, q = NULL)
+smlt <- function(object, newdata = NULL, q = NULL)
     1 - pmlt(object = object, newdata = newdata, q = q)
 
 ### cumulative hazard function
-Hmlt <- function(object, newdata = object$data, q = NULL)
+Hmlt <- function(object, newdata = NULL, q = NULL)
     -log(smlt(object = object, newdata = newdata, q = q))
 
 ### numerical inversion of distribution function
@@ -181,10 +181,10 @@ Hmlt <- function(object, newdata = object$data, q = NULL)
 }
 
 ### quantile function
-qmlt <- function(object, newdata = object$data, p = .5, n = 50, 
+qmlt <- function(object, newdata = NULL, p = .5, n = 50, 
                  interpolate = TRUE) {
 
-    y <- object$response
+    y <- variable.names(object, "response")
     ### don't accept user-generated quantiles
     q <- mkgrid(object, n = n)[[y]]
     if (!is.null(newdata) & !is.data.frame(newdata)) {
@@ -204,9 +204,9 @@ qmlt <- function(object, newdata = object$data, p = .5, n = 50,
     nr <- nrow(ptmp)
     ptmp <- ptmp[rep(1:nr, each = length(p)),,drop = FALSE]
     pp <- rep(p, nr) ### p varies fastest
-    discrete <- !inherits(as.vars(object)[[object$response]],
+    discrete <- !inherits(as.vars(object)[[y]],
                           "continuous_var")
-    bounds <- bounds(object)[[y]]
+    bounds <- bounds(as.vars(object)[[y]])[[1]]
     ret <- .p2q(ptmp, q, pp, interpolate = interpolate, bounds = bounds,
                 discrete = discrete)
 
@@ -224,9 +224,10 @@ qmlt <- function(object, newdata = object$data, p = .5, n = 50,
 }
 
 ### density
-dmlt <- function(object, newdata = object$data, q = NULL, log = FALSE) {
+dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE) {
 
-    response <- object$data[[y <- object$response]]
+    y <- variable.names(object, "response")
+    response <- mkgrid(object, n = 10)[[y]]
 
     ### Lebesgue density only for double
     if (.type_of_response(response) %in% c("double", "survival")) {
@@ -239,8 +240,8 @@ dmlt <- function(object, newdata = object$data, q = NULL, log = FALSE) {
         trafoprime[!is.finite(trafoprime)] <- .Machine$double.eps
         trafoprime <- pmax(.Machine$double.eps, trafoprime)
         if (log)
-            return(object$model$todistr$d(trafo, log = TRUE) + log(trafoprime))
-        return(object$model$todistr$d(trafo) * trafoprime)
+            return(object$todistr$d(trafo, log = TRUE) + log(trafoprime))
+        return(object$todistr$d(trafo) * trafoprime)
     }
 
     stopifnot(!is.null(newdata[[y]]) || !is.null(q))

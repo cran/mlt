@@ -1,7 +1,7 @@
     
 ### simulate from model object with data newdata
-simulate.mlt <- function(object, nsim = 1, seed = NULL, 
-                         newdata = object$data, K = 50, 
+simulate.ctm <- function(object, nsim = 1, seed = NULL, 
+                         newdata, K = 50, q = NULL,
                          interpolate = TRUE, ...) {
 
     ### from stats:::simulate.lm
@@ -16,9 +16,11 @@ simulate.mlt <- function(object, nsim = 1, seed = NULL,
         on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
     }
 
-    y <- object$response
-    ### don't accept user-generated quantiles
-    q <- mkgrid(object, n = K)[[y]]
+    y <- variable.names(object, "response")
+    if (is.null(q))
+        q <- mkgrid(object, n = K)[[y]]
+
+    stopifnot(!missing(newdata))
     if (is.data.frame(newdata)) {
         p <- runif(nsim * NROW(newdata))
         ### basically compute quantiles for p; see qmlt
@@ -27,7 +29,7 @@ simulate.mlt <- function(object, nsim = 1, seed = NULL,
         if (!is.matrix(prob))
             prob <- matrix(prob, ncol = 1)[,rep(1, NROW(newdata)), drop = FALSE]
         prob <- t(prob[, rep(1:NCOL(prob), nsim),drop = FALSE])
-        discrete <- !inherits(as.vars(object)[[object$response]],
+        discrete <- !inherits(as.vars(object)[[y]],
                               "continuous_var")
         bounds <- bounds(object)[[y]]
         ret <- .p2q(prob, q, p, interpolate = interpolate, bounds = bounds,
@@ -49,6 +51,12 @@ simulate.mlt <- function(object, nsim = 1, seed = NULL,
     return(ret)
 }
 
+simulate.mlt <- function(object, nsim = 1, seed = NULL, newdata = object$data, ...) {
+    ctmobj <- object$model
+    coef(ctmobj) <- coef(object)
+    simulate(ctmobj, nsim = nsim, seed = seed, newdata = newdata, ...)
+}
+
 paraboot <- function(object, ...)
     UseMethod("paraboot")
 
@@ -59,7 +67,7 @@ paraboot.mlt <- function(object, parm = coef(object), B = 100, ...) {
     logLR <- numeric(B)
 
     ndf <- object$data
-    y <- object$response
+    y <- variable.names(object, "response")
 
     for (b in 1:B) {
         ndf[[y]] <- simulate(object, ...)

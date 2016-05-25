@@ -17,7 +17,7 @@ confband.mlt <- function(object, newdata, level = 0.95,
     }
 
     stopifnot(nrow(newdata) == 1)
-    y <- object$response
+    y <- variable.names(object, "response")
     q <- mkgrid(object, n = K)[[y]]
     nd <- newdata[rep(1, length(q)),,drop = FALSE]
     nd[[y]] <- q

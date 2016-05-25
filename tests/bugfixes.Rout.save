@@ -1,6 +1,6 @@
 
-R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
-Copyright (C) 2015 The R Foundation for Statistical Computing
+R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -32,8 +32,6 @@ Loading required package: variables
 > ctmm2 <- ctm(response = Bernstein_basis(y, order = 4, ui = "increasing"),
 +               interacting = c(x1=Bernstein_basis(x1, order = 3),
 +                               x2=Bernstein_basis(x2, order= 3)))
-> ### fit model
-> mltm2 <- mlt(ctmm2, data = dat)
 Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
  target signature 'ddiMatrix#dgCMatrix'.
  "ANY#sparseMatrix" would also be valid
@@ -52,6 +50,8 @@ Note: method with signature 'Matrix#numLike' chosen for function '%*%',
 Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
  target signature 'dgTMatrix#matrix'.
  "TsparseMatrix#ANY" would also be valid
+> ### fit model
+> mltm2 <- mlt(ctmm2, data = dat)
 > (p <- predict(mltm2, newdata = data.frame(x1=0, x2 = 0), q = mkgrid(mltm2, n = 10)[["y"]]))
         
 y              [,1]
@@ -73,14 +73,14 @@ y              [,1]
 > speed <- numeric_var("speed", support = c(5.0, 23), bounds = c(0, Inf)) 
 > ctmm <- ctm(response = Bernstein_basis(dist, order = 4, ui = "increasing"),
 +             interacting = Bernstein_basis(speed, order = 3))
-> 
-> m <- mlt(ctmm, data = cars)
 Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
  target signature 'ddiMatrix#ddiMatrix'.
  "Matrix#diagonalMatrix" would also be valid
 Note: method with signature 'TsparseMatrix#sparseMatrix' chosen for function 'kronecker',
  target signature 'dtTMatrix#ddiMatrix'.
  "Matrix#diagonalMatrix" would also be valid
+> 
+> m <- mlt(ctmm, data = cars)
 > e <- estfun(m)
 > w <- runif(nrow(cars)) < .8
 > m1 <- update(m, weights = w, theta = coef(m))
@@ -117,4 +117,4 @@ Coefficients: 30.96152 38.89751 42.53768 -0.01509283 -0.0591355 -0.121279 -0.054
 > 
 > proc.time()
    user  system elapsed 
-  2.848   0.024   2.869 
+  2.652   0.020   2.670 

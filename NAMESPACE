@@ -11,23 +11,27 @@ importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
 
 importFrom(quadprog, solve.QP)
 importFrom("grDevices", "rgb")
-importFrom("graphics", "axis", "box", "lines")
+importFrom("graphics", "axis", "box", "lines", "plot")
 importFrom("methods", "as")
 
-export(R, "coef<-", mlt, ctm, confband, Hessian, Gradient)
+export(R, "coef<-", mlt, ctm, confband, Hessian, Gradient, as.mlt)
 #, paraboot, description
 # Hmlt dmlt, hmlt, pmlt, qmlt, smlt, tmlt
 
 S3method("update", "mlt_fit")
 S3method("estfun", "mlt")
 S3method("predict", "mlt")
+S3method("predict", "ctm")
 S3method("simulate", "mlt")
+S3method("simulate", "ctm")
 S3method("coef", "mlt")
+S3method("coef", "ctm")
 S3method("variable.names", "mlt")
 S3method("mkgrid", "mlt")
 S3method("logLik", "mlt")
 S3method("vcov", "mlt")
 S3method("coef<-", "mlt")
+S3method("coef<-", "ctm")
 S3method("summary", "mlt")
 S3method("print", "mlt")
 S3method("print", "summary.mlt")
@@ -45,9 +49,12 @@ S3method("mkgrid", "ctm")
 S3method("model.matrix", "ctm")
 S3method("confband", "mlt")
 S3method("plot", "mlt")
+S3method("plot", "ctm")
 S3method("weights", "mlt")
 S3method("Hessian", "mlt")
 S3method("Gradient", "mlt")
+
+S3method("as.mlt", "mlt")
 
 #S3method("model.matrix", "mlt")
 #S3method("paraboot", "mlt")

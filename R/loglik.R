@@ -16,10 +16,15 @@
 }
 
 .log <- function(x) {
-    if (any(x < -.Machine$double.eps))
-        warning(paste("negative contribution to likelihood (", min(x), "); 
+    pos <- (x > .Machine$double.eps)
+    if (all(pos)) return(log(x))
+    mx <- min(x)
+    if (mx < -.Machine$double.eps)
+        warning(paste("negative contribution to likelihood (", mx, "); 
                       constraints violated!"))
-    log(pmax(.Machine$double.eps, x))
+    ret <- rep(log(.Machine$double.eps), length(x))
+    ret[pos] <- log(x[pos])
+    return(ret)
 }
 
 ..mlt_loglik_interval <- function(d, mml, mmr, offset = 0, beta)
@@ -101,9 +106,9 @@
 
 .mlt_score_exact <- function(d, mm, mmprime, offset = 0, mmtrunc = NULL) {                          
     function(beta) {
-        mmb <- drop(mm %*% beta) + offset
+        mmb <- c(mm %*% beta) + offset
         ret <- d$dd(mmb) / d$d(mmb) * mm + 
-               (1 / drop(mmprime %*% beta)) * mmprime
+               (1 / c(mmprime %*% beta)) * mmprime
         if (!is.null(mmtrunc))
             ret <- ret - ..mlt_score_interval(d, mmtrunc$left, 
                                               mmtrunc$right, offset, beta) 
@@ -114,10 +119,10 @@
 .mlt_hessian_exact <- function(d, mm, mmprime, offset = 0, mmtrunc = NULL, 
                                w = 1) {
     function(beta) {
-        mmb <- drop(mm %*% beta) + offset
+        mmb <- c(mm %*% beta) + offset
         if (length(w) != length(mmb)) w <- rep(w, length(mmb))
         w1 <- -(d$ddd(mmb) / d$d(mmb) - (d$dd(mmb) / d$d(mmb))^2) * w
-        w2 <- w / (drop(mmprime %*% beta)^2)
+        w2 <- w / (c(mmprime %*% beta)^2)
         ret <- crossprod(mm * w1, mm) + crossprod(mmprime * w2, mmprime) 
         if (!is.null(mmtrunc))
             ret <- ret - ..mlt_hessian_interval(d, mmtrunc$left, 
