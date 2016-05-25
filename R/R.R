@@ -51,7 +51,7 @@ R.Surv <- function(object, ...) {
         w <- weights[weights > 0]
         sf <- survival::survfit(object ~ 1, subset = weights > 0, weights = w)
         function(y) {
-            s <- summary(sf, times = y)$surv[order(y)]
+            s <- summary(sf, times = sort(y))$surv[order(y)]
             s[is.na(s)] <- 0
             1 - s
         }

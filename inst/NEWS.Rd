@@ -2,6 +2,13 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 0.0-33 (2016-05-25)}{
+  \itemize{
+    \item{Make sure \code{times} are ordered before calling
+          \code{survival::summary.survfit}.}
+  }
+}
+
 \section{Changes in Version 0.0-32 (2016-05-24)}{
   \itemize{
     \item{Introduce \code{as.mlt} generic.}
