@@ -1,15 +1,15 @@
 
-import(basefun)
-import(variables)
-import(numDeriv) ### needed by BB???
-importFrom(BB, spg, BBoptim)
-importFrom(sandwich, estfun)
+import("basefun")
+import("variables")
+import("numDeriv") ### needed by BB???
+importFrom("BB", "spg", "BBoptim")
+importFrom("sandwich", "estfun")
 importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "vcov", "AIC", "coef", "confint", "dlogis", "dnorm",
            "lm.fit", "plogis", "pnorm", "predict", "qlogis", "qnorm",
            "runif", "stepfun", "weights", "approxfun", "xtabs")
 
-importFrom(quadprog, solve.QP)
+importFrom("quadprog", "solve.QP")
 importFrom("grDevices", "rgb")
 importFrom("graphics", "axis", "box", "lines", "plot")
 importFrom("methods", "as")
@@ -40,6 +40,7 @@ S3method("R", "factor")
 S3method("R", "ordered")
 S3method("R", "numeric")
 S3method("R", "integer")
+S3method("R", "interval")
 S3method("print", "response")
 S3method("bounds", "mlt")
 S3method("bounds", "ctm")

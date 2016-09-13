@@ -13,6 +13,12 @@ mod <- mlt(m, data = d)
 
 p <- predict(mod, newdata = d)
 
+K <- 15
+q <- mkgrid(m, n = K)[["y"]]
+p1 <- predict(mod, newdata = d[, c("x1", "x2")], q = q)
+p2 <- predict(mod, newdata = d[, c("x1", "x2")], K = K)
+stopifnot(all.equal(p1, p2))
+
 (p0 <- predict(mod$model$model, 
     newdata = expand.grid(d), coef = coef(mod)))
 (p1 <- predict(mod, newdata = as.list(d)))

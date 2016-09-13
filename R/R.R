@@ -48,8 +48,7 @@ R.Surv <- function(object, ...) {
                        tleft = object[, "start"])
     )
     attr(ret, "prob") <- function(weights) {
-        w <- weights[weights > 0]
-        sf <- survival::survfit(object ~ 1, subset = weights > 0, weights = w)
+        sf <- survival::survfit(object ~ 1, subset = weights > 0, weights = weights)
         function(y) {
             s <- summary(sf, times = sort(y))$surv[order(y)]
             s[is.na(s)] <- 0
@@ -96,6 +95,13 @@ R.integer <- function(object, cleft = NA, cright = NA, bounds = c(0L, Inf), ...)
     ret
 }
 
+R.interval <- function(object, ...) {
+    breaks <- attr(object, "levels")
+    cleft <- breaks[-length(breaks)]
+    cright <- breaks[-1L]
+    R(cleft = cleft[object], cright = cright[object], ...)
+}
+
 ### handle exact integer / factor as interval censored
 R.numeric <- function(object = NA, cleft = NA, cright = NA, 
                       tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), 
@@ -113,8 +119,15 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
     }
     ret <- .mkR(exact = object, cleft = cleft, cright = cright,
                 tleft = tleft, tright = tright)
+    ### <FIXME>
+    ### this fails if is.na(object) and only cleft/cright are given
+    # attr(ret, "prob") <- function(weights)
+    #     .wecdf(object, weights)
     attr(ret, "prob") <- function(weights)
-         .wecdf(object, weights)
+        .wecdf(ret$approxy, weights)
+    ### we want something like survfit(Surv(... type = "interval")
+    ### with adjustment to min(obs) = 0
+    ### </FIXME>
     ret
 }
 

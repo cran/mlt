@@ -2,6 +2,16 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 0.0-34 (2016-09-09)}{
+  \itemize{
+    \item{fix bug when calling \code{survfit} for computing initial probabilities.}
+    \item{add \code{bysim} argument to \code{simulate}.}
+    \item{make sure \code{checkGrad} is respected by \code{update}.}
+    \item{\code{predict} computes \code{q} with \code{K} elements 
+          if not given (as \code{plot} always did).}
+ }
+}
+
 \section{Changes in Version 0.0-33 (2016-05-25)}{
   \itemize{
     \item{Make sure \code{times} are ordered before calling

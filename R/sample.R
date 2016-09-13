@@ -2,7 +2,7 @@
 ### simulate from model object with data newdata
 simulate.ctm <- function(object, nsim = 1, seed = NULL, 
                          newdata, K = 50, q = NULL,
-                         interpolate = TRUE, ...) {
+                         interpolate = TRUE, bysim = TRUE, ...) {
 
     ### from stats:::simulate.lm
     if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) 
@@ -35,13 +35,24 @@ simulate.ctm <- function(object, nsim = 1, seed = NULL,
         ret <- .p2q(prob, q, p, interpolate = interpolate, bounds = bounds,
                     discrete = discrete)
         if (nsim > 1) {
-            tmp <- vector(mode = "list", length = nsim)
-            for (i in 1:nsim) {
-                idx <- 1:NROW(newdata) + (i - 1) * NROW(newdata)
-                if (is.data.frame(ret)) 
-                    tmp[[i]] <- ret[idx,]
-                else 
-                    tmp[[i]] <- ret[idx]
+            if (bysim) {
+                tmp <- vector(mode = "list", length = nsim)
+                for (i in 1:nsim) {
+                    idx <- 1:NROW(newdata) + (i - 1) * NROW(newdata)
+                    if (is.data.frame(ret)) 
+                        tmp[[i]] <- ret[idx,]
+                    else 
+                        tmp[[i]] <- ret[idx]
+                }
+            } else {
+                tmp <- vector(mode = "list", length = NROW(newdata))
+                for (i in 1:NROW(newdata)) {
+                    idx <- NROW(newdata) * 0:(nsim - 1) + i
+                    if (is.data.frame(ret)) 
+                        tmp[[i]] <- ret[idx,]
+                    else 
+                        tmp[[i]] <- ret[idx]
+                }
             }
             ret <- tmp
         }
@@ -51,10 +62,10 @@ simulate.ctm <- function(object, nsim = 1, seed = NULL,
     return(ret)
 }
 
-simulate.mlt <- function(object, nsim = 1, seed = NULL, newdata = object$data, ...) {
+simulate.mlt <- function(object, nsim = 1, seed = NULL, newdata = object$data, bysim = TRUE, ...) {
     ctmobj <- object$model
     coef(ctmobj) <- coef(object)
-    simulate(ctmobj, nsim = nsim, seed = seed, newdata = newdata, ...)
+    simulate(ctmobj, nsim = nsim, seed = seed, newdata = newdata, bysim = bysim, ...)
 }
 
 paraboot <- function(object, ...)

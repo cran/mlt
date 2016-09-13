@@ -133,17 +133,17 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
 }
 
 ### distribution function
-pmlt <- function(object, newdata = NULL, q = NULL)
+pmlt <- function(object, newdata = NULL, q = NULL, ...)
     object$todistr$p(tmlt(object = object, newdata = newdata,
-                                q = q))
+                                q = q, ...))
 
 ### survivor function
-smlt <- function(object, newdata = NULL, q = NULL)
-    1 - pmlt(object = object, newdata = newdata, q = q)
+smlt <- function(object, newdata = NULL, q = NULL, ...)
+    1 - pmlt(object = object, newdata = newdata, q = q, ...)
 
 ### cumulative hazard function
-Hmlt <- function(object, newdata = NULL, q = NULL)
-    -log(smlt(object = object, newdata = newdata, q = q))
+Hmlt <- function(object, newdata = NULL, q = NULL, ...)
+    -log(smlt(object = object, newdata = newdata, q = q, ...))
 
 ### numerical inversion of distribution function
 ### to get quantile function
@@ -182,7 +182,7 @@ Hmlt <- function(object, newdata = NULL, q = NULL)
 
 ### quantile function
 qmlt <- function(object, newdata = NULL, p = .5, n = 50, 
-                 interpolate = TRUE) {
+                 interpolate = TRUE, ...) {
 
     y <- variable.names(object, "response")
     ### don't accept user-generated quantiles
@@ -192,9 +192,9 @@ qmlt <- function(object, newdata = NULL, p = .5, n = 50,
         nm <- names(newdata)
         newdata[[y]] <- q
         newdata <- newdata[c(y, nm)]
-        prob <- pmlt(object, newdata)
+        prob <- pmlt(object, newdata, ...)
     } else {
-        prob <- pmlt(object, newdata = newdata, q = q)
+        prob <- pmlt(object, newdata = newdata, q = q, ...)
     } 
 
     ### convert potential array-valued distribution function
@@ -224,18 +224,18 @@ qmlt <- function(object, newdata = NULL, p = .5, n = 50,
 }
 
 ### density
-dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE) {
+dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
 
     y <- variable.names(object, "response")
     response <- mkgrid(object, n = 10)[[y]]
 
     ### Lebesgue density only for double
     if (.type_of_response(response) %in% c("double", "survival")) {
-        trafo <- tmlt(object, newdata = newdata, q = q)
+        trafo <- tmlt(object, newdata = newdata, q = q, ...)
         deriv <- 1
         names(deriv) <- y
         trafoprime <- tmlt(object, newdata = newdata, q = q, 
-                           deriv = deriv)
+                           deriv = deriv, ...)
         ### <FIXME> trafoprime is +/-Inf at boundaries, so use 0 density
         trafoprime[!is.finite(trafoprime)] <- .Machine$double.eps
         trafoprime <- pmax(.Machine$double.eps, trafoprime)
@@ -257,9 +257,9 @@ dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE) {
             first <- q == lev[1]
             qwoK <- factor(lev[pmax(unclass(q) - 1, 1)], 
                            levels = lev, labels = lev, ordered = is.ordered(q))
-            p <- pmlt(object, newdata = newdata)
+            p <- pmlt(object, newdata = newdata, ...)
             newdata[[y]] <- qwoK
-            pwoK <- pmlt(object, newdata = newdata)
+            pwoK <- pmlt(object, newdata = newdata, ...)
             pwoK[first] <- 0
             ret <- p - pwoK
         } else {
@@ -271,9 +271,9 @@ dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE) {
             qwoK <- q[q != lev[length(lev)]]
             qwo1 <- q[q != lev[1]]
 
-            pfirst <- pmlt(object, newdata = newdata, q = qfirst)
-            pwo1 <- pmlt(object, newdata = newdata, q = qwo1)
-            pwoK <- pmlt(object, newdata = newdata, q = qwoK)
+            pfirst <- pmlt(object, newdata = newdata, q = qfirst, ...)
+            pwo1 <- pmlt(object, newdata = newdata, q = qwo1, ...)
+            pwoK <- pmlt(object, newdata = newdata, q = qwoK, ...)
             ret <- matrix(0, nrow = length(first), ncol = NCOL(pfirst))
             ret[!first,] <- pwo1 - pwoK
             ret[first,] <- pfirst
@@ -296,11 +296,11 @@ dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE) {
         qwo1 <- q[q != lev[1]]
 
         newdata[[y]] <- qfirst
-        pfirst <- pmlt(object, newdata = newdata)
+        pfirst <- pmlt(object, newdata = newdata, ...)
         newdata[[y]] <- qwo1
-        pwo1 <- pmlt(object, newdata = newdata)
+        pwo1 <- pmlt(object, newdata = newdata, ...)
         newdata[[y]] <- qwoK
-        pwoK <- pmlt(object, newdata = newdata)
+        pwoK <- pmlt(object, newdata = newdata, ...)
 
         dn <- dim(pfirst)
         names(dn) <- names(dimnames(pfirst))
@@ -331,10 +331,10 @@ dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE) {
 }
 
 ### hazard function
-hmlt <- function(object, newdata = object$data, q = NULL, log = FALSE) {
+hmlt <- function(object, newdata = object$data, q = NULL, log = FALSE, ...) {
     if (log) 
-        return(dmlt(object, newdata = newdata, q = q, log = TRUE) -
-               log(smlt(object, newdata = newdata, q = q)))
-    return(dmlt(object, newdata = newdata, q = q, log = FALSE) /
-           smlt(object, newdata = newdata, q = q))
+        return(dmlt(object, newdata = newdata, q = q, log = TRUE, ...) -
+               log(smlt(object, newdata = newdata, q = q, ...)))
+    return(dmlt(object, newdata = newdata, q = q, log = FALSE, ...) /
+           smlt(object, newdata = newdata, q = q, ...))
 }

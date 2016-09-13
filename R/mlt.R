@@ -82,7 +82,7 @@
         ui <- ui[!r0,,drop = FALSE]
         ci <- ci[!r0]
         if (nrow(ui) == 0) ui <- ci <- NULL
-        ### ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
+#        ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
     }
 
     optimfct <- function(theta, weights, scale = FALSE, quiet = TRUE, ...) {
@@ -143,7 +143,7 @@
     return(ret)
 }
 
-.mlt_start <- function(model, data, y, pstart, offset = NULL, fixed = NULL) {
+.mlt_start <- function(model, data, y, pstart, offset = NULL, fixed = NULL, weights = 1) {
 
     stopifnot(length(pstart) == nrow(data))
     if (is.null(offset)) offset <- rep(0, nrow(data))
@@ -185,6 +185,9 @@
 
     todistr <- model$todistr
     Z <- todistr$q(pmax(.01, pmin(pstart, .99))) - offset
+
+    X <- X * sqrt(weights)
+    Z <- Z * sqrt(weights)
 
     dvec <- crossprod(X, Z)
     Dmat <- crossprod(X)
@@ -259,7 +262,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
 ###        if (is.null(pstart)) pstart <- y$rank / max(y$rank)
         if (is.null(pstart)) pstart <- attr(y, "prob")(weights)(y$approxy) ### y$rank / max(y$rank)
         theta <- .mlt_start(model = model, data = data, y = y, 
-                            pstart = pstart, offset = offset, fixed = fixed)
+                            pstart = pstart, offset = offset, fixed = fixed, weights = weights)
     }
 
     args <- list(...)
@@ -272,6 +275,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     args$quiet <- quiet
     ret <- do.call(".mlt_fit", args)
     ret$call <- match.call()
+    ret$checkGrad <- checkGrad
     ret$bounds <- bounds
     ret
 }

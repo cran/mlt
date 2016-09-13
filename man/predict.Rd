@@ -23,8 +23,8 @@
          q = NULL, p = NULL, K = 50, interpolate = TRUE, ...)
 \method{predict}{mlt}(object, newdata = object$data, ...)
 \method{simulate}{ctm}(object, nsim = 1, seed = NULL, newdata, K = 50, q = NULL,
-         interpolate = TRUE, ...)
-\method{simulate}{mlt}(object, nsim = 1, seed = NULL, newdata = object$data, ...)
+         interpolate = TRUE, bysim = TRUE, ...)
+\method{simulate}{mlt}(object, nsim = 1, seed = NULL, newdata = object$data, bysim = TRUE, ...)
 }
 \arguments{
   \item{object}{a fitted conditional transformation model as returned by \code{\link{mlt}}
@@ -42,6 +42,12 @@
   \item{interpolate}{logical indicating if quantiles shall be interpolated linearily}
   \item{nsim}{number of samples to generate}
   \item{seed}{optional seed for the random number generator}
+  \item{bysim}{logical, if \code{TRUE} a list with \code{nsim} elements is returned,
+               each element is of length \code{nrow(newdata)} and 
+               contains one sample from the conditional distribution for each
+               row of \code{newdata}. If \code{FALSE}, a list of length \code{nrow(newdata)}
+               is returned, its ith element of length \code{nsim} contains \code{nsim} samples
+               from the conditional distribution given \code{newdata[i,]}.} 
   \item{\dots}{additional arguments}
 }
 \details{
