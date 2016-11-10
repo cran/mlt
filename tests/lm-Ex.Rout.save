@@ -1,5 +1,5 @@
 
-R version 3.2.4 (2016-03-10) -- "Very Secure Dishes"
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -33,11 +33,11 @@ Loading required package: variables
 > s2ml <- sqrt(var(y) * (n - 1) / n)
 > 1 / coef(o)[2] - s2ml
            y 
-5.944143e-08 
+6.498866e-08 
 > 
 > -coef(o)[1] / coef(o)[2] - mean(y)
   (Intercept) 
--8.815473e-08 
+-2.102483e-07 
 > 
 > x <- runif(n, max = 2 * pi)
 > y <- rnorm(n, sin(x), .25)
@@ -52,12 +52,9 @@ In c.basis(bresponse = response, bshifting = shifting) :
   more than one basis contains an intercept term
 > 
 > o <- mlt(m, data = d)
-Warning message:
-In object$optimfct(theta, weights = weights, trace = trace, scale = scale,  :
-  Optimisation did not converge
 > 1 / coef(o)[2]
         y 
-0.2608465 
+0.2612713 
 > p <- predict(Bb,
 +              newdata = data.frame(x = x), coef = coef(o)[-(1:2)])
 > plot(x, y)
@@ -85,9 +82,6 @@ Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
  "TsparseMatrix#ANY" would also be valid
 > 
 > o <- mlt(m, data = d)
-Warning message:
-In object$optimfct(theta, weights = weights, trace = trace, scale = scale,  :
-  Optimisation did not converge
 > 
 > nd <- data.frame(x = sort(x))
 > layout(matrix(1:2, nr = 2))
@@ -98,4 +92,4 @@ In object$optimfct(theta, weights = weights, trace = trace, scale = scale,  :
 > 
 > proc.time()
    user  system elapsed 
- 28.368   0.160  28.507 
+  1.916   0.036   1.951 

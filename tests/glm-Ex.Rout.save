@@ -1,6 +1,6 @@
 
-R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
-Copyright (C) 2015 The R Foundation for Statistical Computing
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
+Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -86,13 +86,13 @@ virginica    -23.83628    -7.923634  -15.370769     23.65978   15.135301
 > m2 <- mlt(m, data = oiris)
 > coef(m2)
  Species1:(Intercept)  Species2:(Intercept) Species1:Sepal.Length 
-            0.5187355            42.6365416             2.4050022 
+            0.3463234            42.6428122             3.3943753 
 Species2:Sepal.Length  Species1:Sepal.Width  Species2:Sepal.Width 
-            2.4650765             6.2309485             6.6810458 
+            2.4651686             9.4840984             6.6812881 
 Species1:Petal.Length Species2:Petal.Length  Species1:Petal.Width 
-          -10.7919931            -9.4289618            -5.3448419 
+          -14.2280962            -9.4300870           -10.3368149 
  Species2:Petal.Width 
-          -18.2863668 
+          -18.2875441 
 > 
 > s <- sort(unique(oiris$Species))
 > 
@@ -101,9 +101,9 @@ Species1:Petal.Length Species2:Petal.Length  Species1:Petal.Width
 > pp1 <- predict(m1, newdata = iris, type = "prob")
 > 
 > max(abs(pp1 - t(pp2)))
-[1] 0.001194305
+[1] 0.001198322
 > 
 > 
 > proc.time()
    user  system elapsed 
-  1.272   0.060   1.329 
+  0.972   0.024   0.995 

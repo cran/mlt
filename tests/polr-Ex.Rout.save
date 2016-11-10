@@ -1,5 +1,5 @@
 
-R version 3.3.1 (2016-06-21) -- "Bug in Your Hair"
+R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -48,7 +48,7 @@ InflMedium   InflHigh
  -0.2013727   0.9484658 
 > coef(mod)
       Sat1       Sat2 InflMedium   InflHigh 
--0.2013763  0.9484755 -0.5635787 -1.2486719 
+-0.2013437  0.9485123 -0.5636214 -1.2487051 
 > 
 > sqrt(diag(vcov(mp)))
 
@@ -58,8 +58,8 @@ Re-fitting to get Hessian
  0.10357053  0.12479361  0.07662596  0.08024304 
 > sqrt(diag(vcov(mod)))
       Sat1       Sat2 InflMedium   InflHigh 
-0.07662594 0.08024300 0.10357051 0.12479358 
+0.07662605 0.08024327 0.10357067 0.12479370 
 > 
 > proc.time()
    user  system elapsed 
-  0.864   0.040   0.899 
+  0.816   0.024   0.843 

@@ -8,8 +8,7 @@
 }
 \usage{
 mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL, 
-    pstart = NULL, scale = FALSE, checkGrad = FALSE, 
-    trace = FALSE, quiet = TRUE, dofit = TRUE, ...)
+    pstart = NULL, scale = FALSE, dofit = TRUE, optim = mltoptim(), ...)
 }
 \arguments{
   \item{model}{a conditional transformation model as specified by \code{\link{ctm}}}
@@ -23,13 +22,10 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
                 evaluated at the data}
   \item{scale}{a logical indicating if (internal) scaling shall be applied to the
                model coefficients}
-  \item{checkGrad}{a logical triggering checks of the analytic gradient
-                   during optimisation}
-  \item{trace}{a logical triggering status messages of the optimiser}
-  \item{quiet}{a logical turning off any messages from the optimiser}
   \item{dofit}{a logical indicating if the model shall be fitted to the
                data (\code{TRUE}) or not}
-  \item{\dots}{additional arguments to \code{\link[BB]{spg}}}
+  \item{optim}{a list of functions implementing suitable optimisers}
+  \item{\dots}{additional arguments, currently ignored}
 }
 \details{
   This function fits a conditional transformation model by searching for 

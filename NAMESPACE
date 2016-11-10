@@ -14,7 +14,7 @@ importFrom("grDevices", "rgb")
 importFrom("graphics", "axis", "box", "lines", "plot")
 importFrom("methods", "as")
 
-export(R, "coef<-", mlt, ctm, confband, Hessian, Gradient, as.mlt)
+export(R, "coef<-", mlt, ctm, confband, Hessian, Gradient, as.mlt, mltoptim)
 #, paraboot, description
 # Hmlt dmlt, hmlt, pmlt, qmlt, smlt, tmlt
 

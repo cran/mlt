@@ -85,8 +85,7 @@
 #        ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
     }
 
-    optimfct <- function(theta, weights, scale = FALSE, quiet = TRUE, ...) {
-        control <- list(...)
+    optimfct <- function(theta, weights, scale = FALSE, optim) {
         if (scale) {
             Ytmp <- Y
             Ytmp[!is.finite(Ytmp)] <- NA
@@ -104,14 +103,11 @@
             f <- function(gamma) loglikfct(gamma, weights)
             g <- function(gamma) scorefct(gamma, weights)
         }
-        if (!is.null(ui)) {
-            ret <- BBoptim(par = theta, fn = f, gr = g, project = "projectLinear",
-                           projectArgs = list(A = ui, b = ci, meq = 0), control = control, 
-                           quiet = quiet)
-        } else {
-            ret <- BBoptim(par = theta, fn = f, gr = g, control = control, quiet = quiet)
+        for (i in 1:length(optim)) {
+            ret <- optim[[i]](theta, f, g, ui, ci)
+            if (ret$convergence == 0) break()
         }
-        if (quiet & (ret$convergence != 0))
+        if (ret$convergence != 0)
             warning("Optimisation did not converge")
         ### degrees of freedom: number of free parameters, ie #parm NOT meeting the constraints
         ret$df <- length(ret$par)
@@ -213,15 +209,14 @@
     ret
 }
 
-.mlt_fit <- function(object, weights, theta = NULL, scale = FALSE, trace = FALSE, 
-                     quiet = TRUE, ...) {
+.mlt_fit <- function(object, weights, theta = NULL, scale = FALSE, optim) {
 
     if (is.null(theta))
         stop(sQuote("mlt"), "needs suitable starting values")
 
     ### BBoptim issues a warning in case of unsuccessful convergence
     ret <- try(object$optimfct(theta, weights = weights, 
-                               trace = trace, scale = scale, quiet = quiet, ...))    
+                               scale = scale, optim = optim))    
 
     cls <- class(object)
     object[names(ret)] <- NULL
@@ -230,8 +225,7 @@
     object$theta <- theta ### starting value
     object$scale <- scale ### scaling yes/no
     object$weights <- weights
-    object$trace <- trace
-    object$quiet <- quiet
+    object$optim <- optim
     class(object) <- c("mlt_fit", cls)
     
     return(object)
@@ -239,7 +233,7 @@
 
 mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
                 theta = NULL, pstart = NULL, scale = FALSE,
-                checkGrad = FALSE, trace = FALSE, quiet = TRUE, dofit = TRUE, ...) {
+                dofit = TRUE, optim = mltoptim(), ...) {
 
     vars <- as.vars(model)
     response <- variable.names(model, "response")
@@ -265,17 +259,14 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
                             pstart = pstart, offset = offset, fixed = fixed, weights = weights)
     }
 
-    args <- list(...)
+    args <- list()
     args$object <- s
     args$weights <- weights
     args$theta <- theta
     args$scale <- scale
-    args$trace <- trace
-    args$checkGrad <- checkGrad
-    args$quiet <- quiet
+    args$optim <- optim
     ret <- do.call(".mlt_fit", args)
     ret$call <- match.call()
-    ret$checkGrad <- checkGrad
     ret$bounds <- bounds
     ret
 }
@@ -283,7 +274,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
 update.mlt_fit <- function(object, weights, theta = coef(object), ...) {
 
     stopifnot(length(weights) == NROW(object$data))
-    args <- list(...)
+    args <- list()
     if (inherits(object, "mlt_fit")) 
         class(object) <- class(object)[-1L]
     args$object <- object
@@ -294,9 +285,7 @@ update.mlt_fit <- function(object, weights, theta = coef(object), ...) {
     }
     args$theta <- theta
     args$scale <- object$scale
-    args$trace <- object$trace
-    args$checkGrad <- object$checkGrad
-    args$quiet <- object$quiet
+    args$optim <- object$optim
     ret <- do.call(".mlt_fit", args)
     ret$call <- match.call()
     ret

@@ -19,9 +19,9 @@
     pos <- (x > .Machine$double.eps)
     if (all(pos)) return(log(x))
     mx <- min(x)
-    if (mx < -.Machine$double.eps)
-        warning(paste("negative contribution to likelihood (", mx, "); 
-                      constraints violated!"))
+#    if (mx < -.Machine$double.eps)
+#        warning(paste("negative contribution to likelihood (", mx, "); 
+#                      constraints violated!"))
     ret <- rep(log(.Machine$double.eps), length(x))
     ret[pos] <- log(x[pos])
     return(ret)

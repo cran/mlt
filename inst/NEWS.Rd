@@ -2,7 +2,16 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
-\section{Changes in Version 0.0-34 (2016-09-09)}{
+\section{Changes in Version 0.1-0 (2016-11-09)}{
+  \itemize{
+    \item{Add augmented lagrangian minimization (\code{auglag()} from package \pkg{alabama}).}
+    \item{Make optimiation procedure more general and adaptive, allow users to change
+          defaults and even add their own optimiser.}
+ }
+}
+
+
+\section{Changes in Version 0.0-34 (2016-09-13)}{
   \itemize{
     \item{fix bug when calling \code{survfit} for computing initial probabilities.}
     \item{add \code{bysim} argument to \code{simulate}.}
