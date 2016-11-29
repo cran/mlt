@@ -2,7 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
-\section{Changes in Version 0.1-0 (2016-11-09)}{
+\section{Changes in Version 0.1-1 (2016-11-29)}{
+  \itemize{
+    \item{Fix two bugs in computation of log-likelihood for possibly
+          left-truncated responses such as \code{Surv(start, time, status)}.}
+ }
+}
+
+\section{Changes in Version 0.1-0 (2016-11-10)}{
   \itemize{
     \item{Add augmented lagrangian minimization (\code{auglag()} from package \pkg{alabama}).}
     \item{Make optimiation procedure more general and adaptive, allow users to change

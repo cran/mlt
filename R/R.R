@@ -227,12 +227,12 @@ R.default <- function(object, ...)
         if (any(il <- (.tleft(object) & e))) {
             tmp <- data[il,]
             tmp[[response]] <- object$tleft[il]
-            Ytleft[il,] <- model.matrix(model, data = tmp)
+            Ytleft[.tleft(object)[e],] <- model.matrix(model, data = tmp)
         }
         if (any(ir <- (.tright(object) & e))) {
             tmp <- data[ir,,drop = FALSE]
             tmp[[response]] <- object$tright[ir]
-            Ytright[ir,] <- model.matrix(model, data = tmp)
+            Ytright[.tright(object)[e],] <- model.matrix(model, data = tmp)
         }
         trunc <- list(left = Ytleft, right = Ytright)
     }
@@ -291,12 +291,12 @@ R.default <- function(object, ...)
         colnames(Ytleft) <- colnames(Ytright) <- colnames(Yleft)
         if (any(il <- (.tleft(object)))) {
             tmp <- tmpdata[il,,drop = FALSE]
-            tmp[[response]] <- object$cleft[il]
+            tmp[[response]] <- object$tleft[il]
             Ytleft[il,] <- model.matrix(model, data = tmp)
         }
         if (any(ir <- (.tright(object)))) {
             tmp <- tmpdata[ir,,drop = FALSE]
-            tmp[[response]] <- object$cleft[ir]
+            tmp[[response]] <- object$tright[ir]
             Ytright[ir,] <- model.matrix(model, data = tmp)
         }
         trunc <- list(left = Ytleft, right = Ytright)
