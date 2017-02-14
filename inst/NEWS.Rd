@@ -2,6 +2,19 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 0.1-2 (2017-02-14)}{
+  \itemize{
+    \item{\code{logLik} with \code{newdata} argument ignored \code{parm} 
+          and \code{weights} arguments.}
+    \item{\code{estfun} now also has a \code{newdata} argument.}
+    \item{Correct axes labelling when plotting quantile functions.}
+    \item{make sure names are correct in \code{coef(model, fixed = FALSE)}.}
+    \item{check if any exact or interval-censored response with non-zero 
+          weight exists before trying to fit the model.}
+    \item{make checks a little more robust against huge diffs under Windows.}
+ }
+}
+
 \section{Changes in Version 0.1-1 (2016-11-29)}{
   \itemize{
     \item{Fix two bugs in computation of log-likelihood for possibly

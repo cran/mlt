@@ -25,3 +25,17 @@
     if (is.factor(y)) return("unordered")
     return(NA)
 }
+
+.checkR <- function(x, weights = NULL) {
+    if (!.is.R(x)) return(FALSE)
+    if (is.null(weights)) weights <- 1
+    if (all(.cleft(x) & weights > 0)) {
+        warning("response contains left-censored observations only")
+        return(FALSE)
+    }
+    if (all(.cright(x) & weights > 0)) {
+        warning("response contains right-censored observations only")
+        return(FALSE)
+    }
+    return(TRUE)
+}

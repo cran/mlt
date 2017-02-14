@@ -51,7 +51,7 @@ Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
  target signature 'dgTMatrix#matrix'.
  "TsparseMatrix#ANY" would also be valid
 > ### fit model
-> mltm2 <- mlt(ctmm2, data = dat)
+> mltm2 <- mlt(ctmm2, data = dat, scale = TRUE)
 > (p <- predict(mltm2, newdata = data.frame(x1=0, x2 = 0), q = mkgrid(mltm2, n = 10)[["y"]]))
         
 y              [,1]
@@ -115,6 +115,17 @@ Log-Likelihood: -171.1428 (df = 12)
 Coefficients: 30.95069 38.88527 42.5229 -0.01507979 -0.05890574 -0.121357 -0.05406142 -0.4769787 -0.344239 -2.414345 -1.131853 0.369285
 
 > 
+> ### check for only left/right censoring before fitting
+> y <- bodyfat$DEXfat
+> sF <- rep(FALSE, length(y))
+> library("survival")
+> bodyfat$DEXfat <- Surv(y, sF)
+> mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
+Warning message:
+In .checkR(y, weights) : response contains left-censored observations only
+> mod$convergence
+[1] 1
+> 
 > proc.time()
    user  system elapsed 
-  1.404   0.052   1.460 
+  1.392   0.036   1.424 

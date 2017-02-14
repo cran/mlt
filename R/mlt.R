@@ -206,6 +206,7 @@
     } else {
         ret <- lm.fit(x = X, y = Z)$coef
     }
+    names(ret) <- names(coef(model))[!fix]
     ret
 }
 
@@ -242,6 +243,8 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     stopifnot(length(response) == 1)
     y <- R(object = data[[response]])
 
+    if (!.checkR(y, weights)) dofit <- FALSE
+
     if (is.null(weights)) weights <- rep(1, nrow(data))
     if (is.null(offset)) offset <- rep(0, nrow(data))
     stopifnot(nrow(data) == length(weights))
@@ -249,6 +252,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
 
     s <- .mlt_setup(model = model, data = data, y = y, 
                     offset = offset, fixed = fixed) 
+    s$convergence <- 1
     if (!dofit) return(s)
 
     if (is.null(theta)) {

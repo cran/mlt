@@ -51,7 +51,7 @@ logLik.mlt <- function(object, parm = coef(object, fixed = FALSE),
     if (!missing(newdata)) {
         tmpmod <- mlt(object$model, data = newdata, dofit = FALSE)
         coef(tmpmod) <- coef(object)
-        return(logLik(tmpmod))
+        return(logLik(tmpmod, parm = parm, weights = w))
     }
     ret <- -object$loglik(parm, weights = w)
     ###    attr(ret, "df") <- length(coef(object, fixed = FALSE))
@@ -61,8 +61,14 @@ logLik.mlt <- function(object, parm = coef(object, fixed = FALSE),
 }
 
 estfun.mlt <- function(object, parm = coef(object, fixed = FALSE), 
-                       w = weights(object), ...)
+                       w = weights(object), newdata, ...) {
+    if (!missing(newdata)) {
+        tmpmod <- mlt(object$model, data = newdata, dofit = FALSE)
+        coef(tmpmod) <- coef(object)
+        return(estfun(tmpmod, parm = parm, weights = w))
+    }
     -object$score(parm, weights = w)
+}
 
 mkgrid.mlt <- function(object, n, ...)
     mkgrid(object$model, n = n, ...)

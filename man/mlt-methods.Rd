@@ -33,7 +33,7 @@ Hessian(object, ...)
 Gradient(object, ...)
 \method{Gradient}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
 \method{estfun}{mlt}(object, parm = coef(object, fixed = FALSE),
-       w = weights(object), ...)
+       w = weights(object), newdata, ...)
 \method{mkgrid}{mlt}(object, n, ...)
 \method{bounds}{mlt}(object)
 \method{variable.names}{mlt}(object, ...)

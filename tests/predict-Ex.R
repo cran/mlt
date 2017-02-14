@@ -65,3 +65,26 @@ p1 <- predict(mod, newdata = nd, type = "quantile", p = 1:9 / 10, K = 50000)
 
 min(apply(matrix(p1, nrow = 9), 2, diff))
 
+### more than one stratifying variable
+n <- 5
+nd <- expand.grid(d <- list(s1 = gl(3, n), s2 = gl(3, n), x = runif(n)))
+nd$y <- rnorm(nrow(nd), mean = (1:3)[nd$s1] + 2 * nd$x, sd = (1:3)[nd$s2]/3)
+yvar <- numeric_var("y", support = quantile(nd$y, prob = c(2, 8)/10))
+b1 <- as.basis(~ s1 - 1, data = nd)
+b2 <- as.basis(~ s2 - 1, data = nd)
+mctm <- ctm(Bernstein_basis(yvar, order = 2, ui = "increasing"),
+            interacting = b(b1 = b1, b2 = b2),
+            shifting = ~x, data = nd)
+m <- mlt(mctm, data = nd, scale = TRUE)
+## in-sample predictions (for given response)
+p1 <- predict(m)
+p2 <- predict(m, newdata = nd)
+stopifnot(isTRUE(all.equal(max(abs(c(p1) - c(p2))), 0)))
+## evaluate model for grid of response values
+pnd <- nd
+pnd$y <- NULL
+p1 <- predict(m, newdata = pnd, K = 21)
+d$y <- mkgrid(m, n = 21)[["y"]]
+d <- d[c("y", "s1", "s2", "x")]
+p2 <- predict(m, newdata = d)
+stopifnot(isTRUE(all.equal(max(abs(c(p1) - c(p2))), 0)))
