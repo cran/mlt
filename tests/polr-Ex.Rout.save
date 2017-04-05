@@ -1,6 +1,6 @@
 
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -48,7 +48,7 @@ InflMedium   InflHigh
  -0.2013727   0.9484658 
 > coef(mod)
       Sat1       Sat2 InflMedium   InflHigh 
--0.2013437  0.9485123 -0.5636214 -1.2487051 
+-0.2013763  0.9484755 -0.5635788 -1.2486722 
 > 
 > sqrt(diag(vcov(mp)))
 
@@ -58,8 +58,8 @@ Re-fitting to get Hessian
  0.10357053  0.12479361  0.07662596  0.08024304 
 > sqrt(diag(vcov(mod)))
       Sat1       Sat2 InflMedium   InflHigh 
-0.07662605 0.08024327 0.10357067 0.12479370 
+0.07662594 0.08024300 0.10357051 0.12479358 
 > 
 > proc.time()
    user  system elapsed 
-  0.816   0.024   0.843 
+  0.876   0.004   0.878 

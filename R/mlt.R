@@ -40,38 +40,81 @@
         fix <- rep(FALSE, ncol(Y))
     } 
 
-    exact <- .exact(y)
-
-    ret_ll <- numeric(nrow(data))
-    ll <- function(beta) {
-        ret <- ret_ll ### numeric(nrow(data))
-        if (any(exact))
-            ret[exact] <- .mlt_loglik_exact(todistr, eY$Y, eY$Yprime, offset[exact], eY$trunc)(.parm(beta))
-        if (any(!exact))
-            ret[!exact] <- .mlt_loglik_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc)(.parm(beta))
-        return(ret)
+    .ofuns <- function(weights, subset = NULL) {
+        es <- .exact_subset(.exact(y), subset)
+        exY <- NULL
+        iYleft <- NULL
+        if (!is.null(es$full_ex)) {
+            exY <- eY$Y
+            exYprime <- eY$Yprime
+            exoffset <- offset[.exact(y)]
+            exweights <- weights[.exact(y)]
+            extrunc <- eY$trunc
+            if (!is.null(es$redu_ex)) {
+                exY <- exY[es$redu_ex,,drop = FALSE]
+                exYprime <- exYprime[es$redu_ex,,drop = FALSE]
+                exoffset <- exoffset[es$redu_ex]
+                exweights <- exweights[es$redu_ex]
+                if (!is.null(extrunc)) {
+                    extrunc$left <- extrunc$left[es$redu_ex,,drop = FALSE]
+                    extrunc$right <- extrunc$right[es$redu_ex,,drop = FALSE]
+                }
+            }
+        }
+        if (!is.null(es$full_nex)) {
+            iYleft <- iY$Yleft
+            iYright <- iY$Yright
+            ioffset <- offset[!.exact(y)]
+            iweights <- weights[!.exact(y)]
+            itrunc <- iY$trunc
+            if (!is.null(es$redu_nex)) {
+                iYleft <- iYleft[es$redu_nex,,drop = FALSE]
+                iYright <- iYright[es$redu_nex,,drop = FALSE]
+                ioffset <- ioffset[es$redu_nex]
+                iweights <- iweights[es$redu_nex]
+                if (!is.null(itrunc)) {
+                    itrunc$left <- itrunc$left[es$redu_nex,,drop = FALSE]
+                    itrunc$right <- itrunc$right[es$redu_nex,,drop = FALSE]
+                }
+            }
+        }
+        ret_ll <- numeric(nrow(data))
+        ret_sc <- matrix(0, nrow = nrow(data), ncol = length(fix))
+        return(list(
+            ll = function(beta) {
+                ret <- ret_ll 
+                if (!is.null(es$full_ex))
+                    ret[es$full_ex] <- .mlt_loglik_exact(todistr, 
+                        exY, exYprime, exoffset, extrunc)(.parm(beta))
+                if (!is.null(es$full_nex))
+                    ret[es$full_nex] <- .mlt_loglik_interval(todistr, 
+                        iYleft, iYright, ioffset, itrunc)(.parm(beta))
+                return(ret)
+            },
+            sc = function(beta) {
+                ret <- ret_sc 
+                if (!is.null(es$full_ex))
+                    ret[es$full_ex,] <- .mlt_score_exact(todistr, 
+                        exY, exYprime, exoffset, extrunc)(.parm(beta))
+                if (!is.null(es$full_nex))
+                    ret[es$full_nex,] <- .mlt_score_interval(todistr, 
+                        iYleft, iYright, ioffset, itrunc)(.parm(beta))
+                return(ret[, !fix, drop = FALSE])
+            },
+            he = function(beta) {
+                ret <- 0
+                if (!is.null(es$full_ex))
+                    ret <- ret + .mlt_hessian_exact(todistr, 
+                        exY, exYprime, exoffset, extrunc, 
+                        exweights)(.parm(beta))
+                if (!is.null(es$full_nex))
+                    ret <- ret + .mlt_hessian_interval(todistr, 
+                        iYleft, iYright, ioffset, itrunc, 
+                        iweights)(.parm(beta))
+                return(ret[!fix, !fix, drop = FALSE])
+            })
+        )
     }
-    ret_sc <- matrix(0, nrow = nrow(data), ncol = length(fix))
-    sc <- function(beta) {
-        ret <- ret_sc ###matrix(0, nrow = nrow(data), ncol = length(fix))
-        if (any(exact))
-            ret[exact,] <- .mlt_score_exact(todistr, eY$Y, eY$Yprime, offset[exact], eY$trunc)(.parm(beta))
-        if (any(!exact))
-            ret[!exact,] <- .mlt_score_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc)(.parm(beta))
-        return(ret[, !fix, drop = FALSE])
-    }
-    he <- function(beta, weights) {
-        ret <- 0
-        if (any(exact))
-            ret <- ret + .mlt_hessian_exact(todistr, eY$Y, eY$Yprime, offset[exact], eY$trunc, weights[exact])(.parm(beta))
-        if (any(!exact))
-            ret <- ret + .mlt_hessian_interval(todistr, iY$Yleft, iY$Yright, offset[!exact], iY$trunc, weights[!exact])(.parm(beta))
-        return(ret[!fix, !fix, drop = FALSE])
-    }
-
-    loglikfct <- function(beta, weights) -sum(weights * ll(beta))
-    score <- function(beta, weights) weights * sc(beta)
-    scorefct <- function(beta, weights) -colSums(score(beta, weights))
 
     if (all(!is.finite(ci))) {
         ui <- ci <- NULL
@@ -85,7 +128,14 @@
 #        ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
     }
 
-    optimfct <- function(theta, weights, scale = FALSE, optim) {
+    optimfct <- function(theta, weights, subset = NULL, scale = FALSE, optim) {
+        of <- .ofuns(weights, subset)
+        loglikfct <- function(beta, weights)  
+            -sum(weights * of$ll(beta))
+        score <- function(beta, weights) 
+            weights * of$sc(beta)
+        scorefct <- function(beta, weights) 
+            -colSums(score(beta, weights), na.rm = TRUE)
         if (scale) {
             Ytmp <- Y
             Ytmp[!is.finite(Ytmp)] <- NA
@@ -131,9 +181,15 @@
     ret$data <- data
     ret$offset <- offset
     ret$todistr <- todistr
-    ret$loglik <- loglikfct
-    ret$score <- score
-    ret$hessian <- he
+
+    ret$loglik <- function(beta, weights)  
+        -sum(weights * .ofuns(weights)$ll(beta))
+    ret$logliki <- function(beta, weights)
+        .ofuns(weights)$ll(beta)
+    ret$score <- function(beta, weights) 
+        weights * .ofuns(weights)$sc(beta)
+    ret$hessian <- function(beta, weights) 
+        .ofuns(weights)$he(beta)
     ret$optimfct <- optimfct
     class(ret) <- c("mlt_setup", "mlt")
     return(ret)
@@ -210,13 +266,13 @@
     ret
 }
 
-.mlt_fit <- function(object, weights, theta = NULL, scale = FALSE, optim) {
+.mlt_fit <- function(object, weights, subset = NULL, theta = NULL, scale = FALSE, optim) {
 
     if (is.null(theta))
         stop(sQuote("mlt"), "needs suitable starting values")
 
     ### BBoptim issues a warning in case of unsuccessful convergence
-    ret <- try(object$optimfct(theta, weights = weights, 
+    ret <- try(object$optimfct(theta, weights = weights, subset = subset,
                                scale = scale, optim = optim))    
 
     cls <- class(object)
@@ -224,6 +280,7 @@
     object <- c(object, ret)
     object$coef[] <- object$parm(ret$par) ### [] preserves names
     object$theta <- theta ### starting value
+    object$subset <- subset
     object$scale <- scale ### scaling yes/no
     object$weights <- weights
     object$optim <- optim
@@ -267,17 +324,23 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     args$object <- s
     args$weights <- weights
     args$theta <- theta
+    args$subset <- NULL ### only available in update()
     args$scale <- scale
     args$optim <- optim
     ret <- do.call(".mlt_fit", args)
     ret$call <- match.call()
     ret$bounds <- bounds
+    ret$response <- y
     ret
 }
 
-update.mlt_fit <- function(object, weights, theta = coef(object), ...) {
+update.mlt_fit <- function(object, weights, subset = NULL, theta = coef(object), ...) {
 
     stopifnot(length(weights) == NROW(object$data))
+    if (!is.null(subset))
+        stopifnot(is.integer(subset) && 
+                  min(subset) >= 1L &&
+                  max(subset) <= NROW(object$data))
     args <- list()
     if (inherits(object, "mlt_fit")) 
         class(object) <- class(object)[-1L]
@@ -287,6 +350,7 @@ update.mlt_fit <- function(object, weights, theta = coef(object), ...) {
     } else {
         args$weights <- weights
     }
+    args$subset <- subset
     args$theta <- theta
     args$scale <- object$scale
     args$optim <- object$optim

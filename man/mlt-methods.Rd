@@ -37,7 +37,7 @@ Gradient(object, ...)
 \method{mkgrid}{mlt}(object, n, ...)
 \method{bounds}{mlt}(object)
 \method{variable.names}{mlt}(object, ...)
-\method{update}{mlt_fit}(object, weights, theta, ...)
+\method{update}{mlt_fit}(object, weights, subset = NULL, theta, ...)
 \method{as.mlt}{mlt}(object)
 }
 \arguments{
@@ -53,6 +53,8 @@ Gradient(object, ...)
                  model \code{object} on these new observations. The
                  parameters \code{parm} and \code{w} are ignored in this situation.}
   \item{n}{number of grid points}
+  \item{subset}{an optional integer vector indicating the subset of
+                observations to be used for fitting.}
   \item{theta}{optional starting values for the model parameters}
   \item{\dots}{additional arguments}
 }

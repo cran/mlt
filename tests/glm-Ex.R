@@ -42,7 +42,8 @@ ox$y <- ordered(ox$y)
 r <- as.basis(ox$y)
 
 fm <- as.formula(paste("~ ", paste(names(x)[grep("^V", names(x))], collapse = "+")))
-m <- ctm(r, interacting = as.basis(fm, data = ox),
+### don't scale, otherwise comparison with glm() is impossible
+m <- ctm(r, interacting = as.basis(fm, data = ox, scale = FALSE),
            todistr = "Logis")
 m2 <- mlt(m, data = ox, scale = TRUE)
 coef(m2)

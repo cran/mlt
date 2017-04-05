@@ -12,6 +12,9 @@ weights.mlt <- function(object, ...) {
 }
 
 coef.mlt <- function(object, fixed = TRUE, ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
     if (fixed) 
         return(object$coef)
     return(object$par)
@@ -34,26 +37,49 @@ coef.mlt <- function(object, fixed = TRUE, ...) {
 Hessian <- function(object, ...)
     UseMethod("Hessian")
 
-Hessian.mlt <- function(object, parm = coef(object, fixed = FALSE), ...)
-    object$hessian(parm, weights = weights(object))
+Hessian.mlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
+    w <- weights(object)
+    if (!is.null(object$subset)) 
+        w[-object$subset] <- 0
+    object$hessian(parm, weights = w)
+}
     
 Gradient <- function(object, ...)
     UseMethod("Gradient")
 
-Gradient.mlt <- function(object, parm = coef(object, fixed = FALSE), ...)
+Gradient.mlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
     as.vector(colSums(estfun(object, parm = parm)))
+}
 
-vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), ...)
+vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
     solve(Hessian(object, parm = parm))
+}
 
 logLik.mlt <- function(object, parm = coef(object, fixed = FALSE), 
                        w = weights(object), newdata, ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
     if (!missing(newdata)) {
         tmpmod <- mlt(object$model, data = newdata, dofit = FALSE)
         coef(tmpmod) <- coef(object)
-        return(logLik(tmpmod, parm = parm, weights = w))
+        return(logLik(tmpmod, parm = parm, w = rep(1, nrow(newdata))))
     }
-    ret <- -object$loglik(parm, weights = w)
+    if (!is.null(object$subset)) {
+        ret <- sum(object$logliki(parm, weights = w)[object$subset] * 
+                   w[object$subset])
+    } else {
+        ret <- -object$loglik(parm, weights = w)
+    }
     ###    attr(ret, "df") <- length(coef(object, fixed = FALSE))
     attr(ret, "df") <- object$df
     class(ret) <- "logLik"
@@ -62,12 +88,18 @@ logLik.mlt <- function(object, parm = coef(object, fixed = FALSE),
 
 estfun.mlt <- function(object, parm = coef(object, fixed = FALSE), 
                        w = weights(object), newdata, ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
     if (!missing(newdata)) {
         tmpmod <- mlt(object$model, data = newdata, dofit = FALSE)
         coef(tmpmod) <- coef(object)
         return(estfun(tmpmod, parm = parm, weights = w))
     }
-    -object$score(parm, weights = w)
+    sc <- -object$score(parm, weights = w)
+    if (!is.null(object$subset))
+        sc <- sc[object$subset,,drop = FALSE]
+    return(sc)
 }
 
 mkgrid.mlt <- function(object, n, ...)

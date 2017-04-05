@@ -1,6 +1,6 @@
 
-R version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.3.3 (2017-03-06) -- "Another Canoe"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -138,23 +138,23 @@ Loading required package: variables
 10 [0.32505510, 1.325055]    NA 0.32505510    NA 1.325055     NA 0.8250551
 > 
 > (s <- Surv(y, ifelse(d, Inf, y + 1), type = "interval2"))
- [1] [2.67433818,      Inf] [1.45783672, 2.457837] [0.16997763,      Inf]
- [4] [2.56883009, 3.568830] [0.65633521,      Inf] [0.08317242, 1.083172]
- [7] [0.20866373,      Inf] [1.79566143, 2.795661] [0.65482017,      Inf]
+ [1] 2.67433818+            [1.45783672, 2.457837] 0.16997763+           
+ [4] [2.56883009, 3.568830] 0.65633521+            [0.08317242, 1.083172]
+ [7] 0.20866373+            [1.79566143, 2.795661] 0.65482017+           
 [10] [0.32505510, 1.325055]
 > attr(s, "type")
 [1] "interval"
 > cbind(s, R(s))
                         s tleft      cleft exact   cright tright   approxy
-1  [2.67433818,      Inf]    NA 2.67433818    NA      Inf     NA 3.1215841
+1             2.67433818+    NA 2.67433818    NA      Inf     NA 3.1215841
 2  [1.45783672, 2.457837]    NA 1.45783672    NA 2.457837     NA 1.9578367
-3  [0.16997763,      Inf]    NA 0.16997763    NA      Inf     NA 1.8694039
+3             0.16997763+    NA 0.16997763    NA      Inf     NA 1.8694039
 4  [2.56883009, 3.568830]    NA 2.56883009    NA 3.568830     NA 3.0688301
-5  [0.65633521,      Inf]    NA 0.65633521    NA      Inf     NA 2.1125826
+5             0.65633521+    NA 0.65633521    NA      Inf     NA 2.1125826
 6  [0.08317242, 1.083172]    NA 0.08317242    NA 1.083172     NA 0.5831724
-7  [0.20866373,      Inf]    NA 0.20866373    NA      Inf     NA 1.8887469
+7             0.20866373+    NA 0.20866373    NA      Inf     NA 1.8887469
 8  [1.79566143, 2.795661]    NA 1.79566143    NA 2.795661     NA 2.2956614
-9  [0.65482017,      Inf]    NA 0.65482017    NA      Inf     NA 2.1118251
+9             0.65482017+    NA 0.65482017    NA      Inf     NA 2.1118251
 10 [0.32505510, 1.325055]    NA 0.32505510    NA 1.325055     NA 0.8250551
 > 
 > (s <- Surv(y, ifelse(d, NA, y + 1), type = "interval2"))
@@ -179,4 +179,4 @@ Loading required package: variables
 > 
 > proc.time()
    user  system elapsed 
-  0.684   0.044   0.727 
+  0.700   0.048   0.744 

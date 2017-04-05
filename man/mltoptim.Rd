@@ -7,7 +7,7 @@
   Define optimisers and their control parameters
 }
 \usage{
-mltoptim(auglag = list(maxtry = 5), 
+mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE), 
          spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE), 
          trace = FALSE)
 }
