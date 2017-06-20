@@ -62,7 +62,6 @@ R.Surv <- function(object, ...) {
     ret
 }
 
-
 R.factor <- function(object, ...) {
 
     warning("response is unordered factor;
@@ -321,4 +320,48 @@ R.default <- function(object, ...)
     cumwt <- cumsum(wmatch) / sum(wmatch)
     approxfun(vals, cumwt, method = "constant", yleft = 0, 
               yright = sum(wmatch), f = 0, ties = "ordered")
+}
+
+as.Surv <- function(object)
+    UseMethod("as.Surv")
+
+as.Surv.response <- function(object) {
+
+    stopifnot(all(!.tright(object)))
+
+    exact <- .exact(object)
+    cleft <- .cleft(object)
+    cright <- .cright(object)
+    tleft <- .tleft(object)
+    stopifnot(all(!.tright(object)))
+
+    if (any(tleft)) {
+        stopifnot(all(!cright))
+        tm <- ifelse(exact, object$exact, object$cleft)
+        return(Surv(time = object$tleft, time2 = tm, event = exact, 
+                    type = "counting"))
+    }
+
+    if (any(cleft & cright)) {
+        stopifnot(all(!tleft))
+        return(Surv(time = ifelse(exact, object$exact, object$cleft),
+                    time2 = ifelse(exact, object$exact, object$cright),
+                    type = "interval2"))
+    }
+
+    if (any(cleft) & all(!cright))
+        return(Surv(time = ifelse(exact, object$exact, object$cleft),
+                    event = exact, type = "right"))
+
+    return(Surv(time = ifelse(exact, object$exact, object$cright),
+                event = exact, type = "left"))
+}
+
+R.response <- function(object, ...)
+    object
+
+R.list <- function(object, ...) {
+
+    ret <- lapply(object, R)
+    do.call(".mkR", do.call("rbind", ret))
 }

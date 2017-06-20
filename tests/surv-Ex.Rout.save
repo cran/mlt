@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -42,6 +42,7 @@ Loading required package: variables
 8  1.79566143+    NA 1.79566143        NA    Inf     NA 2.2349998
 9  0.65482017     NA         NA 0.6548202     NA     NA 0.6548202
 10 0.32505510+    NA 0.32505510        NA    Inf     NA 1.4996966
+> stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > ### right censored, left truncated
 > (s <- Surv(y, y + 1, d))
@@ -63,6 +64,7 @@ Loading required package: variables
 8  (1.79566143,2.795661+] 1.79566143 2.795661       NA    Inf     NA 3.235000
 9   (0.65482017,1.654820] 0.65482017       NA 1.654820     NA     NA 1.654820
 10 (0.32505510,1.325055+] 0.32505510 1.325055       NA    Inf     NA 2.499697
+> stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > ### left censored
 > (s <- Surv(y, d, type = "left"))
@@ -82,6 +84,7 @@ Loading required package: variables
 8  <1.79566143    NA  -Inf        NA 1.79566143     NA 0.93941693
 9   0.65482017    NA    NA 0.6548202         NA     NA 0.65482017
 10 <0.32505510    NA  -Inf        NA 0.32505510     NA 0.20411376
+> stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > ### interval
 > dd <- rep(0:3, length = length(y))
@@ -115,6 +118,7 @@ Loading required package: variables
 8  2.29566143
 9  2.11182513
 10 0.32505510
+> stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > ### interval2
 > (s <- Surv(y, y + 1, type = "interval2"))
@@ -136,6 +140,7 @@ Loading required package: variables
 8  [1.79566143, 2.795661]    NA 1.79566143    NA 2.795661     NA 2.2956614
 9  [0.65482017, 1.654820]    NA 0.65482017    NA 1.654820     NA 1.1548202
 10 [0.32505510, 1.325055]    NA 0.32505510    NA 1.325055     NA 0.8250551
+> stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > (s <- Surv(y, ifelse(d, Inf, y + 1), type = "interval2"))
  [1] 2.67433818+            [1.45783672, 2.457837] 0.16997763+           
@@ -156,6 +161,7 @@ Loading required package: variables
 8  [1.79566143, 2.795661]    NA 1.79566143    NA 2.795661     NA 2.2956614
 9             0.65482017+    NA 0.65482017    NA      Inf     NA 2.1118251
 10 [0.32505510, 1.325055]    NA 0.32505510    NA 1.325055     NA 0.8250551
+> stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > (s <- Surv(y, ifelse(d, NA, y + 1), type = "interval2"))
  [1] 2.67433818+            [1.45783672, 2.457837] 0.16997763+           
@@ -176,7 +182,15 @@ Loading required package: variables
 8  [1.79566143, 2.795661]    NA 1.79566143    NA 2.795661     NA 2.2956614
 9             0.65482017+    NA 0.65482017    NA      Inf     NA 2.1118251
 10 [0.32505510, 1.325055]    NA 0.32505510    NA 1.325055     NA 0.8250551
+> stopifnot(all.equal(s, as.Surv(R(s))))
+> 
+> R(list(runif(10), rnorm(10)))
+ [1] 0.362120078410953  0.866745313862339  0.362626330461353  0.665893211960793 
+ [5] 0.618313010316342  0.972876311512664  0.98230945225805   0.62168979155831  
+ [9] 0.351349128875881  0.487401148537174  1.27702500721935   -0.991728892716778
+[13] -1.11769129445339  0.589139929662019  -1.28428655866987  -0.479104778197546
+[17] -1.49827469059521  -2.84331332442696  0.47589291794211   1.11539277443001  
 > 
 > proc.time()
    user  system elapsed 
-  0.700   0.048   0.744 
+  0.944   0.036   0.975 

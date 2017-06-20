@@ -230,3 +230,4 @@ print.response <- function(x, ...) {
     ret <- paste("{", obs, trc, "}", sep = "")
     print(ret, quote = FALSE, ...)
 }
+

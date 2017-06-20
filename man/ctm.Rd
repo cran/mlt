@@ -30,7 +30,8 @@ ctm(response, interacting = NULL, shifting = NULL, data = NULL,
 }
 \references{
 
-  Torsten Hothorn, Lisa Moest, Peter Buehlmann (2016), Most Likely
-  Transformations, http://arxiv.org/abs/1508.06749
+  Torsten Hothorn, Lisa Moest, Peter Buehlmann (2017), Most Likely
+  Transformations, \emph{Scandinavian Journal of Statistics}, Accepted
+  2017-06-19, \url{http://arxiv.org/abs/1508.06749}.
 
 }

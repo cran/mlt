@@ -5,6 +5,10 @@
 \alias{R.ordered}
 \alias{R.numeric}
 \alias{R.integer}
+\alias{R.list}
+\alias{R.response}
+\alias{as.Surv}
+\alias{as.Surv.response}
 \title{
     Response Variable
 }
@@ -19,10 +23,13 @@ R(object, ...)
 \method{R}{integer}(object, cleft = NA, cright = NA, bounds = c(0L, Inf), ...)
 \method{R}{factor}(object, ...)
 \method{R}{Surv}(object, ...)
+as.Surv(object)
+\method{as.Surv}{response}(object)
 }
 \arguments{
   \item{object}{
-  A vector of (conceptually) exact measurements}
+  A vector of (conceptually) exact measurements or an object of class
+  \code{response} (for \code{as.Surv}) or a list.}
   \item{cleft}{
   A vector of left borders of censored measurements}
   \item{cright}{
@@ -42,6 +49,9 @@ R(object, ...)
 \details{
   \code{R} is basically an extention of \code{\link[survival]{Surv}} for the
   representation of arbitrarily censored or truncated measurements at any scale.
+
+  \code{R} applied to a list calls \code{R} for each of the list elements
+  and returns a joint object.
 }
 \examples{
 
