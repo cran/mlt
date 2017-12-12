@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -32,24 +32,6 @@ Loading required package: variables
 > ctmm2 <- ctm(response = Bernstein_basis(y, order = 4, ui = "increasing"),
 +               interacting = c(x1=Bernstein_basis(x1, order = 3),
 +                               x2=Bernstein_basis(x2, order= 3)))
-Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
- target signature 'ddiMatrix#dgCMatrix'.
- "ANY#sparseMatrix" would also be valid
-Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'kronecker',
- target signature 'dtTMatrix#dgCMatrix'.
- "TsparseMatrix#sparseMatrix" would also be valid
-Note: method with signature 'Matrix#diagonalMatrix' chosen for function 'kronecker',
- target signature 'dtCMatrix#ddiMatrix'.
- "sparseMatrix#ANY" would also be valid
-Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'kronecker',
- target signature 'dtCMatrix#dtTMatrix'.
- "sparseMatrix#TsparseMatrix" would also be valid
-Note: method with signature 'Matrix#numLike' chosen for function '%*%',
- target signature 'dgTMatrix#numeric'.
- "TsparseMatrix#ANY" would also be valid
-Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
- target signature 'dgTMatrix#matrix'.
- "TsparseMatrix#ANY" would also be valid
 > ### fit model
 > mltm2 <- mlt(ctmm2, data = dat, scale = TRUE)
 > (p <- predict(mltm2, newdata = data.frame(x1=0, x2 = 0), q = mkgrid(mltm2, n = 10)[["y"]]))
@@ -73,12 +55,6 @@ y              [,1]
 > speed <- numeric_var("speed", support = c(5.0, 23), bounds = c(0, Inf)) 
 > ctmm <- ctm(response = Bernstein_basis(dist, order = 4, ui = "increasing"),
 +             interacting = Bernstein_basis(speed, order = 3))
-Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
- target signature 'ddiMatrix#ddiMatrix'.
- "Matrix#diagonalMatrix" would also be valid
-Note: method with signature 'TsparseMatrix#sparseMatrix' chosen for function 'kronecker',
- target signature 'dtTMatrix#ddiMatrix'.
- "Matrix#diagonalMatrix" would also be valid
 > 
 > m <- mlt(ctmm, data = cars)
 > e <- estfun(m)
@@ -109,7 +85,6 @@ Call:
 mlt(model = m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
 
 Type:  continuous linear transformation model (transformed normal distribution)
-AIC:  366.2856
 Log-Likelihood: -171.1428 (df = 12)
 
 Coefficients: 30.95069 38.88527 42.5229 -0.01507979 -0.05890574 -0.121357 -0.05406142 -0.4769787 -0.344239 -2.414345 -1.131853 0.369285
@@ -128,4 +103,4 @@ In .checkR(y, weights) : response contains left-censored observations only
 > 
 > proc.time()
    user  system elapsed 
-  1.284   0.040   1.323 
+  4.124   0.204   4.435 

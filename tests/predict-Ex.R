@@ -61,7 +61,7 @@ p1 <- predict(mod, newdata = nd, type = "density")
 p2 <- dfun(nd)
 max(abs(c(p1) - c(p2)))
 
-p1 <- predict(mod, newdata = nd, type = "quantile", p = 1:9 / 10, K = 50000)
+p1 <- predict(mod, newdata = nd, type = "quantile", prob = 1:9 / 10, K = 50000)
 
 min(apply(matrix(p1, nrow = 9), 2, diff))
 

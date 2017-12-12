@@ -33,7 +33,7 @@ all.equal(p1[cbind(1:n, 1:n, 1), drop = TRUE],
 all.equal(p1[cbind(1:n, 1:n, 1:n), drop = TRUE],
           drop(p), check.attributes = FALSE)
 
-predict(mod, newdata = list(x1 = 1:3, x2 = 2:3), p = c(.25, .5), type = "quantile")
+predict(mod, newdata = list(x1 = 1:3, x2 = 2:3), prob = c(.25, .5), type = "quantile")
 
 simulate(mod, nsim = 1, seed = 291, interpolate = FALSE)
 
@@ -48,7 +48,7 @@ mod2 <- mlt(ctm(r, shift = ~ x1 + x2, data = d), data = d)
 
 predict(mod2, q = unique(d$y))
 
-predict(mod2, p = 1:9 / 10, type = "quantile")
+predict(mod2, prob = 1:9 / 10, type = "quantile")
 
 simulate(mod2, nsim = 3, seed = 29)
 

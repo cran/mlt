@@ -154,6 +154,13 @@ R.default <- function(object, ...)
     stopifnot(length(n) <= 2)
     if (length(n) == 2) stopifnot(min(n) == 1)
 
+    if (all(sapply(args, function(x) all(is.na(x))))) {
+        args$approxy <- NA
+        ret <- do.call("as.data.frame", list(x = args))
+        class(ret) <- c("response", class(ret))
+        return(ret[, c("tleft", "cleft", "exact", "cright", "tright", "approxy"), drop = FALSE])
+    }
+
     ret <- do.call("as.data.frame", list(x = args))
     if (is.null(ret$exact)) ret$exact <- NA
     if (is.null(ret$cleft) || all(is.na(ret$cleft))) {

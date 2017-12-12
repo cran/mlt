@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -68,18 +68,6 @@ In c.basis(bresponse = response, bshifting = shifting) :
 > 
 > Bb <- Bernstein_basis(numeric_var("x", support = c(0, 2*pi)), order = 10)
 > m <- ctm(lin, interacting = Bb)
-Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
- target signature 'ddiMatrix#ddiMatrix'.
- "Matrix#diagonalMatrix" would also be valid
-Note: method with signature 'TsparseMatrix#sparseMatrix' chosen for function 'kronecker',
- target signature 'dtTMatrix#ddiMatrix'.
- "Matrix#diagonalMatrix" would also be valid
-Note: method with signature 'Matrix#numLike' chosen for function '%*%',
- target signature 'dgTMatrix#numeric'.
- "TsparseMatrix#ANY" would also be valid
-Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
- target signature 'dgTMatrix#matrix'.
- "TsparseMatrix#ANY" would also be valid
 > 
 > o <- mlt(m, data = d)
 > 
@@ -92,4 +80,4 @@ Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
 > 
 > proc.time()
    user  system elapsed 
-  1.536   0.036   1.571 
+  4.068   0.208   4.269 

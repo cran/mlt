@@ -1,5 +1,5 @@
 
-R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -126,9 +126,6 @@ Loading required package: variables
 > m <- ctm(response = Bb, 
 +            interacting = as.basis(~ g, data = mydata),
 +            todist = "MinExtrVal")
-Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'kronecker',
- target signature 'dgTMatrix#dgCMatrix'.
- "TsparseMatrix#sparseMatrix" would also be valid
 > coef(opt <- mlt(m, data = mydata, maxit = 5000))
 Bs1(y):(Intercept) Bs2(y):(Intercept) Bs3(y):(Intercept) Bs4(y):(Intercept) 
         -1.9230568          1.0990253          1.0990253          1.0990253 
@@ -159,4 +156,4 @@ Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2
 > 
 > proc.time()
    user  system elapsed 
-  2.928   0.036   2.963 
+  5.664   0.204   5.857 

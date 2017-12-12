@@ -14,13 +14,13 @@
 \usage{
 \method{plot}{ctm}(x, newdata, type = c("distribution", "survivor", "density", 
      "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
-     q = NULL, p = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, 
+     q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, 
      ...)
 \method{plot}{mlt}(x, ...)
 \method{predict}{ctm}(object, newdata, type = c("trafo", "distribution", 
          "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", 
          "quantile"), terms = c("bresponse", "binteracting", "bshifting"), 
-         q = NULL, p = NULL, K = 50, interpolate = TRUE, ...)
+         q = NULL, prob = NULL, K = 50, interpolate = TRUE, ...)
 \method{predict}{mlt}(object, newdata = object$data, ...)
 \method{simulate}{ctm}(object, nsim = 1, seed = NULL, newdata, K = 50, q = NULL,
          interpolate = TRUE, bysim = TRUE, ...)
@@ -33,7 +33,7 @@
   \item{newdata}{an optional data frame of observations}
   \item{type}{type of prediction or plot to generate}
   \item{q}{quantiles at which to evaluate the model}
-  \item{p}{probabilities for the evaluation of the quantile function (\code{type = "quantile"})}
+  \item{prob}{probabilities for the evaluation of the quantile function (\code{type = "quantile"})}
   \item{terms}{terms to evaluate for the predictions, corresponds to the argument
      \code{response}, \code{interacting} and \code{shifting} in \code{\link{ctm}}}
   \item{K}{number of grid points to generate (in the absence of \code{q})}

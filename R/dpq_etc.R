@@ -181,29 +181,29 @@ Hmlt <- function(object, newdata = NULL, q = NULL, ...)
 }
 
 ### quantile function
-qmlt <- function(object, newdata = NULL, p = .5, n = 50, 
+qmlt <- function(object, newdata = NULL, q = NULL, prob = .5, n = 50, 
                  interpolate = TRUE, ...) {
 
     y <- variable.names(object, "response")
-    ### don't accept user-generated quantiles
-    q <- mkgrid(object, n = n)[[y]]
+    if (is.null(q))
+        q <- mkgrid(object, n = n)[[y]]
     if (!is.null(newdata) & !is.data.frame(newdata)) {
         newdata[[y]] <- NULL
         nm <- names(newdata)
         newdata[[y]] <- q
         newdata <- newdata[c(y, nm)]
-        prob <- pmlt(object, newdata, ...)
+        qprob <- pmlt(object, newdata, ...)
     } else {
-        prob <- pmlt(object, newdata = newdata, q = q, ...)
+        qprob <- pmlt(object, newdata = newdata, q = q, ...)
     } 
 
     ### convert potential array-valued distribution function
     ### to matrix where rows correspond to observations newdata 
     ### and columns to quantiles q
-    ptmp <- t(matrix(prob, nrow = length(q)))
+    ptmp <- t(matrix(qprob, nrow = length(q)))
     nr <- nrow(ptmp)
-    ptmp <- ptmp[rep(1:nr, each = length(p)),,drop = FALSE]
-    pp <- rep(p, nr) ### p varies fastest
+    ptmp <- ptmp[rep(1:nr, each = length(prob)),,drop = FALSE]
+    pp <- rep(prob, nr) ### prob varies fastest
     discrete <- !inherits(as.vars(object)[[y]],
                           "continuous_var")
     bounds <- bounds(as.vars(object)[[y]])[[1]]
@@ -217,9 +217,9 @@ qmlt <- function(object, newdata = NULL, p = .5, n = 50,
     if (!interpolate || inherits(ret, "response")) 
         return(ret)
 
-    dim <- dim(prob)
-    dim[1] <- length(p)
-    dn <- c(list(p = .frmt(p)), dimnames(prob)[-1])
+    dim <- dim(qprob)
+    dim[1] <- length(prob)
+    dn <- c(list(prob = .frmt(prob)), dimnames(qprob)[-1])
     return(array(ret, dim = dim, dimnames = dn))
 }
 

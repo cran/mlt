@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -88,7 +88,7 @@ Loading required package: variables
 > max(abs(c(p1) - c(p2)))
 [1] 3.552714e-15
 > 
-> p1 <- predict(mod, newdata = nd, type = "quantile", p = 1:9 / 10, K = 50000)
+> p1 <- predict(mod, newdata = nd, type = "quantile", prob = 1:9 / 10, K = 50000)
 > 
 > min(apply(matrix(p1, nrow = 9), 2, diff))
 [1] 0.02533471
@@ -103,30 +103,6 @@ Loading required package: variables
 > mctm <- ctm(Bernstein_basis(yvar, order = 2, ui = "increasing"),
 +             interacting = b(b1 = b1, b2 = b2),
 +             shifting = ~x, data = nd)
-Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
- target signature 'ddiMatrix#ddiMatrix'.
- "Matrix#diagonalMatrix" would also be valid
-Note: method with signature 'TsparseMatrix#sparseMatrix' chosen for function 'kronecker',
- target signature 'dtTMatrix#ddiMatrix'.
- "Matrix#diagonalMatrix" would also be valid
-Note: method with signature 'Matrix#numLike' chosen for function '%*%',
- target signature 'dgTMatrix#numeric'.
- "TsparseMatrix#ANY" would also be valid
-Note: method with signature 'sparseMatrix#matrix' chosen for function '%*%',
- target signature 'dgTMatrix#matrix'.
- "TsparseMatrix#ANY" would also be valid
-Note: method with signature 'diagonalMatrix#Matrix' chosen for function 'kronecker',
- target signature 'ddiMatrix#dgCMatrix'.
- "ANY#sparseMatrix" would also be valid
-Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'kronecker',
- target signature 'dtTMatrix#dgCMatrix'.
- "TsparseMatrix#sparseMatrix" would also be valid
-Note: method with signature 'Matrix#diagonalMatrix' chosen for function 'kronecker',
- target signature 'dgCMatrix#ddiMatrix'.
- "sparseMatrix#ANY" would also be valid
-Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'kronecker',
- target signature 'dgCMatrix#dtTMatrix'.
- "sparseMatrix#TsparseMatrix" would also be valid
 > m <- mlt(mctm, data = nd, scale = TRUE)
 > ## in-sample predictions (for given response)
 > p1 <- predict(m)
@@ -143,4 +119,4 @@ Note: method with signature 'dsparseMatrix#dsparseMatrix' chosen for function 'k
 > 
 > proc.time()
    user  system elapsed 
-  2.096   0.068   2.159 
+  4.200   0.564   4.773 

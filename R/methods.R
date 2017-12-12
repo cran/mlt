@@ -170,7 +170,7 @@ summary.mlt <- function(object, ...) {
                 convergence = object$convergence,
                 type = paste(description(object), collapse = "\n\t"),
                 logLik = logLik(object),
-                AIC = AIC(object),
+#                AIC = AIC(object),
                 coef = coef(object))
     class(ret) <- "summary.mlt"
     ret
@@ -183,7 +183,7 @@ print.summary.mlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...
     if (x$convergence != 0L)
     cat("\nCould not estimate parameters; optimisation did not converge!\n")
     cat("\nType: ", x$type)
-    cat("\nAIC: ", x$AIC)
+#    cat("\nAIC: ", x$AIC)
     cat("\nLog-Likelihood: ", x$logLik, " (df = ", attr(x$logLik, "df"), ")", sep = "")
     cat("\n")
     cat("\nCoefficients:", x$coef)

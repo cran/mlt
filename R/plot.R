@@ -1,7 +1,7 @@
 
 plot.ctm <- function(x, newdata, type = c("distribution",
     "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
-    q = NULL, p = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, ...) {
+    q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, ...) {
 
     args <- list(...)
     y <- variable.names(x, "response")
@@ -9,7 +9,7 @@ plot.ctm <- function(x, newdata, type = c("distribution",
     if (is.null(q))
         q <- mkgrid(x, n = K)[[y]]
     type <- match.arg(type)
-    pr <- predict(x, newdata = newdata, type = type, q = q, p = p)
+    pr <- predict(x, newdata = newdata, type = type, q = q, prob = prob)
     pr[!is.finite(pr)] <- NA
     rpr <- range(pr, na.rm = TRUE)
     if (is.null(dim(pr))) pr <- matrix(pr, ncol = 1)
@@ -21,7 +21,7 @@ plot.ctm <- function(x, newdata, type = c("distribution",
                          rpr)
     if (!is.null(args$ylim)) ylim <- args$ylim
     if (type == "quantile")  {
-        q <- p
+        q <- prob
         if (is.null(args$xlab)) args$xlab <- type
         if (is.null(args$ylab)) args$ylab <- y
     }

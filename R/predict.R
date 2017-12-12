@@ -1,14 +1,14 @@
 
 predict.ctm <- function(object, newdata, type = c("trafo", "distribution", "survivor", 
     "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile"), 
-    terms = c("bresponse", "binteracting", "bshifting"), q = NULL, p = NULL, K = 50,
+    terms = c("bresponse", "binteracting", "bshifting"), q = NULL, prob = NULL, K = 50,
     interpolate = TRUE, ...) {
 
     type <- match.arg(type)
     terms <- match.arg(terms, several.ok = TRUE)
 
     if (type == "quantile")
-        stopifnot(!is.null(p) && (min(p) > 0 & max(p) < 1))
+        stopifnot(!is.null(prob) && (min(prob) > 0 & max(prob) < 1))
 
     y <- variable.names(object, "response")
     if (!missing(newdata)) {
@@ -34,8 +34,8 @@ predict.ctm <- function(object, newdata, type = c("trafo", "distribution", "surv
         "hazard" = hmlt(object = object, newdata = newdata, q = q, log = FALSE, ...),
         "loghazard" = hmlt(object = object, newdata = newdata, q = q, log = TRUE, ...),
         "cumhazard" = Hmlt(object = object, newdata = newdata, q = q, ...),
-        "quantile" = qmlt(object = object, newdata = newdata, n = K,
-                          p = p, interpolate = interpolate, ...))
+        "quantile" = qmlt(object = object, newdata = newdata, q = q, n = K,
+                          prob = prob, interpolate = interpolate, ...))
 
     return(ret)
 }
