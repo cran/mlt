@@ -57,7 +57,8 @@ Gradient.mlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
     as.vector(colSums(estfun(object, parm = parm)))
 }
 
-vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
+vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), complete = FALSE, ...) {
+    ### <FIXME> implement complete argument </FIXME>
     args <- list(...)
     if (length(args) > 0)
         warning("Arguments ", names(args), " are ignored")

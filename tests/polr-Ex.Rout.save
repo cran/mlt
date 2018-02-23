@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -48,7 +48,7 @@ InflMedium   InflHigh
  -0.2013727   0.9484658 
 > coef(mod)
       Sat1       Sat2 InflMedium   InflHigh 
--0.2013763  0.9484755 -0.5635788 -1.2486722 
+-0.2013763  0.9484755 -0.5635788 -1.2486721 
 > 
 > sqrt(diag(vcov(mp)))
 
@@ -62,4 +62,4 @@ Re-fitting to get Hessian
 > 
 > proc.time()
    user  system elapsed 
-  0.876   0.004   0.878 
+  1.292   0.036   1.327 

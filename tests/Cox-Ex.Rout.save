@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -94,7 +94,7 @@ Loading required package: variables
 > mydata <- data.frame(y = Surv(y, sample(0:1, length(y), replace = TRUE)), g = g)
 > coef(opt <- mlt(m, data = mydata))
     log(y)     Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y) 
- 0.8441462 -1.0131057 -0.5798051 -0.5798052 -0.5798053 -0.5798053 -0.4202417 
+ 0.8441462 -1.0131057 -0.5798051 -0.5798052 -0.5798053 -0.5798052 -0.4202417 
         g2         g3 
  0.7099727  1.0854685 
 > coef(cph <- coxph(y ~ g, data = mydata))
@@ -128,15 +128,15 @@ Loading required package: variables
 +            todist = "MinExtrVal")
 > coef(opt <- mlt(m, data = mydata, maxit = 5000))
 Bs1(y):(Intercept) Bs2(y):(Intercept) Bs3(y):(Intercept) Bs4(y):(Intercept) 
-        -1.9230568          1.0990253          1.0990253          1.0990253 
+        -1.9229182          1.0990277          1.0990277          1.0990277 
 Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2 
-         1.0990253          2.5868499          0.2141717          1.3682212 
+         1.0990277          2.5875130          0.2139591          1.3682876 
          Bs3(y):g2          Bs4(y):g2          Bs5(y):g2          Bs6(y):g2 
-         1.3682213          1.3682213          1.3682213         -0.1196027 
+         1.3682877          1.3682877          1.3682877         -0.1201976 
          Bs1(y):g3          Bs2(y):g3          Bs3(y):g3          Bs4(y):g3 
-         0.5177901          1.7839260          1.7839260          1.7839261 
+         0.5176031          1.7839729          1.7839730          1.7839730 
          Bs5(y):g3          Bs6(y):g3 
-         1.7839261          0.2963924 
+         1.7839730          0.2954877 
 > coef(cph <- coxph(Surv(y, rep(TRUE, nrow(mydata))) ~ g, data = mydata))
       g2       g3 
 0.699808 1.022699 
@@ -156,4 +156,4 @@ Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2
 > 
 > proc.time()
    user  system elapsed 
-  5.664   0.204   5.857 
+  3.080   0.040   3.117 

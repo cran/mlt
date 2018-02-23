@@ -32,7 +32,13 @@
         .parm <- function(beta) {
             ret <- numeric(ncol(Y))
             ret[fix] <- fixed
-            ret[!fix] <- beta
+            if (is.matrix(beta)) {
+                ret <- matrix(ret, nrow = 1)
+                ret <- ret[rep(1L, NROW(beta)),,drop = FALSE]
+                ret[,!fix] <- beta
+            } else {
+                ret[!fix] <- beta
+            }
             ret
         }
     } else {
@@ -83,34 +89,52 @@
         return(list(
             ll = function(beta) {
                 ret <- ret_ll 
+                if (is.matrix(beta)) {
+                    beta_ex <- beta[es$full_ex,,drop = FALSE]
+                    beta_nex <- beta[es$full_nex,,drop = FALSE]
+                } else {
+                    beta_ex <- beta_nex <- beta
+                }
                 if (!is.null(es$full_ex))
                     ret[es$full_ex] <- .mlt_loglik_exact(todistr, 
-                        exY, exYprime, exoffset, extrunc)(.parm(beta))
+                        exY, exYprime, exoffset, extrunc)(.parm(beta_ex))
                 if (!is.null(es$full_nex))
                     ret[es$full_nex] <- .mlt_loglik_interval(todistr, 
-                        iYleft, iYright, ioffset, itrunc)(.parm(beta))
+                        iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
                 return(ret)
             },
             sc = function(beta) {
                 ret <- ret_sc 
+                if (is.matrix(beta)) {
+                    beta_ex <- beta[es$full_ex,,drop = FALSE]
+                    beta_nex <- beta[es$full_nex,,drop = FALSE]
+                } else {
+                    beta_ex <- beta_nex <- beta
+                }
                 if (!is.null(es$full_ex))
                     ret[es$full_ex,] <- .mlt_score_exact(todistr, 
-                        exY, exYprime, exoffset, extrunc)(.parm(beta))
+                        exY, exYprime, exoffset, extrunc)(.parm(beta_ex))
                 if (!is.null(es$full_nex))
                     ret[es$full_nex,] <- .mlt_score_interval(todistr, 
-                        iYleft, iYright, ioffset, itrunc)(.parm(beta))
+                        iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
                 return(ret[, !fix, drop = FALSE])
             },
             he = function(beta) {
                 ret <- 0
+                if (is.matrix(beta)) {
+                    beta_ex <- beta[es$full_ex,,drop = FALSE]
+                    beta_nex <- beta[es$full_nex,,drop = FALSE]
+                } else {
+                    beta_ex <- beta_nex <- beta
+                }
                 if (!is.null(es$full_ex))
                     ret <- ret + .mlt_hessian_exact(todistr, 
                         exY, exYprime, exoffset, extrunc, 
-                        exweights)(.parm(beta))
+                        exweights)(.parm(beta_ex))
                 if (!is.null(es$full_nex))
                     ret <- ret + .mlt_hessian_interval(todistr, 
                         iYleft, iYright, ioffset, itrunc, 
-                        iweights)(.parm(beta))
+                        iweights)(.parm(beta_nex))
                 return(ret[!fix, !fix, drop = FALSE])
             })
         )
@@ -258,7 +282,8 @@
     }
 
     if (!is.null(ui)) {    
-        ret <- solve.QP(Dmat, dvec, t(ui), ci, meq = 0)$solution
+        ret <- c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)
+        ### was: solve.QP(Dmat, dvec, t(ui), ci, meq = 0)$solution
     } else {
         ret <- lm.fit(x = X, y = Z)$coef
     }

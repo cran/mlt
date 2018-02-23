@@ -10,7 +10,8 @@ importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "lm.fit", "plogis", "pnorm", "predict", "qlogis", "qnorm",
            "runif", "stepfun", "weights", "approxfun", "xtabs")
 
-importFrom("quadprog", "solve.QP")
+# importFrom("quadprog", "solve.QP")
+importFrom("coneproj", "qprog")
 importFrom("grDevices", "rgb")
 importFrom("graphics", "axis", "box", "lines", "plot")
 importFrom("methods", "as")

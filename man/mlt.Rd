@@ -36,9 +36,9 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
 }
 \references{
 
-  Torsten Hothorn, Lisa Moest, Peter Buehlmann (2017), Most Likely
-  Transformations, \emph{Scandinavian Journal of Statistics}, 
-  \url{http://dx.doi.org/10.1111/sjos.12291}.
+  Torsten Hothorn, Lisa Moest, Peter Buehlmann (2018), Most Likely
+  Transformations, \emph{Scandinavian Journal of Statistics}, \bold{45}(1),
+  110--134, \doi{10.1111/sjos.12291}.
 
 }
 \examples{

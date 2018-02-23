@@ -27,7 +27,7 @@
 coef(object) <- value
 \method{weights}{mlt}(object, ...)
 \method{logLik}{mlt}(object, parm = coef(object, fixed = FALSE), w = weights(object), newdata, ...)
-\method{vcov}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
+\method{vcov}{mlt}(object, parm = coef(object, fixed = FALSE), complete = FALSE, ...)
 Hessian(object, ...)
 \method{Hessian}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
 Gradient(object, ...)
@@ -56,6 +56,7 @@ Gradient(object, ...)
   \item{subset}{an optional integer vector indicating the subset of
                 observations to be used for fitting.}
   \item{theta}{optional starting values for the model parameters}
+  \item{complete}{currently ignored}
   \item{\dots}{additional arguments}
 }
 \details{

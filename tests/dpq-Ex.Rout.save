@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -31,7 +31,7 @@ Loading required package: variables
 > mod <- mlt(m, data = d)
 > coef(mod)
  (Intercept)            y           x1           x2 
--0.605727929  1.055386378  0.027840842  0.006260632 
+-0.605727928  1.055386378  0.027840842  0.006260632 
 > 
 > p <- predict(mod, newdata = d)
 > 
@@ -176,4 +176,4 @@ Levels: 1 < 2 < 3
 > 
 > proc.time()
    user  system elapsed 
-  3.232   0.168   3.390 
+  1.848   0.028   1.874 

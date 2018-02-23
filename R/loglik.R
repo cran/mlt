@@ -1,10 +1,18 @@
 
+.xmb <- function(X, beta) {
+    if (is.matrix(beta)) {
+        stopifnot(NROW(beta) == NROW(X))
+        return(rowSums(as(X, "matrix") * beta))
+    }
+    return(X %*% beta)
+}
+
 ### if (finite) fun(X %*% beta + offset) * Xmult else value
 .dealinf <- function(X, beta, offset, fun, value, Xmult = FALSE) {
     if (is.null(X)) return(value)
     OK <- is.finite(X[,1])
     if (all(!OK)) return(rep(value, nrow(X)))
-    tmp <- X[OK,] %*% beta
+    tmp <- .xmb(X[OK,], beta)
     ret <- numeric(nrow(X))
     ret[OK] <- fun(offset[OK] + tmp)
     ret[!OK] <- value
@@ -97,18 +105,18 @@
 .mlt_loglik_exact <- function(d, mm, mmprime, offset = 0, mmtrunc = NULL) {
     if (is.null(mmtrunc)) 
         return(function(beta)
-            d$d(offset + mm %*% beta, log = TRUE) + .log(mmprime %*% beta))
+            d$d(offset + .xmb(mm, beta), log = TRUE) + .log(.xmb(mmprime, beta)))
     return(function(beta)
-               d$d(offset + mm %*% beta, log = TRUE) + .log(mmprime %*% beta) - 
+               d$d(offset + .xmb(mm, beta), log = TRUE) + .log(.xmb(mmprime, beta)) - 
                ..mlt_loglik_interval(d, mmtrunc$left, 
                                      mmtrunc$right, offset, beta))
 }
 
 .mlt_score_exact <- function(d, mm, mmprime, offset = 0, mmtrunc = NULL) {                          
     function(beta) {
-        mmb <- c(mm %*% beta) + offset
+        mmb <- c(.xmb(mm, beta)) + offset
         ret <- d$dd(mmb) / d$d(mmb) * mm + 
-               (1 / c(mmprime %*% beta)) * mmprime
+               (1 / c(.xmb(mmprime, beta))) * mmprime
         if (!is.null(mmtrunc))
             ret <- ret - ..mlt_score_interval(d, mmtrunc$left, 
                                               mmtrunc$right, offset, beta) 
@@ -119,10 +127,10 @@
 .mlt_hessian_exact <- function(d, mm, mmprime, offset = 0, mmtrunc = NULL, 
                                w = 1) {
     function(beta) {
-        mmb <- c(mm %*% beta) + offset
+        mmb <- c(.xmb(mm, beta)) + offset
         if (length(w) != length(mmb)) w <- rep(w, length(mmb))
         w1 <- -(d$ddd(mmb) / d$d(mmb) - (d$dd(mmb) / d$d(mmb))^2) * w
-        w2 <- w / (c(mmprime %*% beta)^2)
+        w2 <- w / (c(.xmb(mmprime, beta))^2)
         ret <- crossprod(mm * w1, mm) + crossprod(mmprime * w2, mmprime) 
         if (!is.null(mmtrunc))
             ret <- ret - ..mlt_hessian_interval(d, mmtrunc$left, 

@@ -2,6 +2,16 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 0.2-2 (2018-02-23)}{
+  \itemize{
+    \item{Use \pkg{coneprog} for getting the starting values.}
+    \item{\code{logLik} and \code{estfun} accept matrices as \code{parm}
+          argument for the evalution of log-likelihoods and scores
+          with subject-specific parameters (for example in transformation
+          trees or forests and boosting procedures.}
+  }
+}
+
 \section{Changes in Version 0.2-1 (2017-12-12)}{
   \itemize{
     \item{\code{q} is forwarded to \code{qmlt} by \code{predict.ctm} now.}
@@ -9,6 +19,7 @@
     \item{Update citation.}
   }
 }
+
 
 \section{Changes in Version 0.2-0 (2017-06-20)}{
   \itemize{

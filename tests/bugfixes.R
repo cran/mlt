@@ -50,6 +50,12 @@ m <- ctm(basis_y, shift = xfm, data = bodyfat)
 mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
 summary(mod)
 
+### parm can be a matrix with subject-specific parameters
+parm <- matrix(coef(mod), nrow = 1L)
+parm <- parm[rep(1, NROW(bodyfat)),]
+all.equal(logLik(mod), logLik(mod, parm = parm))
+all.equal(estfun(mod), estfun(mod, parm = parm))
+
 ### check for only left/right censoring before fitting
 y <- bodyfat$DEXfat
 sF <- rep(FALSE, length(y))
@@ -57,3 +63,17 @@ library("survival")
 bodyfat$DEXfat <- Surv(y, sF)
 mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
 mod$convergence
+
+
+### just in case: check for new intercept_basis (basefun 0.0-39)
+d <- data.frame(y = rnorm(100, mean = 2, sd = .25))
+m <- ctm(as.basis(~ y, data = d, remove_intercept = TRUE, ui = matrix(1), ci = 0), 
+         shifting = intercept_basis(), todistr = "Normal")
+f <- mlt(m, data = d, scale = TRUE)
+
+m2 <- ctm(as.basis(~ y, data = d, ui = matrix(c(0, 1), nr = 1), ci = 0), todistr = "Normal")
+f2 <- mlt(m2, data = d, scale = TRUE)
+stopifnot(all.equal(coef(f), coef(f2)[2:1]))
+stopifnot(all.equal(logLik(f), logLik(f2)))
+stopifnot(all.equal(estfun(f), estfun(f2)[,2:1]))
+
