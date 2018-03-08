@@ -1,4 +1,4 @@
-c29e5263f66e742afe3ce1727d2f707b *DESCRIPTION
+8b1cdb5b3344041c41dfe6e9f5c71019 *DESCRIPTION
 1f97bf60c522ccc9839b83764c77a64f *NAMESPACE
 08dd2a703fad942f35c362c396516697 *R/R.R
 9a8ade15602182c7afc37f3db140745a *R/confband.R
@@ -13,15 +13,16 @@ a526f8fd5736d1cd939a3faf7e9ceb8d *R/plot.R
 f6a0fb6c4b94758941cd34246eb98bed *R/predict.R
 47bd871e9e2b89abb506e5b04b349f79 *R/sample.R
 514ae5ccf7ba2841bda0c0b2e358b2ce *R/utils.R
-02507cfa61ca2b5d04e1217d4e1f3beb *build/partial.rdb
+a110fbc58c87acf7d389a494a036c625 *build/partial.rdb
 1c9695dee7162d6e72883b552906e753 *cleanup
-ea3d0ff6e82a48ee835de4fa524ee546 *inst/NEWS.Rd
+bd2fc3a6b9c7a8b088a7ee95e6206d41 *inst/CITATION
+61fa752c0148260ac3eed3fd7eebf06d *inst/NEWS.Rd
 6d496c7187f177a4fdba17261a874bb9 *man/R.Rd
 4141097f19682037945cf253537240c9 *man/confband.Rd
 b211532488e33a74047c6cbdce2e3246 *man/ctm-methods.Rd
 86dc3eca8feca2b353f548e273cc57bb *man/ctm.Rd
 cccb31f09e13ed5300eaf1d5809c0afb *man/mlt-methods.Rd
-d0b18b85a21d15fc10e28a9b51ddcc39 *man/mlt-package.Rd
+3338817cb685f7ed177fc68d2b6ad4b5 *man/mlt-package.Rd
 7b014dbd0c14f334617ec2d927438be3 *man/mlt.Rd
 0a76b574965ebcd012dbc1273171f4f0 *man/mltoptim.Rd
 ad5317ce694bb4bd0dfb9eb6af3a074e *man/predict.Rd
