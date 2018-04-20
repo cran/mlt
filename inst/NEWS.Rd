@@ -2,6 +2,16 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.0-1 (2018-04-20)}{
+  \itemize{
+    \item{\code{estfun, parm = coef(object, fixed = TRUE))} evaluates
+          scores for all model parameters, including fixed ones.}
+    \item{\code{logLik(..., newdata, w)} ignored weights \code{w} when
+          \code{newdata} was given. Same problem was also fixed for
+          \code{estfun}.}
+  }
+}
+
 \section{Changes in Version 1.0-0 (2018-03-07)}{
   \itemize{
     \item{A paper describing version 1.0-0 of the \pkg{mlt}, \pkg{basefun}, and

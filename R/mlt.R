@@ -30,6 +30,12 @@
         fix <- colnames(Y) %in% names(fixed)
         ui <- ui[,!fix,drop = FALSE]
         .parm <- function(beta) {
+            nm <- names(beta)
+            if (is.matrix(beta)) nm <- colnames(beta)
+            ### check if beta already contains fix 
+            ### parameters
+            if (all(names(fixed) %in% nm))
+                return(beta)
             ret <- numeric(ncol(Y))
             ret[fix] <- fixed
             if (is.matrix(beta)) {
@@ -108,8 +114,10 @@
                 if (is.matrix(beta)) {
                     beta_ex <- beta[es$full_ex,,drop = FALSE]
                     beta_nex <- beta[es$full_nex,,drop = FALSE]
+                    nm <- colnames(beta)
                 } else {
                     beta_ex <- beta_nex <- beta
+                    nm <- names(beta)
                 }
                 if (!is.null(es$full_ex))
                     ret[es$full_ex,] <- .mlt_score_exact(todistr, 
@@ -117,6 +125,13 @@
                 if (!is.null(es$full_nex))
                     ret[es$full_nex,] <- .mlt_score_interval(todistr, 
                         iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
+                colnames(ret) <- colnames(Y)
+                ### in case beta contains fix parameters,
+                ### return all scores
+                if (!is.null(fixed)) {
+                    if (all(names(fixed) %in% nm))
+                        return(ret)
+                }
                 return(ret[, !fix, drop = FALSE])
             },
             he = function(beta) {
@@ -135,6 +150,7 @@
                     ret <- ret + .mlt_hessian_interval(todistr, 
                         iYleft, iYright, ioffset, itrunc, 
                         iweights)(.parm(beta_nex))
+                colnames(ret) <- rownames(ret) <- colnames(Y)
                 return(ret[!fix, !fix, drop = FALSE])
             })
         )

@@ -12,6 +12,8 @@
     if (is.null(X)) return(value)
     OK <- is.finite(X[,1])
     if (all(!OK)) return(rep(value, nrow(X)))
+    if (is.matrix(beta)) 
+        beta <- beta[OK,,drop = FALSE]
     tmp <- .xmb(X[OK,], beta)
     ret <- numeric(nrow(X))
     ret[OK] <- fun(offset[OK] + tmp)

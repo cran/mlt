@@ -26,14 +26,14 @@
 \method{coef}{mlt}(object, fixed = TRUE, ...)
 coef(object) <- value
 \method{weights}{mlt}(object, ...)
-\method{logLik}{mlt}(object, parm = coef(object, fixed = FALSE), w = weights(object), newdata, ...)
+\method{logLik}{mlt}(object, parm = coef(object, fixed = FALSE), w = NULL, newdata, ...)
 \method{vcov}{mlt}(object, parm = coef(object, fixed = FALSE), complete = FALSE, ...)
 Hessian(object, ...)
 \method{Hessian}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
 Gradient(object, ...)
 \method{Gradient}{mlt}(object, parm = coef(object, fixed = FALSE), ...)
 \method{estfun}{mlt}(object, parm = coef(object, fixed = FALSE),
-       w = weights(object), newdata, ...)
+       w = NULL, newdata, ...)
 \method{mkgrid}{mlt}(object, n, ...)
 \method{bounds}{mlt}(object)
 \method{variable.names}{mlt}(object, ...)
