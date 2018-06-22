@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -84,4 +84,4 @@ y:(Intercept)
 > 
 > proc.time()
    user  system elapsed 
-  0.852   0.028   0.879 
+  2.996   0.052   3.053 

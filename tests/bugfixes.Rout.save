@@ -37,16 +37,16 @@ Loading required package: variables
 > (p <- predict(mltm2, newdata = data.frame(x1=0, x2 = 0), q = mkgrid(mltm2, n = 10)[["y"]]))
         
 y              [,1]
-  -2.43  -2.4274703
-  -1.92  -1.7818099
-   -1.4  -1.1662219
-  -0.89  -0.6069049
-  -0.375 -0.1117215
-  0.139   0.3298015
-  0.654   0.7464735
-   1.17   1.1854395
-   1.68   1.7121806
-    2.2   2.4105136
+  -2.43  -2.4279556
+  -1.92  -1.7822417
+   -1.4  -1.1665552
+  -0.89  -0.6071155
+  -0.375 -0.1117967
+  0.139   0.3298724
+  0.654   0.7467080
+   1.17   1.1858717
+   1.68   1.7128702
+    2.2   2.4115555
 > ### plot data
 > plot(mltm2,newdata=expand.grid(x1=0:1, x2 = 0:1))
 > 
@@ -122,7 +122,15 @@ In .checkR(y, weights) : response contains left-censored observations only
 > stopifnot(all.equal(logLik(f), logLik(f2)))
 > stopifnot(all.equal(estfun(f), estfun(f2)[,2:1]))
 > 
+> ### new shortcut
+> x <- rnorm(100)
+> stopifnot(all.equal(mlt:::.Normal()$dd2d(x), 
++                     mlt:::.Normal()$dd(x) / mlt:::.Normal()$d(x)))
+> stopifnot(all.equal(mlt:::.Logistic()$dd2d(x), 
++                     mlt:::.Logistic()$dd(x) / mlt:::.Logistic()$d(x)))
+> stopifnot(all.equal(mlt:::.MinExtrVal()$dd2d(x), 
++                     mlt:::.MinExtrVal()$dd(x) / mlt:::.MinExtrVal()$d(x)))
 > 
 > proc.time()
    user  system elapsed 
-  2.460   0.024   2.482 
+  2.672   0.048   2.717 

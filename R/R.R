@@ -79,7 +79,7 @@ R.ordered <- function(object, cleft = NA, cright = NA, ...) {
     ret$exact <- NA
     ret[ret$cright == lev[nlevels(object)], "cright"] <- NA
     attr(ret, "prob") <- function(weights) {
-        prt <- prop.table(xtabs(weights ~ object))
+        prt <- cumsum(prop.table(xtabs(weights ~ object)))
         function(y) prt[y]
     }
     ret

@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2017-11-29 r73789) -- "Unsuffered Consequences"
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -119,4 +119,4 @@ Loading required package: variables
 > 
 > proc.time()
    user  system elapsed 
-  4.200   0.564   4.773 
+  3.760   0.104   3.864 

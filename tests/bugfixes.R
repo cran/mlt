@@ -77,3 +77,11 @@ stopifnot(all.equal(coef(f), coef(f2)[2:1]))
 stopifnot(all.equal(logLik(f), logLik(f2)))
 stopifnot(all.equal(estfun(f), estfun(f2)[,2:1]))
 
+### new shortcut
+x <- rnorm(100)
+stopifnot(all.equal(mlt:::.Normal()$dd2d(x), 
+                    mlt:::.Normal()$dd(x) / mlt:::.Normal()$d(x)))
+stopifnot(all.equal(mlt:::.Logistic()$dd2d(x), 
+                    mlt:::.Logistic()$dd(x) / mlt:::.Logistic()$d(x)))
+stopifnot(all.equal(mlt:::.MinExtrVal()$dd2d(x), 
+                    mlt:::.MinExtrVal()$dd(x) / mlt:::.MinExtrVal()$d(x)))

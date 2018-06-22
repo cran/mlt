@@ -211,9 +211,9 @@ bounds.ctm <- function(object)
 bounds.mlt <- function(object)
     bounds(as.vars(object))
 
-print.response <- function(x, ...) {
+print.response <- function(x, digits = getOption("digits"), ...) {
 
-    ac <- as.character
+    ac <- function(x) format(c(x), digits = digits)
     obs <- paste(ifelse(!is.na(x$exact), ac(x$exact), 
                  paste("(", ac(x$cleft), ", ", ac(x$cright), "]", sep = "")))
 
@@ -225,13 +225,13 @@ print.response <- function(x, ...) {
     trc <- character(length(obs))
     i <- (!is.na(x$tleft) & is.na(x$tright))
     if (sum(i) > 0)
-        trc[i] <- paste("| >", x$tleft[i])
+        trc[i] <- paste("| >", ac(x$tleft[i]))
     i <- (is.na(x$tleft) & !is.na(x$tright))
     if (sum(i) > 0)
-        trc[i] <- paste("| <", x$tright[i])
+        trc[i] <- paste("| <", ac(x$tright[i]))
     i <- (!is.na(x$tleft) & !is.na(x$tright))
     if (sum(i) > 0)
-        trc[i] <- paste("| (", x$tleft[i], ", ", x$tright[i], "]", sep = "")
+        trc[i] <- paste("| (", ac(x$tleft[i]), ", ", ac(x$tright[i]), "]", sep = "")
     ret <- paste("{", obs, trc, "}", sep = "")
     print(ret, quote = FALSE, ...)
 }

@@ -109,8 +109,16 @@
                         iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
                 return(ret)
             },
-            sc = function(beta) {
-                ret <- ret_sc 
+            sc = function(beta, Xmult = TRUE) {
+                ### Xmult = FALSE means
+                ### score wrt to an intercept term. This avoids
+                ### multiplication with the whole design matrix.
+                ### Don't use on your own. 
+                if (Xmult) {
+                    ret <- ret_sc 
+                } else {
+                    ret <- ret_sc[,1,drop = FALSE]
+                }
                 if (is.matrix(beta)) {
                     beta_ex <- beta[es$full_ex,,drop = FALSE]
                     beta_nex <- beta[es$full_nex,,drop = FALSE]
@@ -121,10 +129,11 @@
                 }
                 if (!is.null(es$full_ex))
                     ret[es$full_ex,] <- .mlt_score_exact(todistr, 
-                        exY, exYprime, exoffset, extrunc)(.parm(beta_ex))
+                        exY, exYprime, exoffset, extrunc)(.parm(beta_ex), Xmult)
                 if (!is.null(es$full_nex))
                     ret[es$full_nex,] <- .mlt_score_interval(todistr, 
-                        iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
+                        iYleft, iYright, ioffset, itrunc)(.parm(beta_nex), Xmult)
+                if (!Xmult) return(ret)
                 colnames(ret) <- colnames(Y)
                 ### in case beta contains fix parameters,
                 ### return all scores

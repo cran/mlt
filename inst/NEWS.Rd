@@ -2,6 +2,18 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.0-2 (2018-06-22)}{
+  \itemize{
+    \item{Make sure transformation functions outside \code{bounds} are minus
+          or plus \code{Inf}.}
+    \item{Initial guestimates for ordered responses were incorrect
+          and may potentially have led to nonsense results.}
+    \item{Some smaller improvements in computation of log-likelihoods and
+          scores with respect to accuracy and speed.}
+    \item{\code{print} respects \code{options(digits)}.}
+  }
+}
+
 \section{Changes in Version 1.0-1 (2018-04-20)}{
   \itemize{
     \item{\code{estfun, parm = coef(object, fixed = TRUE))} evaluates
@@ -11,6 +23,7 @@
           \code{estfun}.}
   }
 }
+
 
 \section{Changes in Version 1.0-0 (2018-03-07)}{
   \itemize{

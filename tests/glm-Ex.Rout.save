@@ -1,5 +1,5 @@
 
-R version 3.3.3 (2017-03-06) -- "Another Canoe"
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
 Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -100,9 +100,9 @@ Warning messages:
   use scale = TRUE in as.basis.formula with sumcontr = TRUE
 > coef(m2)
 y1:(Intercept) y2:(Intercept) y3:(Intercept)          y1:V1          y2:V1 
-      9.642066      15.583823      17.447197     -17.893558     -19.588523 
+      9.642082      15.583592      17.447408     -17.893593     -19.588233 
          y3:V1 
-    -16.747785 
+    -16.747988 
 > logLik(m2)
 'log Lik.' -2556.062 (df=6)
 > 
@@ -113,7 +113,7 @@ y1:(Intercept) y2:(Intercept) y3:(Intercept)          y1:V1          y2:V1
 > pp1 <- predict(m1, newdata = x, type = "prob")
 > 
 > max(abs(pp1 - t(pp2)))
-[1] 0.01436823
+[1] 0.01437037
 > 
 > cf1 <- coef(glm(I(y %in% levels(y)[1]) ~ V1, data = x, family = binomial()))
 > cf2 <- coef(glm(I(y %in% levels(y)[1:2]) ~ V1, data = x, family = binomial()))
@@ -125,4 +125,4 @@ y1:(Intercept) y2:(Intercept) y3:(Intercept)          y1:V1          y2:V1
 > 
 > proc.time()
    user  system elapsed 
-  1.684   0.024   1.707 
+  2.656   0.072   2.729 

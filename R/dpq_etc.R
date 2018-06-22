@@ -41,7 +41,7 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
                 ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
                 b <- bounds(as.vars(object)[[y]])[[1]]
-                ret[f < (b[1] - .Machine$double.eps)] <- -Inf
+                ret[f < (b[1] + .Machine$double.eps)] <- -Inf
                 ret[f > (b[2] - .Machine$double.eps)] <- Inf
             }
             return(ret)
@@ -75,7 +75,7 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
             ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
             b <- bounds(as.vars(object)[[y]])[[1]]
-            ret[f < (b[1] - .Machine$double.eps)] <- -Inf
+            ret[f < (b[1] + .Machine$double.eps)] <- -Inf
             ret[f > (b[2] - .Machine$double.eps)] <- Inf
         }
         return(ret)
@@ -108,7 +108,7 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
         ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
         b <- bounds(as.vars(object)[[y]])[[1]]
-        i <- (f < (b[1] - .Machine$double.eps))
+        i <- (f < (b[1] + .Machine$double.eps))
         if (any(i)) {
             args <- lapply(names(dn), function(d) {
                 if (d == y)

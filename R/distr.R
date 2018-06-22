@@ -4,23 +4,28 @@
          ### see also MiscTools::ddnorm
          dd = function(x) -dnorm(x = x) * x,
          ddd = function(x) dnorm(x = x) * (x^2 - 1), 
+         dd2d = function(x) -x,
          name = "normal")
 
 .Logistic <- function()
     list(p = plogis, d = dlogis, q = qlogis,
          dd = function(x) {
              ex <- exp(x)
-             (ex - exp(2 * x)) / (1 + ex)^3
+             (ex - ex^2) / (1 + ex)^3
          },
          ddd = function(x) {
              ex <- exp(x)
-             (ex - 4*(exp(2 * x)) + exp(3 * x)) / (1 + ex)^4
+             (ex - 4 * ex^2 + ex^3) / (1 + ex)^4
+         },
+         dd2d = function(x) {
+             ex <- exp(x)
+             (1 - ex) / (1 + ex)
          },
          name = "logistic")
 
 .MinExtrVal <- function()
     list(p = function(x) 1 - exp(-exp(x)),
-         q = function(p) log(-log(1 - p)),
+         q = function(p) log(-log1p(- p)),
          d = function(x, log = FALSE) {
              ret <- x - exp(x)
              if (!log) return(exp(ret))
@@ -28,12 +33,14 @@
          },
          dd = function(x) {
              ex <- exp(x)
-             (ex - exp(2 * x)) / exp(ex)
+             (ex - ex^2) / exp(ex)
          },
          ddd = function(x) {
              ex <- exp(x)
-             (ex - 3*exp(2 * x) + exp(3 * x)) / exp(ex)
+             (ex - 3*ex^2 + ex^3) / exp(ex)
          },
+         dd2d = function(x)
+             1 - exp(x),
          name = "minimum extreme value")
 
 .distr <- function(which = c("Normal", "Logistic", 
@@ -41,3 +48,4 @@
     which <- match.arg(which)
     do.call(paste(".", which, sep = ""), list())
 }
+
