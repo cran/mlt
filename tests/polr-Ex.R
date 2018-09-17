@@ -25,3 +25,58 @@ coef(mod)
 
 sqrt(diag(vcov(mp)))
 sqrt(diag(vcov(mod)))
+
+mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "loglog")
+
+s <- as.basis(~ Infl, data = housing, remove_intercept = TRUE)
+r <- as.basis(housing$Sat)
+m <- ctm(r, shift = s, todist = "MaxExtrVal")
+
+mod <- mlt(m, data = housing, weights = housing$Freq)
+
+logLik(mp)
+logLik(mod)
+
+coef(mp)
+mp$zeta
+coef(mod)
+
+sqrt(diag(vcov(mp)))
+sqrt(diag(vcov(mod)))
+
+mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "cloglog")
+
+s <- as.basis(~ Infl, data = housing, remove_intercept = TRUE)
+r <- as.basis(housing$Sat)
+m <- ctm(r, shift = s, todist = "MinExtrVal")
+
+mod <- mlt(m, data = housing, weights = housing$Freq)
+
+logLik(mp)
+logLik(mod)
+
+coef(mp)
+mp$zeta
+coef(mod)
+
+sqrt(diag(vcov(mp)))
+sqrt(diag(vcov(mod)))
+
+mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "probit")
+
+s <- as.basis(~ Infl, data = housing, remove_intercept = TRUE)
+r <- as.basis(housing$Sat)
+m <- ctm(r, shift = s, todist = "Normal")
+
+mod <- mlt(m, data = housing, weights = housing$Freq)
+
+logLik(mp)
+logLik(mod)
+
+coef(mp)
+mp$zeta
+coef(mod)
+
+sqrt(diag(vcov(mp)))
+sqrt(diag(vcov(mod)))
+

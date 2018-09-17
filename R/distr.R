@@ -43,8 +43,29 @@
              1 - exp(x),
          name = "minimum extreme value")
 
+.MaxExtrVal <- function()
+    list(p = function(x) exp(-exp(-x)),
+         q = function(p) -log(-log(p)),
+         d = function(x, log = FALSE) {
+             ret <- - x - exp(-x)
+             if (!log) return(exp(ret))
+             ret
+         },
+         dd = function(x) {
+             ex <- exp(-x)
+             exp(-ex - x) * (ex - 1)
+         },
+         ddd = function(x) {
+             ex <- exp(-x)
+             exp(-x - ex) * (ex - 1)^2 - exp(-ex - 2 * x)
+         },
+         dd2d = function(x)
+             exp(-x) - 1,
+         name = "maximum extreme value")
+
+
 .distr <- function(which = c("Normal", "Logistic", 
-                             "MinExtrVal")) {
+                             "MinExtrVal", "MaxExtrVal")) {
     which <- match.arg(which)
     do.call(paste(".", which, sep = ""), list())
 }

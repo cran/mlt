@@ -1,6 +1,6 @@
 
 ctm <- function(response, interacting = NULL, shifting = NULL, data = NULL,
-                todistr = c("Normal", "Logistic", "MinExtrVal"),
+                todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal"),
                 sumconstr = inherits(interacting, c("formula", "formula_basis")), ...) {
 
     ### mkgrid() will not work if data is missing

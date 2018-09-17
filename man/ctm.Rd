@@ -8,7 +8,7 @@
 }
 \usage{
 ctm(response, interacting = NULL, shifting = NULL, data = NULL, 
-    todistr = c("Normal", "Logistic", "MinExtrVal"), 
+    todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal"), 
     sumconstr = inherits(interacting, c("formula", "formula_basis")), ...)
 }
 \arguments{
@@ -24,6 +24,15 @@ ctm(response, interacting = NULL, shifting = NULL, data = NULL,
 \details{
   This function only specifies the model which can then be fitted using
   \code{\link{mlt}}. The shift term is positive by default.
+
+  Possible choices of the distributions the model transforms to (the inverse
+  link functions) include the 
+  standard normal (\code{"Normal"}), the standard logistic
+  (\code{"Logistic"}), the standard minimum extreme value
+  (\code{"MinExtrVal"}, also known as Gompertz distribution), and the
+  standard maximum extreme value (\code{"MaxExtrVal"}, also known as Gumbel
+  distribution) distributions.
+
 }
 \value{
   An object of class \code{ctm}.

@@ -1,7 +1,7 @@
 
 plot.ctm <- function(x, newdata, type = c("distribution",
     "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
-    q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, ...) {
+    q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), lty = 1, add = FALSE, ...) {
 
     args <- list(...)
     y <- variable.names(x, "response")
@@ -26,6 +26,7 @@ plot.ctm <- function(x, newdata, type = c("distribution",
         if (is.null(args$ylab)) args$ylab <- y
     }
     if (length(col) == 1) col <- rep(col, ncol(pr))
+    if (length(lty) == 1) lty <- rep(lty, ncol(pr))
     
     if (!add) {
         args$x <- unclass(q)
@@ -46,9 +47,10 @@ plot.ctm <- function(x, newdata, type = c("distribution",
     }
     y <- as.vars(x)[[y]]
     if (inherits(y, "continuous_var")) {
-        for (i in 1:ncol(pr)) lines(q, pr[,i], col = col[i])
+        for (i in 1:ncol(pr)) lines(q, pr[,i], col = col[i], lty = lty[i])
     } else {
-        for (i in 1:ncol(pr)) lines(stepfun(q, c(ylim[1], pr[,i])), col = col[i])
+        for (i in 1:ncol(pr)) lines(stepfun(q, c(ylim[1], pr[,i])), 
+                                    col = col[i], lty = lty[i])
     }
     invisible(pr)
 }

@@ -235,8 +235,8 @@
         -sum(weights * .ofuns(weights)$ll(beta))
     ret$logliki <- function(beta, weights)
         .ofuns(weights)$ll(beta)
-    ret$score <- function(beta, weights) 
-        weights * .ofuns(weights)$sc(beta)
+    ret$score <- function(beta, weights, Xmult = TRUE) 
+        weights * .ofuns(weights)$sc(beta, Xmult = Xmult)
     ret$hessian <- function(beta, weights) 
         .ofuns(weights)$he(beta)
     ret$optimfct <- optimfct
@@ -384,7 +384,8 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     ret
 }
 
-update.mlt_fit <- function(object, weights, subset = NULL, theta = coef(object), ...) {
+update.mlt_fit <- function(object, weights, subset = NULL,
+                           theta = coef(object, fixed = FALSE), ...) {
 
     stopifnot(length(weights) == NROW(object$data))
     if (!is.null(subset))

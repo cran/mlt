@@ -14,8 +14,8 @@
 \usage{
 \method{plot}{ctm}(x, newdata, type = c("distribution", "survivor", "density", 
      "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
-     q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), add = FALSE, 
-     ...)
+     q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), lty = 1, 
+     add = FALSE, ...)
 \method{plot}{mlt}(x, ...)
 \method{predict}{ctm}(object, newdata, type = c("trafo", "distribution", 
          "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", 
@@ -38,6 +38,7 @@
      \code{response}, \code{interacting} and \code{shifting} in \code{\link{ctm}}}
   \item{K}{number of grid points to generate (in the absence of \code{q})}
   \item{col}{color for the lines to plot}
+  \item{lty}{line type for the lines to plot}
   \item{add}{logical indicating if a new plot shall be generated (the default)}
   \item{interpolate}{logical indicating if quantiles shall be interpolated linearily}
   \item{nsim}{number of samples to generate}

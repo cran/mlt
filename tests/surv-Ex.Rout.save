@@ -1,6 +1,6 @@
 
-R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -32,15 +32,15 @@ Loading required package: variables
 [1] "right"
 > cbind(s, R(s))
              s tleft      cleft     exact cright tright   approxy
-1  2.67433818     NA         NA 2.6743382     NA     NA 2.6743382
+1   2.67433818    NA         NA 2.6743382     NA     NA 2.6743382
 2  1.45783672+    NA 1.45783672        NA    Inf     NA 2.0660874
-3  0.16997763     NA         NA 0.1699776     NA     NA 0.1699776
+3   0.16997763    NA         NA 0.1699776     NA     NA 0.1699776
 4  2.56883009+    NA 2.56883009        NA    Inf     NA 2.6215841
-5  0.65633521     NA         NA 0.6563352     NA     NA 0.6563352
+5   0.65633521    NA         NA 0.6563352     NA     NA 0.6563352
 6  0.08317242+    NA 0.08317242        NA    Inf     NA 1.3787553
-7  0.20866373     NA         NA 0.2086637     NA     NA 0.2086637
+7   0.20866373    NA         NA 0.2086637     NA     NA 0.2086637
 8  1.79566143+    NA 1.79566143        NA    Inf     NA 2.2349998
-9  0.65482017     NA         NA 0.6548202     NA     NA 0.6548202
+9   0.65482017    NA         NA 0.6548202     NA     NA 0.6548202
 10 0.32505510+    NA 0.32505510        NA    Inf     NA 1.4996966
 > stopifnot(all.equal(s, as.Surv(R(s))))
 > 
@@ -68,22 +68,22 @@ Loading required package: variables
 > 
 > ### left censored
 > (s <- Surv(y, d, type = "left"))
- [1]  2.67433818 <1.45783672  0.16997763 <2.56883009  0.65633521 <0.08317242
- [7]  0.20866373 <1.79566143  0.65482017 <0.32505510
+ [1] 2.67433818  1.45783672- 0.16997763  2.56883009- 0.65633521  0.08317242-
+ [7] 0.20866373  1.79566143- 0.65482017  0.32505510-
 > attr(s, "type")
 [1] "left"
 > cbind(s, R(s))
              s tleft cleft     exact     cright tright    approxy
 1   2.67433818    NA    NA 2.6743382         NA     NA 2.67433818
-2  <1.45783672    NA  -Inf        NA 1.45783672     NA 0.77050457
+2  1.45783672-    NA  -Inf        NA 1.45783672     NA 0.77050457
 3   0.16997763    NA    NA 0.1699776         NA     NA 0.16997763
-4  <2.56883009    NA  -Inf        NA 2.56883009     NA 1.32600125
+4  2.56883009-    NA  -Inf        NA 2.56883009     NA 1.32600125
 5   0.65633521    NA    NA 0.6563352         NA     NA 0.65633521
-6  <0.08317242    NA  -Inf        NA 0.08317242     NA 0.08317242
+6  0.08317242-    NA  -Inf        NA 0.08317242     NA 0.08317242
 7   0.20866373    NA    NA 0.2086637         NA     NA 0.20866373
-8  <1.79566143    NA  -Inf        NA 1.79566143     NA 0.93941693
+8  1.79566143-    NA  -Inf        NA 1.79566143     NA 0.93941693
 9   0.65482017    NA    NA 0.6548202         NA     NA 0.65482017
-10 <0.32505510    NA  -Inf        NA 0.32505510     NA 0.20411376
+10 0.32505510-    NA  -Inf        NA 0.32505510     NA 0.20411376
 > stopifnot(all.equal(s, as.Surv(R(s))))
 > 
 > ### interval
@@ -192,4 +192,4 @@ Loading required package: variables
 > 
 > proc.time()
    user  system elapsed 
-  1.296   0.052   1.350 
+  0.960   0.072   1.028 
