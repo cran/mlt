@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.0-4 (2018-10-03)}{
+  \itemize{
+    \item{Arguments \code{K} and \code{cheat} where
+          ignored by \code{confband} when \code{newdata}
+          had multiple rows.}
+    \item{Computation of starting values more robust now.}
+  }
+}
+
 \section{Changes in Version 1.0-3 (2018-09-17)}{
   \itemize{
     \item{Add \code{lty} argument to \code{plot.ctm}.}
@@ -9,6 +18,7 @@
     \item{Internal interface changes.}
   }
 }
+
 
 \section{Changes in Version 1.0-2 (2018-06-22)}{
   \itemize{

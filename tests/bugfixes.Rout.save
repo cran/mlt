@@ -1,6 +1,6 @@
 
-R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -131,6 +131,16 @@ In .checkR(y, weights) : response contains left-censored observations only
 > stopifnot(all.equal(mlt:::.MinExtrVal()$dd2d(x), 
 +                     mlt:::.MinExtrVal()$dd(x) / mlt:::.MinExtrVal()$d(x)))
 > 
+> ### multiple fixed parameters
+> y <- rnorm(100)
+> x <- runif(100)
+> d <- data.frame(y = y, x = x)
+> m <- ctm(as.basis(~ y, data = d, ui = matrix(c(0, 1), nr = 1), ci = 0),
++          shifting = ~ x, data = d)
+> cf <- coef(mlt(m, data = d, fixed = c("x" = 1, "(Intercept)" = .5)))
+> stopifnot(all.equal(cf[c("(Intercept)", "x")], 
++                     c("(Intercept)" = .5, "x" = 1)))
+> 
 > proc.time()
    user  system elapsed 
-  2.672   0.048   2.717 
+  3.104   0.116   3.227 

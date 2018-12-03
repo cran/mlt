@@ -85,3 +85,13 @@ stopifnot(all.equal(mlt:::.Logistic()$dd2d(x),
                     mlt:::.Logistic()$dd(x) / mlt:::.Logistic()$d(x)))
 stopifnot(all.equal(mlt:::.MinExtrVal()$dd2d(x), 
                     mlt:::.MinExtrVal()$dd(x) / mlt:::.MinExtrVal()$d(x)))
+
+### multiple fixed parameters
+y <- rnorm(100)
+x <- runif(100)
+d <- data.frame(y = y, x = x)
+m <- ctm(as.basis(~ y, data = d, ui = matrix(c(0, 1), nr = 1), ci = 0),
+         shifting = ~ x, data = d)
+cf <- coef(mlt(m, data = d, fixed = c("x" = 1, "(Intercept)" = .5)))
+stopifnot(all.equal(cf[c("(Intercept)", "x")], 
+                    c("(Intercept)" = .5, "x" = 1)))

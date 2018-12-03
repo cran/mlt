@@ -28,6 +28,7 @@
     if (!is.null(fixed)) {
         stopifnot(all(names(fixed) %in% colnames(Y)))
         fix <- colnames(Y) %in% names(fixed)
+        fixed <- fixed[colnames(Y)[fix]]
         ui <- ui[,!fix,drop = FALSE]
         .parm <- function(beta) {
             nm <- names(beta)
@@ -267,6 +268,7 @@
     if (!is.null(fixed)) {
         stopifnot(all(names(fixed) %in% colnames(Y)))
         fix <- colnames(Y) %in% names(fixed)
+        fixed <- fixed[colnames(Y)[fix]]
         ui <- ui[,!fix,drop = FALSE]
     } else {
         fix <- rep(FALSE, ncol(Y))
@@ -307,7 +309,11 @@
     }
 
     if (!is.null(ui)) {    
-        ret <- c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)
+        ret <- try(c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat))
+        if (inherits(ret, "try-error")) {
+            diag(Dmat) <- diag(Dmat) + 1e-3
+            ret <- c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)
+        }
         ### was: solve.QP(Dmat, dvec, t(ui), ci, meq = 0)$solution
     } else {
         ret <- lm.fit(x = X, y = Z)$coef

@@ -12,7 +12,7 @@ confband.mlt <- function(object, newdata, level = 0.95,
     if (nrow(newdata) > 1) {
         ret <- lapply(1:nrow(newdata), function(i)
             confband(object = object, newdata = newdata[i,,drop = FALSE],
-                     level = level, type = type, ...))
+                     level = level, type = type, K = K, cheat = K, ...))
         return(ret)
     }
 
