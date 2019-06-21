@@ -1,6 +1,6 @@
 
-R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.6.0 (2019-04-26) -- "Planting of a Tree"
+Copyright (C) 2019 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -36,8 +36,8 @@ Loading required package: variables
 > boxplot(y ~ g, data = mydata)
 > 
 > ### uncensored, Cox model, h = bernstein
-> Bb <- Bernstein_basis(numeric_var("y", support = c(0, max(y) + .1)), order = 5,
-+                       ui = "increasing")
+> Bb <- Bernstein_basis(numeric_var("y", support = c(0, max(y) + .1), bounds = c(0, Inf)), 
++                       order = 5, ui = "increasing")
 > s <- as.basis(~ g, data = data.frame(g = gf), remove_intercept = TRUE)
 > m <- ctm(response = Bb, shifting = s, todist = "MinExtrVal")
 > (cf1 <- coef(opt <- mlt(m, data = mydata)))
@@ -62,15 +62,15 @@ Loading required package: variables
 > plot(yn, a[,3], type = "l", col = "red", ylim = c(0, 1))
 > lines(survfit(cph, newdata = data.frame(g = gf[3])))
 > 
-> ### h = c(log, bernstein)
-> lb <- log_basis(numeric_var("y", support = c(.Machine$double.eps, max(y))), 
-+                 ui = "increasing", remove_intercept = TRUE)
-> m <- ctm(response = c(blog = lb, bBern = Bb), shifting = s, todist = "MinExtrVal")
+> ### h = bernstein(log())
+> logBb <- Bernstein_basis(numeric_var("y", support = c(1, max(y) + .1), bounds = c(min(y) / 2, Inf)), 
++                          order = 5, ui = "increasing", log_first = TRUE)
+> m <- ctm(response = logBb, shifting = s, todist = "MinExtrVal")
 > (cf1 <- coef(opt <- mlt(m, data = mydata)))
-      log(y)       Bs1(y)       Bs2(y)       Bs3(y)       Bs4(y)       Bs5(y) 
- 0.838736248 -0.305685875 -0.002494895 -0.002494930 -0.002494873 -0.002494843 
-      Bs6(y)           g2           g3 
- 0.275034909  0.764359601  1.068746888 
+    Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y)         g2 
+-0.1178082  0.1944438  0.7590058  0.9091408  0.9091408  1.6572210  0.7425515 
+        g3 
+ 1.0379601 
 > ## sample from this model
 > sam <- simulate(opt, newdata = data.frame(g = gf), nsim = 100)
 > nd <- data.frame(y = unlist(sam), g = rep(gf, length(sam)))
@@ -93,50 +93,45 @@ Loading required package: variables
 > ### right censoring
 > mydata <- data.frame(y = Surv(y, sample(0:1, length(y), replace = TRUE)), g = g)
 > coef(opt <- mlt(m, data = mydata))
-    log(y)     Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y) 
- 0.8441462 -1.0131057 -0.5798051 -0.5798052 -0.5798053 -0.5798053 -0.4202417 
-        g2         g3 
- 0.7099727  1.0854685 
+    Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y)         g2 
+-0.8001702 -0.5067529 -0.3021120  0.2543729  0.2543729  1.2022230  0.6669576 
+        g3 
+ 1.1941690 
 > coef(cph <- coxph(y ~ g, data = mydata))
        g2        g3 
-0.6622402 1.0321246 
+0.5963114 1.1590696 
 > 
 > ### left censoring
 > mydata <- data.frame(y = Surv(y, sample(0:1, length(y), replace = TRUE), type = "left"), g = g)
 > coef(opt <- mlt(m, data = mydata))
-    log(y)     Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y) 
- 0.4715877 -0.1212752  0.6052839  0.6052839  0.6052839  0.6052839  0.9068056 
-        g2         g3 
- 0.7192452  0.9766794 
+   Bs1(y)    Bs2(y)    Bs3(y)    Bs4(y)    Bs5(y)    Bs6(y)        g2        g3 
+0.4378917 0.6470606 1.0503774 1.0503774 1.0503774 1.7944348 0.4891169 0.6650021 
 > 
 > ### interval censoring
-> Bb <- Bernstein_basis(numeric_var("y", support = c(0, max(y + 1) + .1)), order = 5,
-+                       ui = "increasing")
 > mydata <- data.frame(y = Surv(y, y + 1, sample(0:3, length(y), replace = TRUE), type = "interval"), 
 +                      g = g)
-> m <- ctm(response = c(blog = lb, bBern = Bb), shifting = s, todist = "MinExtrVal")
 > coef(opt <- mlt(m, data = mydata))
-    log(y)     Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y) 
- 0.4092565 -1.4642351  0.3841127  0.3841127  0.3841127  0.3841127  1.2510145 
-        g2         g3 
- 0.8373337  0.9512158 
+    Bs1(y)     Bs2(y)     Bs3(y)     Bs4(y)     Bs5(y)     Bs6(y)         g2 
+-0.4800620 -0.1852435  0.2686854  0.5746312  0.5746312  1.2724903  0.8012525 
+        g3 
+ 0.9886387 
 > 
 > ### uncensored, time-varying coefficints in both groups
 > mydata <- data.frame(y = y, g = g)
-> m <- ctm(response = Bb, 
+> m <- ctm(response = logBb, 
 +            interacting = as.basis(~ g, data = mydata),
 +            todist = "MinExtrVal")
 > coef(opt <- mlt(m, data = mydata, maxit = 5000))
 Bs1(y):(Intercept) Bs2(y):(Intercept) Bs3(y):(Intercept) Bs4(y):(Intercept) 
-        -1.9225922          1.0983738          1.0983737          1.0983737 
+        -0.1210797          0.1468304          0.7852533          0.8488801 
 Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2 
-         1.0983737          2.5879263          0.2130777          1.3701278 
+         0.8488801          1.6373746          0.7462537          0.7982918 
          Bs3(y):g2          Bs4(y):g2          Bs5(y):g2          Bs6(y):g2 
-         1.3701278          1.3701278          1.3701278         -0.1194218 
+         0.7795823          0.7159555          0.7159556          2.7244656 
          Bs1(y):g3          Bs2(y):g3          Bs3(y):g3          Bs4(y):g3 
-         0.5168483          1.7853178          1.7853179          1.7853179 
+         1.0901616          1.1582839          0.5198610          1.7059024 
          Bs5(y):g3          Bs6(y):g3 
-         1.7853180          0.2957665 
+         1.7059056         30.5442363 
 > coef(cph <- coxph(Surv(y, rep(TRUE, nrow(mydata))) ~ g, data = mydata))
       g2       g3 
 0.699808 1.022699 
@@ -156,4 +151,4 @@ Bs5(y):(Intercept) Bs6(y):(Intercept)          Bs1(y):g2          Bs2(y):g2
 > 
 > proc.time()
    user  system elapsed 
-  3.236   0.052   3.291 
+  1.531   0.068   1.593 

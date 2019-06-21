@@ -20,7 +20,7 @@ R(object, ...)
 \method{R}{numeric}(object = NA, cleft = NA, cright = NA,
    tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), ...)
 \method{R}{ordered}(object, cleft = NA, cright = NA, ...)
-\method{R}{integer}(object, cleft = NA, cright = NA, bounds = c(0L, Inf), ...)
+\method{R}{integer}(object, cleft = NA, cright = NA, bounds = c(min(object), Inf), ...)
 \method{R}{factor}(object, ...)
 \method{R}{Surv}(object, ...)
 as.Surv(object)

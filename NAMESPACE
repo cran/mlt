@@ -4,11 +4,11 @@ import("variables")
 import("numDeriv") ### needed by BB???
 importFrom("BB", "spg", "BBoptim")
 importFrom("alabama", "auglag")
-importFrom("sandwich", "estfun")
+importFrom("sandwich", "estfun", "bread")
 importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "vcov", "AIC", "coef", "confint", "dlogis", "dnorm",
            "lm.fit", "plogis", "pnorm", "predict", "qlogis", "qnorm",
-           "runif", "stepfun", "weights", "approxfun", "xtabs")
+           "runif", "stepfun", "weights", "approxfun", "xtabs", "resid")
 
 # importFrom("quadprog", "solve.QP")
 importFrom("coneproj", "qprog")
@@ -69,3 +69,6 @@ S3method("as.Surv", "response")
 #S3method("paraboot", "mlt")
 
 S3method("estfun", "mlt")
+S3method("residuals", "mlt")
+S3method("bread", "mlt")
+S3method("bread", "mlt_fit")

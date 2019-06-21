@@ -85,7 +85,7 @@ R.ordered <- function(object, cleft = NA, cright = NA, ...) {
     ret
 }
 
-R.integer <- function(object, cleft = NA, cright = NA, bounds = c(0L, Inf), ...) {
+R.integer <- function(object, cleft = NA, cright = NA, bounds = c(min(object), Inf), ...) {
 
     ret <- .mkR(exact = object, cleft = cleft, cright = cright, ...)
     ret$cright[is.na(ret$cright)] <- ret$exact[is.na(ret$cright)]

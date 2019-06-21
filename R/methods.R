@@ -107,6 +107,24 @@ estfun.mlt <- function(object, parm = coef(object, fixed = FALSE),
     return(sc)
 }
 
+residuals.mlt <- function(object, parm = coef(object, fixed = FALSE), 
+                          w = NULL, newdata, ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
+    if (!missing(newdata)) {
+        tmpmod <- mlt(object$model, data = newdata, dofit = FALSE)
+        coef(tmpmod) <- coef(object)
+        return(resid(tmpmod, parm = parm, weights = w))
+    }
+        if (is.null(w))
+        w <- weights(object)
+    sc <- -object$score(parm, weights = w, Xmult = FALSE)
+    if (!is.null(object$subset))
+        sc <- sc[object$subset,,drop = TRUE]
+    return(c(sc))
+}
+
 mkgrid.mlt <- function(object, n, ...)
     mkgrid(object$model, n = n, ...)
 
@@ -236,3 +254,5 @@ print.response <- function(x, digits = getOption("digits"), ...) {
     print(ret, quote = FALSE, ...)
 }
 
+bread.mlt_fit <- function(x) vcov(x) * nrow(x$data) # sandwich estimator
+bread.mlt <- function(x) vcov(x) * nrow(x$data) # sandwich estimator

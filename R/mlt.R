@@ -352,9 +352,15 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     vars <- as.vars(model)
     response <- variable.names(model, "response")
     responsevar <- vars[[response]]
+    ### <FIXME>: how can we check Surv objects?
+    if (!inherits(data[[response]], "Surv"))
+        stopifnot(check(responsevar, data))
+    ### </FIXME>
     bounds <- bounds(responsevar)
     stopifnot(length(response) == 1)
+    ### <FIXME> add bounds?
     y <- R(object = data[[response]])
+    ### </FIXME>
 
     if (!.checkR(y, weights)) dofit <- FALSE
 
