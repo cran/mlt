@@ -53,7 +53,8 @@
         fix <- rep(FALSE, ncol(Y))
     } 
 
-    .ofuns <- function(weights, subset = NULL) {
+    .ofuns <- function(weights, subset = NULL, offset = NULL) {
+        if (is.null(offset)) offset <- rep(0, nrow(data))
         es <- .exact_subset(.exact(y), subset)
         exY <- NULL
         iYleft <- NULL
@@ -149,8 +150,10 @@
                 if (is.matrix(beta)) {
                     beta_ex <- beta[es$full_ex,,drop = FALSE]
                     beta_nex <- beta[es$full_nex,,drop = FALSE]
+                    nm <- colnames(beta)
                 } else {
                     beta_ex <- beta_nex <- beta
+                    nm <- names(beta)
                 }
                 if (!is.null(es$full_ex))
                     ret <- ret + .mlt_hessian_exact(todistr, 
@@ -161,6 +164,13 @@
                         iYleft, iYright, ioffset, itrunc, 
                         iweights)(.parm(beta_nex))
                 colnames(ret) <- rownames(ret) <- colnames(Y)
+                ### in case beta contains fix parameters,
+                ### return all scores
+                if (!is.null(fixed)) {
+                    if (all(names(fixed) %in% nm))
+                        return(ret)
+                }
+
                 return(ret[!fix, !fix, drop = FALSE])
             })
         )
@@ -178,14 +188,20 @@
 #        ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
     }
 
-    optimfct <- function(theta, weights, subset = NULL, scale = FALSE, optim) {
-        of <- .ofuns(weights, subset)
+    optimfct <- function(theta, weights, subset = NULL, offset = NULL, 
+                         scale = FALSE, optim) {
+        of <- .ofuns(weights = weights, subset = subset, offset = offset)
         loglikfct <- function(beta, weights)  
             -sum(weights * of$ll(beta))
-        score <- function(beta, weights) 
-            weights * of$sc(beta)
+        score <- function(beta, weights, Xmult = TRUE) 
+            weights * of$sc(beta, Xmult = Xmult)
+        hessian <- function(beta, weights) 
+            of$he(beta)
         scorefct <- function(beta, weights) 
             -colSums(score(beta, weights), na.rm = TRUE)
+        logliki <- function(beta, weights)
+            of$ll(beta)
+
         if (scale) {
             Ytmp <- Y
             Ytmp[!is.finite(Ytmp)] <- NA
@@ -216,6 +232,14 @@
 #            ret$df <- ret$df - sum(ui %*% ret$par - ci < .Machine$double.eps)
         ### </FIXME>
         if (scale) ret$par <- ret$par * sc
+
+        ### NOTE: this overwrites the functions taking the possibly updated
+        ### offset into account
+        ret$score <- score
+        ret$hessian <- hessian
+        ret$loglik <- loglikfct
+        ret$logliki <- logliki
+
         return(ret)
     }
 
@@ -231,16 +255,17 @@
     ret$data <- data
     ret$offset <- offset
     ret$todistr <- todistr
+    ret$optimfct <- optimfct
 
     ret$loglik <- function(beta, weights)  
-        -sum(weights * .ofuns(weights)$ll(beta))
+        -sum(weights * .ofuns(weights = weights, offset = offset)$ll(beta))
     ret$logliki <- function(beta, weights)
-        .ofuns(weights)$ll(beta)
+        .ofuns(weights = weights, offset = offset)$ll(beta)
     ret$score <- function(beta, weights, Xmult = TRUE) 
-        weights * .ofuns(weights)$sc(beta, Xmult = Xmult)
+        weights * .ofuns(weights = weights, offset = offset)$sc(beta, Xmult = Xmult)
     ret$hessian <- function(beta, weights) 
-        .ofuns(weights)$he(beta)
-    ret$optimfct <- optimfct
+        .ofuns(weights = weights, offset = offset)$he(beta)
+
     class(ret) <- c("mlt_setup", "mlt")
     return(ret)
 }
@@ -248,7 +273,6 @@
 .mlt_start <- function(model, data, y, pstart, offset = NULL, fixed = NULL, weights = 1) {
 
     stopifnot(length(pstart) == nrow(data))
-    if (is.null(offset)) offset <- rep(0, nrow(data))
 
     response <- variable.names(model, "response")
     stopifnot(length(response) == 1)
@@ -322,13 +346,15 @@
     ret
 }
 
-.mlt_fit <- function(object, weights, subset = NULL, theta = NULL, scale = FALSE, optim) {
+.mlt_fit <- function(object, weights, subset = NULL, offset = NULL, 
+                     theta = NULL, scale = FALSE, optim) {
 
     if (is.null(theta))
         stop(sQuote("mlt"), "needs suitable starting values")
 
     ### BBoptim issues a warning in case of unsuccessful convergence
     ret <- try(object$optimfct(theta, weights = weights, subset = subset,
+                               offset = offset,
                                scale = scale, optim = optim))    
 
     cls <- class(object)
@@ -339,6 +365,7 @@
     object$subset <- subset
     object$scale <- scale ### scaling yes/no
     object$weights <- weights
+    object$offset <- offset
     object$optim <- optim
     class(object) <- c("mlt_fit", cls)
     
@@ -385,6 +412,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     args <- list()
     args$object <- s
     args$weights <- weights
+    args$offset <- offset
     args$theta <- theta
     args$subset <- NULL ### only available in update()
     args$scale <- scale
@@ -396,7 +424,8 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     ret
 }
 
-update.mlt_fit <- function(object, weights, subset = NULL,
+update.mlt_fit <- function(object, weights = weights(object), 
+                           subset = NULL, offset = object$offset,
                            theta = coef(object, fixed = FALSE), ...) {
 
     stopifnot(length(weights) == NROW(object$data))
@@ -414,6 +443,7 @@ update.mlt_fit <- function(object, weights, subset = NULL,
         args$weights <- weights
     }
     args$subset <- subset
+    args$offset <- offset
     args$theta <- theta
     args$scale <- object$scale
     args$optim <- object$optim

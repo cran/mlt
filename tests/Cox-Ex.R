@@ -75,7 +75,7 @@ mydata <- data.frame(y = Surv(y, y + 1, sample(0:3, length(y), replace = TRUE), 
                      g = g)
 coef(opt <- mlt(m, data = mydata))
 
-### uncensored, time-varying coefficints in both groups
+### uncensored, time-varying coefficients in both groups
 mydata <- data.frame(y = y, g = g)
 m <- ctm(response = logBb, 
            interacting = as.basis(~ g, data = mydata),

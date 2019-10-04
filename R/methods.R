@@ -115,7 +115,7 @@ residuals.mlt <- function(object, parm = coef(object, fixed = FALSE),
     if (!missing(newdata)) {
         tmpmod <- mlt(object$model, data = newdata, dofit = FALSE)
         coef(tmpmod) <- coef(object)
-        return(resid(tmpmod, parm = parm, weights = w))
+        return(resid(tmpmod, parm = parm, w = w))
     }
         if (is.null(w))
         w <- weights(object)

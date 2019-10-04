@@ -116,6 +116,7 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
         if (any(d < 0, na.rm = TRUE)) stop("cleft > cright")
         i <- (d < tol)
         if (any(i, na.rm = TRUE)) {
+            i <- which(i)
             object[i] <- cleft[i]
             cleft[i] <- cright[i] <- NA
         }

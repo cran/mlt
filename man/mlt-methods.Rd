@@ -37,7 +37,8 @@ Gradient(object, ...)
 \method{mkgrid}{mlt}(object, n, ...)
 \method{bounds}{mlt}(object)
 \method{variable.names}{mlt}(object, ...)
-\method{update}{mlt_fit}(object, weights, subset = NULL, theta, ...)
+\method{update}{mlt_fit}(object, weights = weights(object), 
+       subset = NULL, offset = object$offset, theta, ...)
 \method{as.mlt}{mlt}(object)
 }
 \arguments{
@@ -55,6 +56,7 @@ Gradient(object, ...)
   \item{n}{number of grid points}
   \item{subset}{an optional integer vector indicating the subset of
                 observations to be used for fitting.}
+  \item{offset}{an optional vector of offset values}
   \item{theta}{optional starting values for the model parameters}
   \item{complete}{currently ignored}
   \item{\dots}{additional arguments}
