@@ -73,9 +73,9 @@ f <- mlt(m, data = d, scale = TRUE)
 
 m2 <- ctm(as.basis(~ y, data = d, ui = matrix(c(0, 1), nr = 1), ci = 0), todistr = "Normal")
 f2 <- mlt(m2, data = d, scale = TRUE)
-stopifnot(all.equal(coef(f), coef(f2)[2:1]))
+stopifnot(all.equal(coef(f), coef(f2)[2:1], check.attributes = FALSE))
 stopifnot(all.equal(logLik(f), logLik(f2)))
-stopifnot(all.equal(estfun(f), estfun(f2)[,2:1]))
+stopifnot(all.equal(estfun(f), estfun(f2)[,2:1], check.attributes = FALSE))
 
 ### new shortcut
 x <- rnorm(100)

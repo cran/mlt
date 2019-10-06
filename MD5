@@ -1,4 +1,4 @@
-d176930da0a23281f77d3c8e350b18ef *DESCRIPTION
+0736eec4abad9ca5eea060ce174ea8fd *DESCRIPTION
 8ab5742e21d04258bb3d7af411759c3a *NAMESPACE
 71c7b890a3bb8061477fae44f418906b *R/R.R
 d2cd3551b75d248b1630149d9a11f48f *R/confband.R
@@ -13,10 +13,10 @@ a6c70374d9bd95da51c1a05db91c25cd *R/plot.R
 f6a0fb6c4b94758941cd34246eb98bed *R/predict.R
 47bd871e9e2b89abb506e5b04b349f79 *R/sample.R
 514ae5ccf7ba2841bda0c0b2e358b2ce *R/utils.R
-d5f7629ce0f6ab733e83db95906f804e *build/partial.rdb
+c9e471521c75e00e23e81650db82ae5c *build/partial.rdb
 1c9695dee7162d6e72883b552906e753 *cleanup
 bd2fc3a6b9c7a8b088a7ee95e6206d41 *inst/CITATION
-44142da8f383f8c1121dabbfcdf48cdc *inst/NEWS.Rd
+fd8f19c8fb53dddf5f0cfac24864e7d4 *inst/NEWS.Rd
 9e7da8008d4c41f098d9ffba0e00756a *man/R.Rd
 4141097f19682037945cf253537240c9 *man/confband.Rd
 b211532488e33a74047c6cbdce2e3246 *man/ctm-methods.Rd
@@ -30,8 +30,8 @@ db0bcd162bd3125c10bd2a365fa92a3b *tests/2sample.R
 5a9f502537a95ce85d5627eff0a7b610 *tests/2sample.Rout.save
 10fcb7a855fb94e175705815b21337fe *tests/Cox-Ex.R
 8d66b2a6bdb2a046aacede5e964f8efc *tests/Cox-Ex.Rout.save
-3bc1b1ae1dc236393aee3470718cb32c *tests/bugfixes.R
-3af7675a4730834dd49214e7f9ab754d *tests/bugfixes.Rout.save
+f6c5fc5f68436450caef76b699804a29 *tests/bugfixes.R
+e429460eefdb4283a9bfb53e2a6c6e1f *tests/bugfixes.Rout.save
 26e1ca16852f4d84a197c121859d6871 *tests/dpq-Ex.R
 c1c1428fd148d06beca0e6a62fa63b9e *tests/dpq-Ex.Rout.save
 500fdf6149835a90927ccc2df8717dcb *tests/glm-Ex.R
