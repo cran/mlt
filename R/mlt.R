@@ -424,7 +424,7 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     ret
 }
 
-update.mlt_fit <- function(object, weights = weights(object), 
+update.mlt_fit <- function(object, weights = stats::weights(object), 
                            subset = NULL, offset = object$offset,
                            theta = coef(object, fixed = FALSE), ...) {
 
@@ -438,7 +438,7 @@ update.mlt_fit <- function(object, weights = weights(object),
         class(object) <- class(object)[-1L]
     args$object <- object
     if (missing(weights)) {
-        args$weights <- weights(object)
+        args$weights <- stats::weights(object)
     } else {
         args$weights <- weights
     }

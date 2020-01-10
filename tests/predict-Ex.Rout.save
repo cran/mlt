@@ -1,6 +1,6 @@
 
-R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,6 +20,7 @@ Type 'q()' to quit R.
 Loading required package: basefun
 Loading required package: variables
 > set.seed(29)
+> tol <- sqrt(.Machine$double.eps)
 > 
 > n <- 100
 > lcf <- c("(Intercept)" = .5, "g2" = 1, "x" = 2)
@@ -59,34 +60,34 @@ Loading required package: variables
 > end <- ndx
 > end$y <- seq(from = min(d$y), to = max(d$y), length = nrow(end))
 > 
-> max(abs(predict(mod, newdata = end) - model.matrix(m, data = end) %*% cf))
-[1] 0
+> max(abs(predict(mod, newdata = end) - model.matrix(m, data = end) %*% cf)) < tol
+[1] TRUE
 > 
 > cf2 <- cf
 > cf2[1:2] <- 0
-> max(abs(predict(mod, newdata = end, terms = "bshifting") - model.matrix(m, data = end) %*% cf2))
-[1] 0
+> max(abs(predict(mod, newdata = end, terms = "bshifting") - model.matrix(m, data = end) %*% cf2)) < tol
+[1] TRUE
 > 
 > p1 <- predict(mod, newdata = ndx, q = ny)
 > 
 > p2 <- predict(mod, newdata = nd)
 > 
-> max(abs(c(p1) - c(p2)))
-[1] 0
+> max(abs(c(p1) - c(p2))) < tol
+[1] TRUE
 > 
 > p3 <- tfun(nd)
-> max(abs(c(p2) - c(p3)))
-[1] 0
+> max(abs(c(p2) - c(p3))) < tol
+[1] TRUE
 > 
 > p1 <- predict(mod, newdata = nd, type = "distribution")
 > p2 <- pfun(nd)
-> max(abs(c(p1) - c(p2)))
-[1] 7.771561e-16
+> max(abs(c(p1) - c(p2))) < tol
+[1] TRUE
 > 
 > p1 <- predict(mod, newdata = nd, type = "density")
 > p2 <- dfun(nd)
-> max(abs(c(p1) - c(p2)))
-[1] 3.552714e-15
+> max(abs(c(p1) - c(p2))) < tol
+[1] TRUE
 > 
 > p1 <- predict(mod, newdata = nd, type = "quantile", prob = 1:9 / 10, K = 50000)
 > 
@@ -119,4 +120,4 @@ Loading required package: variables
 > 
 > proc.time()
    user  system elapsed 
-  3.760   0.104   3.864 
+  1.807   0.125   1.923 

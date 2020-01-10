@@ -61,4 +61,9 @@
   model coefficients to be specified in this unfitted model.
   \code{simulate} draws samples from \code{object} by numerical inversion of the
   quantile function.
+
+  Note that offsets are ALWAYS IGNORED when computing predictions. If you
+  want the methods to pay attention to offsets, specify them as a variable
+  in the model with fixed regression coefficient using the \code{fixed}
+  argument in \code{\link{mlt}}.
 }

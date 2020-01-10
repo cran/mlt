@@ -1,6 +1,7 @@
 
 library("mlt")
 set.seed(29)
+options(digits = 5)
 
 n <- 20
 ### just for interface checking

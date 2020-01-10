@@ -62,7 +62,18 @@ vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), complete = FALS
     args <- list(...)
     if (length(args) > 0)
         warning("Arguments ", names(args), " are ignored")
-    solve(Hessian(object, parm = parm))
+    step <- 0
+    lam <- 1e-6
+    H <- Hessian(object, parm = parm)
+    while((step <- step + 1) <= 3) {
+        ret <- try(solve(H + (step - 1) * lam * diag(nrow(H))))
+        if (!inherits(ret, "try-error")) break
+    }
+    if (inherits(ret, "try-error"))
+        stop("Hessian is not invertible")
+    if (step > 1)
+        warning("Hessian is not invertible, an approximation is used")
+    ret
 }
 
 logLik.mlt <- function(object, parm = coef(object, fixed = FALSE), 

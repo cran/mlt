@@ -1,6 +1,7 @@
 
 library("mlt")
 set.seed(29)
+tol <- sqrt(.Machine$double.eps)
 
 n <- 100
 lcf <- c("(Intercept)" = .5, "g2" = 1, "x" = 2)
@@ -38,28 +39,28 @@ ndx <- expand.grid(nd[-1])
 end <- ndx
 end$y <- seq(from = min(d$y), to = max(d$y), length = nrow(end))
 
-max(abs(predict(mod, newdata = end) - model.matrix(m, data = end) %*% cf))
+max(abs(predict(mod, newdata = end) - model.matrix(m, data = end) %*% cf)) < tol
 
 cf2 <- cf
 cf2[1:2] <- 0
-max(abs(predict(mod, newdata = end, terms = "bshifting") - model.matrix(m, data = end) %*% cf2))
+max(abs(predict(mod, newdata = end, terms = "bshifting") - model.matrix(m, data = end) %*% cf2)) < tol
 
 p1 <- predict(mod, newdata = ndx, q = ny)
 
 p2 <- predict(mod, newdata = nd)
 
-max(abs(c(p1) - c(p2)))
+max(abs(c(p1) - c(p2))) < tol
 
 p3 <- tfun(nd)
-max(abs(c(p2) - c(p3)))
+max(abs(c(p2) - c(p3))) < tol
 
 p1 <- predict(mod, newdata = nd, type = "distribution")
 p2 <- pfun(nd)
-max(abs(c(p1) - c(p2)))
+max(abs(c(p1) - c(p2))) < tol
 
 p1 <- predict(mod, newdata = nd, type = "density")
 p2 <- dfun(nd)
-max(abs(c(p1) - c(p2)))
+max(abs(c(p1) - c(p2))) < tol
 
 p1 <- predict(mod, newdata = nd, type = "quantile", prob = 1:9 / 10, K = 50000)
 

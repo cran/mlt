@@ -37,8 +37,9 @@ Gradient(object, ...)
 \method{mkgrid}{mlt}(object, n, ...)
 \method{bounds}{mlt}(object)
 \method{variable.names}{mlt}(object, ...)
-\method{update}{mlt_fit}(object, weights = weights(object), 
-       subset = NULL, offset = object$offset, theta, ...)
+\method{update}{mlt_fit}(object, weights = stats::weights(object), 
+       subset = NULL, offset = object$offset, theta = coef(object, fixed = FALSE), 
+       ...)
 \method{as.mlt}{mlt}(object)
 }
 \arguments{

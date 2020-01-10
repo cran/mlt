@@ -350,7 +350,7 @@ as.Surv.response <- function(object) {
                     type = "counting"))
     }
 
-    if (any(cleft & cright)) {
+    if (any(cleft & cright) || (any(cleft) && any(cright))) {
         stopifnot(all(!tleft))
         return(Surv(time = ifelse(exact, object$exact, object$cleft),
                     time2 = ifelse(exact, object$exact, object$cright),
