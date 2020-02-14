@@ -53,17 +53,48 @@
         fix <- rep(FALSE, ncol(Y))
     } 
 
-    .ofuns <- function(weights, subset = NULL, offset = NULL) {
+    .ofuns <- function(weights, subset = NULL, offset = NULL, 
+                       perm = NULL, permutation = NULL) {
         if (is.null(offset)) offset <- rep(0, nrow(data))
         es <- .exact_subset(.exact(y), subset)
         exY <- NULL
         iYleft <- NULL
+
+        if (!is.null(perm)) {
+            if (length(unique(weights)) > 1 || !is.null(subset))
+                stop("permutations not implemented for weights or subsets")
+        }
+
+        nm <- colnames(Y)
+        if (!is.null(perm)) {
+            stopifnot(all(perm %in% nm))
+            if (is.null(permutation)) 
+                permutation <- sample(1:NROW(Y))
+            X <- matrix(0, nrow = NROW(y), ncol = ncol(Y))
+            if (!is.null(eY)) {
+                X[eY$which,] <- eY$Y
+                colnames(X) <- colnames(eY$Y)
+            }
+            if (!is.null(iY)) {
+                tmpl <- iY$Yleft
+                cc <- complete.cases(tmpl)
+                tmpl[!cc,] <- iY$Yright[!cc,]
+                X[iY$which,] <- tmpl
+                colnames(X) <- colnames(iY$Yleft)
+            }
+            Xperm <- X[permutation, perm, drop = FALSE]
+        }
+
         if (!is.null(es$full_ex)) {
             exY <- eY$Y
             exYprime <- eY$Yprime
             exoffset <- offset[.exact(y)]
             exweights <- weights[.exact(y)]
             extrunc <- eY$trunc
+            if (!is.null(perm)) {
+                stopifnot(is.null(extrunc))
+                exY[, perm] <- Xperm[eY$which,]
+            }
             if (!is.null(es$redu_ex)) {
                 exY <- exY[es$redu_ex,,drop = FALSE]
                 exYprime <- exYprime[es$redu_ex,,drop = FALSE]
@@ -81,6 +112,11 @@
             ioffset <- offset[!.exact(y)]
             iweights <- weights[!.exact(y)]
             itrunc <- iY$trunc
+            if (!is.null(perm)) {
+                stopifnot(is.null(itrunc))
+                iYleft[, perm] <- Xperm[iY$which,]
+                iYright[, perm] <- Xperm[iY$which,]
+            }
             if (!is.null(es$redu_nex)) {
                 iYleft <- iYleft[es$redu_nex,,drop = FALSE]
                 iYright <- iYright[es$redu_nex,,drop = FALSE]
@@ -189,8 +225,9 @@
     }
 
     optimfct <- function(theta, weights, subset = NULL, offset = NULL, 
-                         scale = FALSE, optim) {
-        of <- .ofuns(weights = weights, subset = subset, offset = offset)
+                         scale = FALSE, optim, ...) {
+        of <- .ofuns(weights = weights, subset = subset, 
+                     offset = offset, ...)
         loglikfct <- function(beta, weights)  
             -sum(weights * of$ll(beta))
         score <- function(beta, weights, Xmult = TRUE) 
@@ -347,15 +384,15 @@
 }
 
 .mlt_fit <- function(object, weights, subset = NULL, offset = NULL, 
-                     theta = NULL, scale = FALSE, optim) {
+                     theta = NULL, scale = FALSE, optim, ...) {
 
     if (is.null(theta))
         stop(sQuote("mlt"), "needs suitable starting values")
 
     ### BBoptim issues a warning in case of unsuccessful convergence
-    ret <- try(object$optimfct(theta, weights = weights, subset = subset,
-                               offset = offset,
-                               scale = scale, optim = optim))    
+    ret <- try(object$optimfct(theta, weights = weights, 
+        subset = subset, offset = offset, scale = scale, 
+        optim = optim, ...))    
 
     cls <- class(object)
     object[names(ret)] <- NULL
@@ -433,7 +470,7 @@ update.mlt_fit <- function(object, weights = stats::weights(object),
         stopifnot(is.integer(subset) && 
                   min(subset) >= 1L &&
                   max(subset) <= NROW(object$data))
-    args <- list()
+    args <- list(...)
     if (inherits(object, "mlt_fit")) 
         class(object) <- class(object)[-1L]
     args$object <- object

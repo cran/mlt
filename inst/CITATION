@@ -22,11 +22,15 @@ citEntry(entry="Article",
          title = "Most Likely Transformations: The mlt Package",
          author = personList(as.person("Torsten Hothorn")),
          journal      = "Journal of Statistical Software",
-         year         = "2018",
+         year         = "2020",
+         volume       = "92",
+         number       = "1",
+         pages        = "1--68",
+         doi          = "10.18637/jss.v092.i01",
 
          textVersion =
-         paste("Torsten Hothorn (2018).",
+         paste("Torsten Hothorn (2020).",
                "Most Likely Transformations: The mlt Package.",
-               "Journal of Statistical Software, forthcoming."),
-         header = "For software implementation issues cite:"
+               "Journal of Statistical Software, 92(1), 1--68."),
+         header = "To cite mlt/basefun/variables in publications use:"
 )
