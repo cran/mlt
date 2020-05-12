@@ -7,6 +7,13 @@
          dd2d = function(x) -x,
          name = "normal")
 
+.Exponential <- function()
+    list(p = pexp, d = dexp, q = qexp, 
+         dd = function(x) -dexp(x = x),
+         ddd = function(x) dexp(x = x),
+         dd2d = function(x) -1,
+         name = "exponential")
+
 .Logistic <- function()
     list(p = plogis, d = dlogis, q = qlogis,
          dd = function(x) {
@@ -65,7 +72,7 @@
 
 
 .distr <- function(which = c("Normal", "Logistic", 
-                             "MinExtrVal", "MaxExtrVal")) {
+                             "MinExtrVal", "MaxExtrVal", "Exponential")) {
     which <- match.arg(which)
     do.call(paste(".", which, sep = ""), list())
 }

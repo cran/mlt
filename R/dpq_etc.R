@@ -142,8 +142,36 @@ smlt <- function(object, newdata = NULL, q = NULL, ...)
     1 - pmlt(object = object, newdata = newdata, q = q, ...)
 
 ### cumulative hazard function
-Hmlt <- function(object, newdata = NULL, q = NULL, ...)
-    -log(smlt(object = object, newdata = newdata, q = q, ...))
+Hmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
+    if (object$todistr$name == "minimum extreme value") {
+        ### Cox model
+        logH <- tmlt(object = object, newdata = newdata, q = q, ...)
+        if (log) return(logH)
+        return(exp(logH))
+    }
+    if (object$todistr$name == "exponential") {
+        ### Aalen model
+        H <- tmlt(object = object, newdata = newdata, q = q, ...)
+    } else {
+        ### generic
+        H <- -log(smlt(object = object, newdata = newdata, q = q, ...))
+    }
+    if (log) return(log(H))
+    return(H)
+}
+
+### odds function
+Omlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
+    if (object$todistr$name == "logistic") {
+        logO <- tmlt(object = object, newdata = newdata, q = q, ...)
+        if (log) return(logO)
+        return(exp(logO))
+    }
+    F <- pmlt(object = object, newdata = newdata, q = q, ...)
+    S <- smlt(object = object, newdata = newdata, q = q, ...)
+    if (log) return(log(F) - log(S))
+    return(F / S)
+}
 
 ### numerical inversion of distribution function
 ### to get quantile function

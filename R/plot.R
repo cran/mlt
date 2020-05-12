@@ -1,6 +1,7 @@
 
 plot.ctm <- function(x, newdata, type = c("distribution",
-    "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile", "trafo"),
+    "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", 
+    "logcumhazard", "odds", "logodds", "quantile", "trafo"),
     q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), lty = 1, add = FALSE, ...) {
 
     args <- list(...)

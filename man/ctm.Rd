@@ -8,7 +8,7 @@
 }
 \usage{
 ctm(response, interacting = NULL, shifting = NULL, data = NULL, 
-    todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal"), 
+    todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal", "Exponential"), 
     sumconstr = inherits(interacting, c("formula", "formula_basis")), ...)
 }
 \arguments{
@@ -31,7 +31,8 @@ ctm(response, interacting = NULL, shifting = NULL, data = NULL,
   (\code{"Logistic"}), the standard minimum extreme value
   (\code{"MinExtrVal"}, also known as Gompertz distribution), and the
   standard maximum extreme value (\code{"MaxExtrVal"}, also known as Gumbel
-  distribution) distributions.
+  distribution) distributions. The exponential distribution
+  (\code{"Exponential"}) can be used to fit Aalen additive hazard models.
 
 }
 \value{

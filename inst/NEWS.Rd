@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.2-0 (2020-05-11)}{
+  \itemize{
+    \item{Add exponential distribution (for Aalen additive hazards models).}
+    \item{Pay attention to model class when computing cumulative hazards.}
+    \item{Add log-cumulative hazards, log-odds, and odds for predictions and plots.}
+  }
+}
+
 \section{Changes in Version 1.1-2 (2020-02-13)}{
   \itemize{
     \item{Allow permutations of single variables.}

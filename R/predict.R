@@ -1,6 +1,7 @@
 
 predict.ctm <- function(object, newdata, type = c("trafo", "distribution", "survivor", 
-    "density", "logdensity", "hazard", "loghazard", "cumhazard", "quantile"), 
+    "density", "logdensity", "hazard", "loghazard", "cumhazard", "logcumhazard", 
+    "odds", "logodds", "quantile"), 
     terms = c("bresponse", "binteracting", "bshifting"), q = NULL, prob = NULL, K = 50,
     interpolate = TRUE, ...) {
 
@@ -34,6 +35,9 @@ predict.ctm <- function(object, newdata, type = c("trafo", "distribution", "surv
         "hazard" = hmlt(object = object, newdata = newdata, q = q, log = FALSE, ...),
         "loghazard" = hmlt(object = object, newdata = newdata, q = q, log = TRUE, ...),
         "cumhazard" = Hmlt(object = object, newdata = newdata, q = q, ...),
+        "logcumhazard" = Hmlt(object = object, newdata = newdata, q = q, log = TRUE, ...),
+        "odds" = Omlt(object = object, newdata = newdata, q = q, ...),
+        "logodds" = Omlt(object = object, newdata = newdata, q = q, log = TRUE, ...),
         "quantile" = qmlt(object = object, newdata = newdata, q = q, n = K,
                           prob = prob, interpolate = interpolate, ...))
 
