@@ -51,7 +51,7 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
               interacting = Bernstein_basis(speed, order = 3))
 
   ### fit model
-  (mltm <- mlt(ctmm, data = cars))
+  mltm <- mlt(ctmm, data = cars)
 
   ### plot data
   plot(cars)

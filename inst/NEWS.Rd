@@ -2,6 +2,26 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.2-1 (2020-02-03)}{
+  \subsection{New features}{
+    \itemize{
+      \item{Quantiles and thus simulations are now computationally more exact and more robust.
+            The unnecessary \code{interpolate} argument to \code{predict} and
+            \code{simulate} is now ignored.}
+      \item{Adjust contrasts a fixed parameter contributes to.}
+      \item{Return numerically determined Hessians upon request.}
+      \item{Implement frailty error distributions, experimentally and internal only.}
+      \item{Implement cure mixture models, experimentally and internal only.}
+      \item{Improve computations of log-probabilities.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Discrete hazard functions were incorrect.}
+    }
+  }
+}
+
 \section{Changes in Version 1.2-0 (2020-05-11)}{
   \itemize{
     \item{Add exponential distribution (for Aalen additive hazards models).}
@@ -9,6 +29,7 @@
     \item{Add log-cumulative hazards, log-odds, and odds for predictions and plots.}
   }
 }
+
 
 \section{Changes in Version 1.1-2 (2020-02-13)}{
   \itemize{

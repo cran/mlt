@@ -1,8 +1,11 @@
     
 ### simulate from model object with data newdata
 simulate.ctm <- function(object, nsim = 1, seed = NULL, 
-                         newdata, K = 50, q = NULL,
-                         interpolate = TRUE, bysim = TRUE, ...) {
+                         newdata, K = 50, q = NULL, interpolate = FALSE,
+                         bysim = TRUE, ...) {
+
+    if (interpolate)
+        warning("Argument interpolate ignored in mlt >= 1.2-1")
 
     ### from stats:::simulate.lm
     if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) 
@@ -16,48 +19,43 @@ simulate.ctm <- function(object, nsim = 1, seed = NULL,
         on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
     }
 
+    if (!is.data.frame(newdata))
+        stop("not yet implemented")
+
+
     y <- variable.names(object, "response")
     if (is.null(q))
         q <- mkgrid(object, n = K)[[y]]
+    newdata <- newdata[colnames(newdata) %in% variable.names(object)]
+    newdata[y] <- NULL
+    if (NCOL(newdata) == 0L) newdata <- data.frame(1)
+    U <- matrix(runif(nsim * NROW(newdata)), ncol = nsim)
+    pr <- predict(object, newdata = newdata, q = q, type = "distribution")
+    if (!is.matrix(pr)) pr <- matrix(pr, ncol = 1)
 
-    stopifnot(!missing(newdata))
-    if (is.data.frame(newdata)) {
-        p <- runif(nsim * NROW(newdata))
-        ### basically compute quantiles for p; see qmlt
-        prob <- predict(object, newdata = newdata, q = q, type = "distribution")
-        ### unconditional: newdata is ignored in the presence of q
-        if (!is.matrix(prob))
-            prob <- matrix(prob, ncol = 1)[,rep(1, NROW(newdata)), drop = FALSE]
-        prob <- t(prob[, rep(1:NCOL(prob), nsim),drop = FALSE])
-        discrete <- !inherits(as.vars(object)[[y]],
-                              "continuous_var")
-        bounds <- bounds(object)[[y]]
-        ret <- .p2q(prob, q, p, interpolate = interpolate, bounds = bounds,
-                    discrete = discrete)
-        if (nsim > 1) {
-            if (bysim) {
-                tmp <- vector(mode = "list", length = nsim)
-                for (i in 1:nsim) {
-                    idx <- 1:NROW(newdata) + (i - 1) * NROW(newdata)
-                    if (is.data.frame(ret)) 
-                        tmp[[i]] <- ret[idx,]
-                    else 
-                        tmp[[i]] <- ret[idx]
-                }
-            } else {
-                tmp <- vector(mode = "list", length = NROW(newdata))
-                for (i in 1:NROW(newdata)) {
-                    idx <- NROW(newdata) * 0:(nsim - 1) + i
-                    if (is.data.frame(ret)) 
-                        tmp[[i]] <- ret[idx,]
-                    else 
-                        tmp[[i]] <- ret[idx]
-                }
+    ret <- .invf(object, f = t(pr), q = q, z = U)
+
+    if (nsim > 1) {
+        if (bysim) {
+            tmp <- vector(mode = "list", length = nsim)
+            for (i in 1:nsim) {
+                idx <- 1:NROW(newdata) + (i - 1) * NROW(newdata)
+                if (is.data.frame(ret)) 
+                    tmp[[i]] <- ret[idx,]
+                else 
+                    tmp[[i]] <- ret[idx]
             }
-            ret <- tmp
+        } else {
+            tmp <- vector(mode = "list", length = NROW(newdata))
+            for (i in 1:NROW(newdata)) {
+                idx <- NROW(newdata) * 0:(nsim - 1) + i
+                if (is.data.frame(ret)) 
+                    tmp[[i]] <- ret[idx,]
+                else 
+                    tmp[[i]] <- ret[idx]
+            }
         }
-    } else {
-        stop("not yet implemented")
+        ret <- tmp
     }
     return(ret)
 }

@@ -15,7 +15,13 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
             if (!is.null(ui)) {
                 for (tr in 1:maxtry) {
                     ret <- try(alabama::auglag(par = atheta, fn = f, gr = g, hin = function(par) ui %*% par - ci, hin.jac = function(par) ui,
-                                               control.outer = control)[c("par", "convergence", "value")])
+                                               control.outer = control))
+                    rtn <- c("par", "convergence", "value")
+                    if ("hessian" %in% names(ret)) {
+                        ret$optim_hessian <- ret$hessian
+                        rtn <- c(rtn, "optim_hessian")
+                    }
+                    ret <- ret[rtn]
                     atheta <- runif(length(atheta))
                     names(atheta) <- names(theta)
                     if (inherits(ret, "try-error")) next()

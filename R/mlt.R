@@ -29,6 +29,11 @@
         stopifnot(all(names(fixed) %in% colnames(Y)))
         fix <- colnames(Y) %in% names(fixed)
         fixed <- fixed[colnames(Y)[fix]]
+
+        ### adjust contrasts a fixed parameter contributes to
+        ci <- ci - c(as(ui[, fix, drop = FALSE], "matrix") %*% fixed)
+
+        ### remove columns corresponding to fixed parameters
         ui <- ui[,!fix,drop = FALSE]
         .parm <- function(beta) {
             nm <- names(beta)
@@ -54,7 +59,9 @@
     } 
 
     .ofuns <- function(weights, subset = NULL, offset = NULL, 
-                       perm = NULL, permutation = NULL) {
+                       perm = NULL, permutation = NULL, 
+                       distr = todistr) ### <- change todistr via update(, distr =)
+    {
         if (is.null(offset)) offset <- rep(0, nrow(data))
         es <- .exact_subset(.exact(y), subset)
         exY <- NULL
@@ -140,10 +147,10 @@
                     beta_ex <- beta_nex <- beta
                 }
                 if (!is.null(es$full_ex))
-                    ret[es$full_ex] <- .mlt_loglik_exact(todistr, 
+                    ret[es$full_ex] <- .mlt_loglik_exact(distr, 
                         exY, exYprime, exoffset, extrunc)(.parm(beta_ex))
                 if (!is.null(es$full_nex))
-                    ret[es$full_nex] <- .mlt_loglik_interval(todistr, 
+                    ret[es$full_nex] <- .mlt_loglik_interval(distr, 
                         iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
                 return(ret)
             },
@@ -166,10 +173,10 @@
                     nm <- names(beta)
                 }
                 if (!is.null(es$full_ex))
-                    ret[es$full_ex,] <- .mlt_score_exact(todistr, 
+                    ret[es$full_ex,] <- .mlt_score_exact(distr, 
                         exY, exYprime, exoffset, extrunc)(.parm(beta_ex), Xmult)
                 if (!is.null(es$full_nex))
-                    ret[es$full_nex,] <- .mlt_score_interval(todistr, 
+                    ret[es$full_nex,] <- .mlt_score_interval(distr, 
                         iYleft, iYright, ioffset, itrunc)(.parm(beta_nex), Xmult)
                 if (!Xmult) return(ret)
                 colnames(ret) <- colnames(Y)
@@ -192,11 +199,11 @@
                     nm <- names(beta)
                 }
                 if (!is.null(es$full_ex))
-                    ret <- ret + .mlt_hessian_exact(todistr, 
+                    ret <- ret + .mlt_hessian_exact(distr, 
                         exY, exYprime, exoffset, extrunc, 
                         exweights)(.parm(beta_ex))
                 if (!is.null(es$full_nex))
-                    ret <- ret + .mlt_hessian_interval(todistr, 
+                    ret <- ret + .mlt_hessian_interval(distr, 
                         iYleft, iYright, ioffset, itrunc, 
                         iweights)(.parm(beta_nex))
                 colnames(ret) <- rownames(ret) <- colnames(Y)
@@ -463,7 +470,8 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
 
 update.mlt_fit <- function(object, weights = stats::weights(object), 
                            subset = NULL, offset = object$offset,
-                           theta = coef(object, fixed = FALSE), ...) {
+                           theta = coef(object, fixed = FALSE), 
+                           ...) {
 
     stopifnot(length(weights) == NROW(object$data))
     if (!is.null(subset))
@@ -486,5 +494,49 @@ update.mlt_fit <- function(object, weights = stats::weights(object),
     args$optim <- object$optim
     ret <- do.call(".mlt_fit", args)
     ret$call <- match.call()
+    ret
+}
+
+### frailty models; ie F_Z with additional scale parameter
+fmlt <- function(object, frailty = c("Gamma", "InvGauss", "PositiveStable"), 
+                 interval = fr$support, ...) {
+    frailtyfun <- paste0(".", frailty <- match.arg(frailty), "Frailty")
+    fr <- do.call(frailtyfun, list())
+    object <- as.mlt(object)
+    model <- object$model
+    ll <- function(fparm)
+        -logLik(update(object, distr = do.call(frailtyfun, list(fparm))))
+    om <- optimise(ll, interval = interval, maximum = FALSE)
+    model$todistr <- do.call(frailtyfun, list(om$minimum))
+    ret <- mlt(model = model, data = object$data, 
+               weights = weights(object),
+               subset = object$subset, offset = object$offset, 
+               theta = coef(object), fixed = object$fixed, 
+               scale = object$scale, optim = object$optim)
+    class(ret) <- c("fmlt", class(ret))
+    ret
+}
+
+### cure mixture models (for a constant cure probability)
+### e.g. 10.1002/sim.687
+cmlt <- function(object, interval = fr$support, ...) {
+    object <- as.mlt(object)
+    model <- object$model
+    ### take F_Z from fitted model
+    distr <- get(object$model$todistr$call)
+    ### no unknown parameters in frailties as of now
+    stopifnot(length(distr$parm()) == 0L)
+    fr <- .CureRate(distr = distr)
+    ### <FIXME> allow for additional parameters in frailty
+    ll <- function(logitrho)
+        -logLik(update(object, distr = .CureRate(logitrho, distr = distr)))
+    om <- optimise(ll, interval = interval, maximum = FALSE)
+    model$todistr <- .CureRate(om$minimum, distr = distr)
+    ### </FIXME>
+    ret <- mlt(model = model, data = object$data, weights = weights(object),
+               subset = object$subset, offset = object$offset, 
+               theta = coef(object), fixed = object$fixed, 
+               scale = object$scale, optim = object$optim)
+    class(ret) <- c("fmlt", class(ret))
     ret
 }

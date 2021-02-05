@@ -10,7 +10,8 @@ importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "vcov", "AIC", "coef", "confint", "dlogis", "dnorm",
            "lm.fit", "plogis", "pnorm", "predict", "qlogis", "qnorm",
            "runif", "stepfun", "weights", "approxfun", "xtabs", "resid",
-           "complete.cases", "dexp", "pexp", "qexp")
+           "complete.cases", "dexp", "pexp", "qexp",
+           "approx", "optimise", "spline", "update")
 
 # importFrom("quadprog", "solve.QP")
 importFrom("coneproj", "qprog")
@@ -74,3 +75,7 @@ S3method("estfun", "mlt")
 S3method("residuals", "mlt")
 S3method("bread", "mlt")
 S3method("bread", "mlt_fit")
+
+S3method("coef", "fmlt")
+S3method("Hessian", "fmlt")
+S3method("vcov", "fmlt")

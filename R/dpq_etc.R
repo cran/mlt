@@ -50,7 +50,7 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
         ### extra quantiles, compute transformation
         ### for each q and each row of newdata
         stopifnot(is.atomic(q))
-        stopifnot(length(unique(q)) == length(q))
+#        stopifnot(length(unique(q)) == length(q))
         dim <- c(length(q), nrow(newdata))
 
         ### <FIXME> this triggers a trick in 
@@ -133,13 +133,14 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
 }
 
 ### distribution function
-pmlt <- function(object, newdata = NULL, q = NULL, ...)
+pmlt <- function(object, newdata = NULL, q = NULL, lower.tail = TRUE, log = FALSE, ...)
     object$todistr$p(tmlt(object = object, newdata = newdata,
-                                q = q, ...))
+                          q = q, ...), lower.tail = lower.tail, log.p = log)
 
 ### survivor function
-smlt <- function(object, newdata = NULL, q = NULL, ...)
-    1 - pmlt(object = object, newdata = newdata, q = q, ...)
+smlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...)
+    pmlt(object = object, newdata = newdata, q = q, lower.tail = FALSE, 
+         log = log, ...)
 
 ### cumulative hazard function
 Hmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
@@ -154,7 +155,8 @@ Hmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
         H <- tmlt(object = object, newdata = newdata, q = q, ...)
     } else {
         ### generic
-        H <- -log(smlt(object = object, newdata = newdata, q = q, ...))
+        H <- -smlt(object = object, newdata = newdata, q = q, log = TRUE, 
+                   ...)
     }
     if (log) return(log(H))
     return(H)
@@ -167,50 +169,89 @@ Omlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
         if (log) return(logO)
         return(exp(logO))
     }
-    F <- pmlt(object = object, newdata = newdata, q = q, ...)
-    S <- smlt(object = object, newdata = newdata, q = q, ...)
-    if (log) return(log(F) - log(S))
+    F <- pmlt(object = object, newdata = newdata, q = q, log = log, ...)
+    S <- smlt(object = object, newdata = newdata, q = q, log = log, ...)
+    if (log) return(F - S)
     return(F / S)
 }
 
-### numerical inversion of distribution function
-### to get quantile function
-.p2q <- function(prob, q, p, interpolate = FALSE, 
-                 discrete = FALSE, bounds = c(-Inf, Inf)) {
+### numerically invert z = f(q)
+.invf <- function(object, f, q, z) {
 
-    prob <- cbind(0, prob, 1)
-    i <- rowSums(prob < p)
-    if (discrete)
+    if (!is.matrix(f)) f <- matrix(f, nrow = 1)
+    N <- nrow(f)
+    K <- length(q)
+    stopifnot(ncol(f) == K)
+
+    if (!is.matrix(z)) z <- matrix(z, nrow = N)
+    stopifnot(nrow(z) == N)
+    nsim <- ncol(z)
+
+    y <- variable.names(object, "response")
+    bounds <- bounds(object)[[y]]
+
+    discrete <- !inherits(as.vars(object)[[y]],
+                          "continuous_var")
+    if (discrete) {
+        ### use "old" code
+        f <- f[rep(1:N, nsim), , drop = FALSE]
+        f <- cbind(-Inf, f, Inf)
+        i <- rowSums(f < as.vector(z))
         return(q[i])
+    }
 
-    ### Note: mkgrid for bounded variables already contains the bounds
-    q <- c(bounds[1], q, bounds[2])
+    ### use spline/approx to evaluate quantile function
+    nleft <- nexact <- nright <- 
+        matrix(NA, nrow = N, ncol = nsim)
 
-    ### return interval censored quantiles
-    if (!interpolate)
-        return(R(cleft = q[i], cright = q[i + 1]))
+    for (i in 1:N) {
+             
+        pr <- f[i,]
+        pr0 <- which(pr < min(pr) + sqrt(.Machine$double.eps))
+        pr1 <- which(pr > max(pr) - sqrt(.Machine$double.eps))
+        rmi <- which(!is.finite(pr))
+        if (length(pr0) > 0L)
+            rmi <- c(rmi, pr0[-length(pr0)])
+        if (length(pr1) > 0L)
+            rmi <- c(rmi, pr1[-1L])
+        if (length(rmi) > 0L) {
+            qq <- q[-rmi]
+            pr <- pr[-rmi]
+        } else {
+            qq <- q
+        }
+        s <- spline(x = qq, y = pr, method = "hyman")
+        ynew <- approx(x = s$y, y = s$x, xout = z[i, ], 
+                       yleft = -Inf, yright = Inf)$y
+        if (bounds[1L] == min(q))
+            ynew[ynew == -Inf] <- min(q)
+        if (bounds[2L] == max(q))
+            ynew[ynew == Inf] <- max(q)
+        nleft[i, ynew == -Inf] <- bounds[1L]
+        nright[i, ynew == -Inf] <- min(q)
+        nleft[i, ynew == Inf] <- max(q)
+        nright[i, ynew == Inf] <- bounds[2L]
+        ynew[!is.finite(ynew)] <- NA
+        nexact[i, ] <- ynew
+    }
 
-    FIN <- is.finite(q[i]) & is.finite(q[i + 1])
-
-    ptmp <- cbind(prob[cbind(1:nrow(prob), i)],    
-                  prob[cbind(1:nrow(prob), i + 1)])
-    beta <- (ptmp[,2] - ptmp[,1]) / (q[i + 1] - q[i])
-    alpha <- ptmp[,1] - beta * q[i]
-    ret <- (p - alpha) / beta
-    ret[!is.finite(beta)] <- q[i][!is.finite(beta)]
-
-    if (all(FIN)) return(ret)
-    ret[!FIN] <- NA
-    left <- q[i]
-    left[FIN] <- NA
-    right <- q[i + 1]
-    right[FIN] <- NA
-    return(R(ret, cleft = left, cright = right))
+    if (all(is.na(nleft)) && all(is.na(nright)))
+        return(as.vector(nexact))
+    return(R(as.vector(nexact), 
+             cleft = as.vector(nleft), 
+             cright = as.vector(nright)))
 }
+
 
 ### quantile function
 qmlt <- function(object, newdata = NULL, q = NULL, prob = .5, n = 50, 
-                 interpolate = TRUE, ...) {
+                 interpolate = FALSE, ...) {
+
+   if (interpolate)
+        warning("Argument interpolate ignored in mlt >= 1.2-1")
+
+    stopifnot(all(prob > sqrt(.Machine$double.eps)) && 
+              all(prob < 1 - sqrt(.Machine$double.eps)))
 
     y <- variable.names(object, "response")
     if (is.null(q))
@@ -220,34 +261,34 @@ qmlt <- function(object, newdata = NULL, q = NULL, prob = .5, n = 50,
         nm <- names(newdata)
         newdata[[y]] <- q
         newdata <- newdata[c(y, nm)]
-        qprob <- pmlt(object, newdata, ...)
+        tr <- pmlt(object, newdata, ...)
     } else {
-        qprob <- pmlt(object, newdata = newdata, q = q, ...)
+        tr <- pmlt(object, newdata = newdata, q = q, ...)
     } 
 
     ### convert potential array-valued distribution function
     ### to matrix where rows correspond to observations newdata 
     ### and columns to quantiles q
-    ptmp <- t(matrix(qprob, nrow = length(q)))
-    nr <- nrow(ptmp)
-    ptmp <- ptmp[rep(1:nr, each = length(prob)),,drop = FALSE]
-    pp <- rep(prob, nr) ### prob varies fastest
-    discrete <- !inherits(as.vars(object)[[y]],
-                          "continuous_var")
-    bounds <- bounds(as.vars(object)[[y]])[[1]]
-    ret <- .p2q(ptmp, q, pp, interpolate = interpolate, bounds = bounds,
-                discrete = discrete)
+    trm <- matrix(tr, ncol = length(q), byrow = TRUE)
+    ### Note: we invert the cdf direct; 
+    ### inverting transformation functions using approx didn't work well
+    qu <- matrix(prob, 
+                 nrow = nrow(trm), ncol = length(prob), byrow = TRUE)
+
+    ret <- .invf(object, f = trm, q = q, z = qu)
+    i <- as.vector(matrix(1:length(ret), ncol = nrow(trm), byrow = TRUE))
+    ret <- if (is.matrix(ret)) ret[i,] else ret[i]
 
     ### arrays of factors are not allowed
     if (is.factor(q)) return(ret)
 
     ### return "response" object
-    if (!interpolate || inherits(ret, "response")) 
+    if (inherits(ret, "response")) 
         return(ret)
 
-    dim <- dim(qprob)
+    dim <- dim(tr)
     dim[1] <- length(prob)
-    dn <- c(list(prob = .frmt(prob)), dimnames(qprob)[-1])
+    dn <- c(list(prob = .frmt(prob)), dimnames(tr)[-1L])
     return(array(ret, dim = dim, dimnames = dn))
 }
 
@@ -360,9 +401,21 @@ dmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
 
 ### hazard function
 hmlt <- function(object, newdata = object$data, q = NULL, log = FALSE, ...) {
-    if (log) 
-        return(dmlt(object, newdata = newdata, q = q, log = TRUE, ...) -
-               log(smlt(object, newdata = newdata, q = q, ...)))
-    return(dmlt(object, newdata = newdata, q = q, log = FALSE, ...) /
-           smlt(object, newdata = newdata, q = q, ...))
+
+    y <- variable.names(object, "response")
+    response <- mkgrid(object, n = 10)[[y]]
+
+    if (.type_of_response(response) %in% c("double", "survival")) {
+        d <- dmlt(object, newdata = newdata, q = q, log = log, ...)
+        s <- smlt(object, newdata = newdata, q = q, log = log, ...)
+        if (log) 
+            return(d - s)
+        return(d / s)
+    }
+    ### discrete hazard: Prob(Y = y | Y >= y)
+    d <- dmlt(object, newdata = newdata, q = q, log = log, ...)
+    p <- pmlt(object, newdata = newdata, q = q, ...)
+    if (log)
+        return(d - log1p(-(p - exp(d))))
+    return(d / (1 - (p - d)))
 }

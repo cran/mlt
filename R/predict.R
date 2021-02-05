@@ -3,7 +3,7 @@ predict.ctm <- function(object, newdata, type = c("trafo", "distribution", "surv
     "density", "logdensity", "hazard", "loghazard", "cumhazard", "logcumhazard", 
     "odds", "logodds", "quantile"), 
     terms = c("bresponse", "binteracting", "bshifting"), q = NULL, prob = NULL, K = 50,
-    interpolate = TRUE, ...) {
+    interpolate = FALSE, ...) {
 
     type <- match.arg(type)
     terms <- match.arg(terms, several.ok = TRUE)

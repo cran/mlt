@@ -22,10 +22,10 @@
          "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", 
          "logcumhazard", "odds", "logodds", "quantile"), 
          terms = c("bresponse", "binteracting", "bshifting"), 
-         q = NULL, prob = NULL, K = 50, interpolate = TRUE, ...)
+         q = NULL, prob = NULL, K = 50, interpolate = FALSE, ...)
 \method{predict}{mlt}(object, newdata = object$data, ...)
 \method{simulate}{ctm}(object, nsim = 1, seed = NULL, newdata, K = 50, q = NULL,
-         interpolate = TRUE, bysim = TRUE, ...)
+         interpolate = FALSE, bysim = TRUE, ...)
 \method{simulate}{mlt}(object, nsim = 1, seed = NULL, newdata = object$data, bysim = TRUE, ...)
 }
 \arguments{
@@ -42,7 +42,8 @@
   \item{col}{color for the lines to plot}
   \item{lty}{line type for the lines to plot}
   \item{add}{logical indicating if a new plot shall be generated (the default)}
-  \item{interpolate}{logical indicating if quantiles shall be interpolated linearily}
+  \item{interpolate}{logical indicating if quantiles shall be interpolated
+                     linearily. This unnecessary option is no longer implemented (starting with 1.2-1).}
   \item{nsim}{number of samples to generate}
   \item{seed}{optional seed for the random number generator}
   \item{bysim}{logical, if \code{TRUE} a list with \code{nsim} elements is returned,

@@ -39,4 +39,21 @@ mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE),
   Adding further such functions is a way to add more optimisers to \code{\link{mlt}}.
   The first one in this list converging  defines the resulting model.
 }
+\examples{
+
+  ### set-up linear transformation model for conditional
+  ### distribution of dist given speed
+  dist <- numeric_var("dist", support = c(2.0, 100), bounds = c(0, Inf))
+  ctmm <- ctm(response = Bernstein_basis(dist, order = 4, ui = "increasing"),
+              shifting = ~ speed, data = cars)
+
+  ### use auglag with kkt2.check = TRUE => the numerically determined
+  ### hessian is returned as "optim_hessian" slot
+  op <- mltoptim(auglag = list(maxtry = 5, kkt2.check = TRUE))[1]
+  mltm <- mlt(ctmm, data = cars, scale = FALSE, optim = op)
+
+  ### compare analytical and numerical hessian
+  all.equal(c(Hessian(mltm)), c(mltm$optim_hessian), tol = 1e-4)
+
+}
 \keyword{list}

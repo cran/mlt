@@ -176,6 +176,91 @@ model.mlt <- function(object) {
            fixed = object$fixed))
 }
 
+### take estimated "logrho" parameter into account in coef and vcov 
+coef.fmlt <- function(object, addparm = FALSE, ...) {
+    if (addparm)
+        return(object$model$todistr$parm())
+    class(object) <- class(object)[-1L]
+    coef(object, ...)
+}
+
+### hessian, partially analytically / numerically
+Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
+    w <- weights(object)
+    if (!is.null(object$subset)) 
+        w[-object$subset] <- 0
+    addparm <- coef(object, addparm = TRUE)
+    parm <- c(addparm, parm)
+    model <- object$model
+    ll <- function(addparm, parm) {
+        model$todistr <- do.call(model$todistr$call, as.list(addparm))
+        m <- mlt(model = model, data = object$data, weights = w,
+                 subset = object$subset, offset = object$offset, dofit = FALSE,
+                 theta = parm,
+                 fixed = object$fixed, scale = object$scale, optim = object$optim)
+        -logLik(m, parm = parm, w = w)
+    }
+    sc <- function(addparm, parm, which = 1L) {
+        model$todistr <- do.call(model$todistr$call, as.list(addparm))
+        m <- mlt(model = model, data = object$data, weights = w,
+                 subset = object$subset, offset = object$offset, dofit = FALSE,
+                 theta = parm,
+                 fixed = object$fixed, scale = object$scale, optim = object$optim)
+        ### note: weights(m) are used by estfun
+        Gradient(m, parm = parm)[which]
+    }
+
+    ### compute the analytical hessian for coef(object) for fixed optimal
+    ### logrho analytically
+    mltobj <- object
+    class(mltobj) <- class(mltobj)[-1L]
+    Htheta <- Hessian(mltobj, parm = parm[-1L])
+    ret <- matrix(NA, nrow = length(parm), ncol = length(parm))
+    rownames(ret) <- colnames(ret) <- names(parm)
+    idx <- 1:length(addparm)
+    ret[-idx,-idx] <- Htheta
+
+    ### compute the hessian for logrho for fixed coef(object) 
+    ### numerically (we don't know the form of the likelihood
+    ### here and this is just fast and accurate enough)
+    ret[idx, idx] <- numDeriv::hessian(ll, addparm, parm = parm[-idx])
+
+    ### compute the hessian for logrho and coef(object):
+    ### first compute the analytical gradient wrt coef(object) and then the
+    ### numerical gradient wrt logrho for each component
+    ### same reason as above
+    Hlogrho_theta <- sapply(1:(length(parm) - length(idx)), 
+        function(i) numDeriv::grad(sc, addparm, parm = parm[-idx], which = i))
+    ret[idx, -idx] <- ret[-idx, idx] <- Hlogrho_theta
+    ret
+}
+
+vcov.fmlt <- function(object, parm = coef(object, fixed = FALSE), 
+                          complete = FALSE, addparm = FALSE, ...) {
+    ### <FIXME> implement complete argument </FIXME>
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
+    step <- 0
+    lam <- 1e-6
+    H <- Hessian(object, parm = parm)
+    while((step <- step + 1) <= 3) {
+        ret <- try(solve(H + (step - 1) * lam * diag(nrow(H))))
+        if (!inherits(ret, "try-error")) break
+    }
+    if (inherits(ret, "try-error"))
+        stop("Hessian is not invertible")
+    if (step > 1)
+        warning("Hessian is not invertible, an approximation is used")
+    if (addparm)
+        return(ret)
+    idx <- 1:length(coef(object, addparm = TRUE))
+    return(ret[-idx, -idx])
+}
+
 description <- function(object) {
     stopifnot(inherits(object, "mlt"))
     m <- model(object)
@@ -242,7 +327,10 @@ bounds.mlt <- function(object)
 
 print.response <- function(x, digits = getOption("digits"), ...) {
 
-    ac <- function(x) format(c(x), digits = digits)
+    ac <- function(x) {
+        if (inherits(x, "factor")) return(levels(x)[x])
+        format(c(x), digits = digits)
+    }
     obs <- paste(ifelse(!is.na(x$exact), ac(x$exact), 
                  paste("(", ac(x$cleft), ", ", ac(x$cright), "]", sep = "")))
 
