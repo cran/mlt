@@ -2,7 +2,7 @@
 library("mlt")
 library("numDeriv")
 set.seed(29)
-options(digits = 5)
+options(digits = 4)
 
 n <- 20
 ### just for interface checking

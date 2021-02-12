@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.2-2 (2020-02-12)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Sampling from unconditional models did not pay attention to
+            number of observations.}
+    }
+  }
+}
+
 \section{Changes in Version 1.2-1 (2020-02-03)}{
   \subsection{New features}{
     \itemize{
@@ -21,6 +30,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.2-0 (2020-05-11)}{
   \itemize{
