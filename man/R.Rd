@@ -10,7 +10,7 @@
 \alias{as.Surv}
 \alias{as.Surv.response}
 \title{
-    Response Variable
+    Response Variables
 }
 \description{
     Represent a possibly censored or truncated response variable
@@ -49,13 +49,77 @@ as.Surv(object)
 \details{
   \code{R} is basically an extention of \code{\link[survival]{Surv}} for the
   representation of arbitrarily censored or truncated measurements at any scale.
+  The \code{storage.mode} of \code{object} determines if models are fitted
+  by the discrete likelihood (integers or factors) or the continuous
+  likelihood (log-density for numeric \code{object}s). Interval-censoring
+  is given by intervals (\code{cleft}, \code{cright}], also for integers and
+  factors (see example below). Left- and right-truncation can be defined
+  by the \code{tleft} and \code{tright} arguments. Existing \code{Surv}
+  objects can be converted using \code{R(Surv(...))}$ and, in some cases, an
+  \code{as.Surv()} method exists for representing \code{response} objects as
+  \code{Surv} objects.
 
   \code{R} applied to a list calls \code{R} for each of the list elements
   and returns a joint object.
+
+  More examples can be found in Hothorn (2018) and in 
+  \code{vignette("tram", package = "tram")}.
+
+}
+\references{
+
+  Torsten Hothorn (2020), Most Likely Transformations: The mlt Package,
+  \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
+  \doi{10.18637/jss.v092.i01}
+
 }
 \examples{
 
+ library("survival")
+ 
+ ### randomly right-censored continuous observations
+ time <- as.double(1:9)
+ event <- rep(c(FALSE, TRUE), length = length(time))
+
+ Surv(time, event)
+ R(Surv(time, event))
+
+ ### right-censoring, left-truncation
+ ltm <- 1:9 / 10
+ Surv(ltm, time, event)
+ R(Surv(ltm, time, event))
+
+ ### interval-censoring
+ Surv(ltm, time, type = "interval2")
+ R(Surv(ltm, time, type = "interval2"))
+
+ ### interval-censoring, left/right-truncation
+ lc <- as.double(1:4)
+ lt <- c(NA, NA, 7, 8)
+ rt <- c(NA, 9, NA, 10)
+ x <- c(3, NA, NA, NA)
+ rc <- as.double(11:14)
+ R(x, cleft = lt, cright = rt)
+ as.Surv(R(x, cleft = lt, cright = rt))
+ R(x, tleft = 1, cleft = lt, cright = rt)
+ R(x, tleft = 1, cleft = lt, cright = rt, tright = 15)
+ R(x, tleft = lc, cleft = lt, cright = rt, tright = rc)
+
+ ### discrete observations: counts
+ x <- 0:9
+ R(x)
+ ### partially interval-censored counts
+ rx <- c(rep(NA, 6), rep(15L, 4))
+ R(x, cright = rx)
+
  ### ordered factor
- R(gl(3, 3, labels = LETTERS[1:3]))
+ x <- gl(5, 2, labels = LETTERS[1:5], ordered = TRUE)
+ R(x)
+ ### interval-censoring (ie, observations can have multiple levels)
+ lx <- ordered(c("A", "A", "B", "C", "D", "E"), 
+               levels = LETTERS[1:5], labels = LETTERS[1:5])
+ rx <- ordered(c("B", "D", "E", "D", "D", "E"), 
+               levels = LETTERS[1:5], labels = LETTERS[1:5])
+ R(rx, cleft = lx, cright = rx)
 
 }

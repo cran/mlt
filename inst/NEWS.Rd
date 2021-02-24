@@ -2,7 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
-\section{Changes in Version 1.2-2 (2020-02-12)}{
+\section{Changes in Version 1.2-3 (2021-02-22)}{
+  \subsection{New features}{
+    \itemize{
+      \item{Improve documentation.}
+    }
+  }
+}
+
+\section{Changes in Version 1.2-2 (2021-02-12)}{
   \subsection{Bugfixes}{
     \itemize{
       \item{Sampling from unconditional models did not pay attention to
@@ -11,7 +19,7 @@
   }
 }
 
-\section{Changes in Version 1.2-1 (2020-02-03)}{
+\section{Changes in Version 1.2-1 (2021-02-03)}{
   \subsection{New features}{
     \itemize{
       \item{Quantiles and thus simulations are now computationally more exact and more robust.

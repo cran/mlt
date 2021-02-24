@@ -276,8 +276,8 @@ qmlt <- function(object, newdata = NULL, q = NULL, prob = .5, n = 50,
                  nrow = nrow(trm), ncol = length(prob), byrow = TRUE)
 
     ret <- .invf(object, f = trm, q = q, z = qu)
-    i <- as.vector(matrix(1:length(ret), ncol = nrow(trm), byrow = TRUE))
-    ret <- if (is.matrix(ret)) ret[i,] else ret[i]
+    i <- as.vector(matrix(1:NROW(ret), ncol = nrow(trm), byrow = TRUE))
+    ret <- if (is.data.frame(ret)) ret[i,] else ret[i]
 
     ### arrays of factors are not allowed
     if (is.factor(q)) return(ret)
