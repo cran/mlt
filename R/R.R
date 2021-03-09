@@ -2,12 +2,44 @@
 R <- function(object, ...)
     UseMethod("R")
 
-R.Surv <- function(object, ...) {
+R.Surv <- function(object, as.R.ordered = FALSE, ...) {
 
     type <- attr(object, "type")
     stopifnot(type %in% c("left", "right", "interval", 
                           "interval2", "counting"))
     status <- object[, "status"]
+
+    if (as.R.ordered && !type %in% c("right", "counting"))
+        warning("as.R.ordered only implemented for right-censored observations")
+    if (as.R.ordered && type %in% c("right", "counting")) {
+          ### code response as ordered factor with right-censoring
+          ### this defines the nonparametric likelihood
+          ### for right-censored data in terms of the observed event times
+          tm <- if(type == "right") object[,"time"] else object[, "stop"]
+          ### observed event times
+          utm <- sort(unique(tm[status == 1]))
+          utm <- utm[-length(utm)]
+          ### convert to ordered factor
+          ct <- cut(tm, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+          ### events in category k contribute
+          ### Prob(k) - Prob(k - 1)
+          lf <- rg <- ct
+          lf[status == 1] <- rg[status == 1] <- NA
+          ### censored obs in category k contribute
+          ### 1 - Prob(k - 1)
+          rg[status == 0] <- levels(ct)[nlevels(ct)]
+          ### Note: Censoring before first event contributes
+          ### 1 - 0 = 1 (coded as interval with cleft = NA, cright = NA)
+          lf[status != 1] <- c(NA, levels(ct))[lf[status != 1]]
+          ### left truncation
+          tl <- NA
+          if (type == "counting")
+              tl <- cut(object[, "start"], breaks = c(-Inf, utm, Inf), ordered = TRUE)
+          ### is this a "response" representation of an ordered factor now
+          ret <- R(object = ct, cleft = lf, cright = rg, tleft = tl)
+          attr(ret, "unique_obs") <- utm
+          return(ret)
+    }
 
     ret <- switch(type,
         "right" = R(object = ifelse(status == 1, object[, "time"], NA),
@@ -108,7 +140,7 @@ R.interval <- function(object, ...) {
 ### handle exact integer / factor as interval censored
 R.numeric <- function(object = NA, cleft = NA, cright = NA, 
                       tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), 
-                      ...) {
+                      as.R.ordered = FALSE, ...) {
 
     ### treat extremely small intervals as `exact' observations
     d <- cright - cleft
@@ -120,6 +152,27 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
             object[i] <- cleft[i]
             cleft[i] <- cright[i] <- NA
         }
+    }
+
+    if (as.R.ordered && any(!is.na(cleft) || !is.na(cright)))
+        warning("as.R.ordered only implemented for exact observations")
+
+    if (as.R.ordered) {
+      ### code response as ordered factor
+      ### this defines the nonparametric likelihood
+      ### in terms of the observed event times
+      utm <- sort(unique(object))
+      utm <- utm[-length(utm)]
+      ### convert to ordered factor
+      ct <- cut(object, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+      tl <- tr <- NA
+      if (!all(is.na(tleft)))
+         tl <- cut(tleft, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+      if (!all(is.na(tright)))
+         tr <- cut(tright, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+      ret <- R(object = ct, tleft = tl, tright = tr)
+      attr(ret, "unique_obs") <- utm
+      return(ret)
     }
     ret <- .mkR(exact = object, cleft = cleft, cright = cright,
                 tleft = tleft, tright = tright)
@@ -209,7 +262,8 @@ R.default <- function(object, ...)
     is.finite(object$cright)
 
 .cinterval <- function(object)
-    .cleft(object) | .cright(object)
+    !.exact(object)
+#    .cleft(object) | .cright(object)
 
 .tleft <- function(object)
     is.finite(object$tleft) 
@@ -231,10 +285,14 @@ R.default <- function(object, ...)
     names(deriv) <- response
     Yprime <- model.matrix(model, data = tmp, deriv = deriv)
 
+    .matrix <- matrix
+    if (inherits(Y, "Matrix")) 
+        .matrix <- function(...) Matrix(..., sparse = TRUE)
+
     trunc <- NULL
     if (any(.tinterval(object) & e)) {
-        Ytleft <- matrix(-Inf, nrow = nrow(Y), ncol = ncol(Y))
-        Ytright <- matrix(Inf, nrow = nrow(Y), ncol = ncol(Y))
+        Ytleft <- .matrix(-Inf, nrow = nrow(Y), ncol = ncol(Y))
+        Ytright <- .matrix(Inf, nrow = nrow(Y), ncol = ncol(Y))
         if (any(il <- (.tleft(object) & e))) {
             tmp <- data[il,]
             tmp[[response]] <- object$tleft[il]
@@ -263,11 +321,15 @@ R.default <- function(object, ...)
         tmp <- tmpdata[il,,drop = FALSE]
         tmp[[response]] <- object$cleft[il]
         Ytmp <- model.matrix(model, data = tmp)
-        Yleft <- matrix(-Inf, nrow = length(il), ncol = ncol(Ytmp))
+        .matrix <- matrix
+        if (inherits(Ytmp, "Matrix")) 
+            .matrix <- function(...) Matrix(..., sparse = TRUE)
+        Yleft <- .matrix(-Inf, nrow = length(il), ncol = ncol(Ytmp))
         colnames(Yleft) <- colnames(Ytmp)
+        rownames(Yleft) <- rownames(tmpdata)
+        Yleft[il,] <- Ytmp
         attr(Yleft, "constraint") <- attr(Ytmp, "constraint")
         attr(Yleft, "Assign") <- attr(Ytmp, "Assign")
-        Yleft[il,] <- Ytmp
     }
 
     Yright <- NULL
@@ -275,11 +337,15 @@ R.default <- function(object, ...)
         tmp <- tmpdata[ir,, drop = FALSE]
         tmp[[response]] <- object$cright[ir]
         Ytmp <- model.matrix(model, data = tmp)
-        Yright <- matrix(Inf, nrow = length(ir), ncol = ncol(Ytmp))
+        .matrix <- matrix
+        if (inherits(Ytmp, "Matrix")) 
+            .matrix <- function(...) Matrix(..., sparse = TRUE)
+        Yright <- .matrix(Inf, nrow = length(ir), ncol = ncol(Ytmp))
         colnames(Yright) <- colnames(Ytmp)
+        rownames(Yright) <- rownames(tmpdata)
+        Yright[ir,] <- Ytmp
         attr(Yright, "constraint") <- attr(Ytmp, "constraint")
         attr(Yright, "Assign") <- attr(Ytmp, "Assign")
-        Yright[ir,] <- Ytmp
     }
 
     if (is.null(Yright)) { 
@@ -297,8 +363,11 @@ R.default <- function(object, ...)
 
     trunc <- NULL
     if (any(.tinterval(object))) {
-        Ytleft <- matrix(-Inf, nrow = nrow(Yleft), ncol = ncol(Yleft))
-        Ytright <- matrix(Inf, nrow = nrow(Yleft), ncol = ncol(Yleft))
+        .matrix <- matrix
+        if (inherits(Yleft, "Matrix")) 
+            .matrix <- function(...) Matrix(..., sparse = TRUE)
+        Ytleft <- .matrix(-Inf, nrow = nrow(Yleft), ncol = ncol(Yleft))
+        Ytright <- .matrix(Inf, nrow = nrow(Yleft), ncol = ncol(Yleft))
         colnames(Ytleft) <- colnames(Ytright) <- colnames(Yleft)
         if (any(il <- (.tleft(object)))) {
             tmp <- tmpdata[il,,drop = FALSE]

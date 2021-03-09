@@ -136,7 +136,14 @@
             }
         }
         ret_ll <- numeric(nrow(data))
-        ret_sc <- matrix(0, nrow = nrow(data), ncol = length(fix))
+        .matrix <- matrix
+        if (inherits(exY, "Matrix") || inherits(iYleft, "Matrix")) 
+            .matrix <- function(...) Matrix(..., sparse = TRUE)
+        ret_scM <- .matrix(0, nrow = nrow(data), ncol = length(fix))
+        ret_sc <- matrix(0, nrow = nrow(data), ncol = 1L)
+        rownames(ret_scM) <- rownames(ret_sc) <- rownames(data)
+        EX_ONLY <- isTRUE(all.equal(es$full_ex, 1:nrow(data)))
+        IN_ONLY <- isTRUE(all.equal(es$full_nex, 1:nrow(data)))
         return(list(
             ll = function(beta) {
                 ret <- ret_ll 
@@ -160,9 +167,9 @@
                 ### multiplication with the whole design matrix.
                 ### Don't use on your own. 
                 if (Xmult) {
-                    ret <- ret_sc 
+                    ret <- ret_scM 
                 } else {
-                    ret <- ret_sc[,1,drop = FALSE]
+                    ret <- ret_sc
                 }
                 if (is.matrix(beta)) {
                     beta_ex <- beta[es$full_ex,,drop = FALSE]
@@ -172,12 +179,24 @@
                     beta_ex <- beta_nex <- beta
                     nm <- names(beta)
                 }
-                if (!is.null(es$full_ex))
-                    ret[es$full_ex,] <- .mlt_score_exact(distr, 
+                if (!is.null(es$full_ex)) {
+                    scr <- .mlt_score_exact(distr, 
                         exY, exYprime, exoffset, extrunc)(.parm(beta_ex), Xmult)
-                if (!is.null(es$full_nex))
-                    ret[es$full_nex,] <- .mlt_score_interval(distr, 
+                    if (EX_ONLY) {
+                        ret <- scr
+                    } else {
+                        ret[es$full_ex,] <- scr
+                    }
+                }
+                if (!is.null(es$full_nex)) {
+                    scr <- .mlt_score_interval(distr, 
                         iYleft, iYright, ioffset, itrunc)(.parm(beta_nex), Xmult)
+                    if (IN_ONLY) {
+                        ret <- scr
+                    } else {
+                        ret[es$full_nex,] <- scr
+                    }
+                }
                 if (!Xmult) return(ret)
                 colnames(ret) <- colnames(Y)
                 ### in case beta contains fix parameters,
@@ -344,9 +363,9 @@
 
     X <- matrix(0, nrow = NROW(y), ncol = ncol(Y))
     if (!is.null(eY))
-        X[eY$which,] <- eY$Y
+        X[eY$which,] <- as(eY$Y, "matrix")
     if (!is.null(iY))
-        X[iY$which,] <- iY$Yright
+        X[iY$which,] <- as(iY$Yright, "matrix")
     X[!is.finite(X[,1]),] <- 0
 
     if (any(fix)) {
@@ -377,7 +396,7 @@
     }
 
     if (!is.null(ui)) {    
-        ret <- try(c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat))
+        ret <- suppressWarnings(try(c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)))
         if (inherits(ret, "try-error")) {
             diag(Dmat) <- diag(Dmat) + 1e-3
             ret <- c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)

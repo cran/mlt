@@ -18,11 +18,12 @@
 \usage{
 R(object, ...)
 \method{R}{numeric}(object = NA, cleft = NA, cright = NA,
-   tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), ...)
+   tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), 
+   as.R.ordered = FALSE, ...)
 \method{R}{ordered}(object, cleft = NA, cright = NA, ...)
 \method{R}{integer}(object, cleft = NA, cright = NA, bounds = c(min(object), Inf), ...)
 \method{R}{factor}(object, ...)
-\method{R}{Surv}(object, ...)
+\method{R}{Surv}(object, as.R.ordered = FALSE, ...)
 as.Surv(object)
 \method{as.Surv}{response}(object)
 }
@@ -42,6 +43,10 @@ as.Surv(object)
   Tolerance for checking if \code{cleft} < \code{cright}}
   \item{bounds}{
   Range of possible values for integers}
+  \item{as.R.ordered}{logical, should numeric responses or right-censored
+  (and possible left-truncated survival) times be coded as ordered factor?
+  This leads to a parameterisation allowing to maximise the nonparametric
+  maximum likelihood.}
   \item{\dots}{
   other arguments, ignored except for \code{tleft} and \code{tright} to
   \code{R.ordered} and \code{R.integer}}
@@ -121,5 +126,12 @@ as.Surv(object)
  rx <- ordered(c("B", "D", "E", "D", "D", "E"), 
                levels = LETTERS[1:5], labels = LETTERS[1:5])
  R(rx, cleft = lx, cright = rx)
+
+ ### facilitate nonparametric maximum likelihood
+ (y <- round(runif(10), 1))
+ R(y, as.R.ordered = TRUE)
+
+ R(Surv(time, event), as.R.ordered = TRUE)
+ R(Surv(ltm, time, event), as.R.ordered = TRUE)
 
 }

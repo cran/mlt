@@ -29,7 +29,8 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
 }
 \details{
   This function fits a conditional transformation model by searching for 
-  the most likely transformation as described in Hothorn et al. (2017).
+  the most likely transformation as described in Hothorn et al. (2018) and
+  Hothorn (2020).
 }
 \value{
   An object of class \code{mlt} with corresponding methods.
@@ -39,6 +40,10 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
   Torsten Hothorn, Lisa Moest, Peter Buehlmann (2018), Most Likely
   Transformations, \emph{Scandinavian Journal of Statistics}, \bold{45}(1),
   110--134, \doi{10.1111/sjos.12291}.
+
+  Torsten Hothorn (2020), Most Likely Transformations: The mlt Package,
+  \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
+  \doi{10.18637/jss.v092.i01}
 
 }
 \examples{

@@ -1,6 +1,7 @@
 
 import("basefun")
 import("variables")
+importFrom("Matrix", "Matrix", "colSums", "rowSums", "crossprod")
 import("numDeriv") ### needed by BB???
 importFrom("BB", "spg", "BBoptim")
 importFrom("alabama", "auglag")

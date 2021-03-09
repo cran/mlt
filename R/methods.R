@@ -133,7 +133,9 @@ residuals.mlt <- function(object, parm = coef(object, fixed = FALSE),
     sc <- -object$score(parm, weights = w, Xmult = FALSE)
     if (!is.null(object$subset))
         sc <- sc[object$subset,,drop = TRUE]
-    return(c(sc))
+    if (inherits(sc, "matrix"))
+        return(sc[, 1L, drop = TRUE])
+    return(sc)
 }
 
 mkgrid.mlt <- function(object, n, ...)
