@@ -1,6 +1,6 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
-Copyright (C) 2018 The R Foundation for Statistical Computing
+R version 4.1.1 (2021-08-10) -- "Kick Things"
+Copyright (C) 2021 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -184,6 +184,14 @@ Loading required package: variables
 10 [0.32505510, 1.325055]    NA 0.32505510    NA 1.325055     NA 0.8250551
 > stopifnot(all.equal(s, as.Surv(R(s))))
 > 
+> ### this is not the same as R(s) because of censoring!
+> as.numeric(R(s))
+ [1] 2.6743382 1.9578367 0.1699776 3.0688301 0.6563352 0.5831724 0.2086637
+ [8] 2.2956614 0.6548202 0.8250551
+> as.double(R(s))
+ [1] 2.6743382 1.9578367 0.1699776 3.0688301 0.6563352 0.5831724 0.2086637
+ [8] 2.2956614 0.6548202 0.8250551
+> 
 > R(list(runif(10), rnorm(10)))
  [1]  0.3621201  0.8667453  0.3626263  0.6658932  0.6183130  0.9728763
  [7]  0.9823095  0.6216898  0.3513491  0.4874011  1.2770250 -0.9917289
@@ -192,4 +200,4 @@ Loading required package: variables
 > 
 > proc.time()
    user  system elapsed 
-  0.960   0.072   1.028 
+  1.108   0.077   1.164 

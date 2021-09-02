@@ -46,4 +46,8 @@ attr(s, "type")
 cbind(s, R(s))
 stopifnot(all.equal(s, as.Surv(R(s))))
 
+### this is not the same as R(s) because of censoring!
+as.numeric(R(s))
+as.double(R(s))
+
 R(list(runif(10), rnorm(10)))

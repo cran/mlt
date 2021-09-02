@@ -117,6 +117,8 @@ R.ordered <- function(object, cleft = NA, cright = NA, ...) {
     ret
 }
 
+### <FIXME> is bounds = c(min(object), Inf) the right thing, always?
+### </FIXME>
 R.integer <- function(object, cleft = NA, cright = NA, bounds = c(min(object), Inf), ...) {
 
     ret <- .mkR(exact = object, cleft = cleft, cright = cright, ...)
@@ -441,4 +443,35 @@ R.list <- function(object, ...) {
 
     ret <- lapply(object, R)
     do.call(".mkR", do.call("rbind", ret))
+}
+
+"[.response" <- function(x, i, j, ..., drop = FALSE) {
+    cls <- class(x) 
+    class(x) <- "data.frame"
+    ret <- x[i,j, drop = FALSE]
+    class(ret) <- cls
+    ret
+}
+
+"[<-.response" <- function(x, i, j, value) {
+    cls <- class(x)
+    class(x) <- "data.frame"
+    x[i,j] <- value
+    class(x) <- cls
+    x
+}
+
+### coerse to double vector (get rid of censoring)
+as.double.response <- function(x, ...) {
+    ex <- x$exact
+    le <- x$cleft
+    ri <- x$cright
+    rex <- ex
+    rle <- le
+    rri <- ri
+    rex[is.na(ex)] <- 0
+    rle[is.na(le) | !is.finite(le)] <- 0
+    rri[is.na(ri) | !is.finite(ri)] <- 0
+    ### (-Inf, x] -> x and (x, Inf) -> x
+    rex + (rle + ifelse(is.finite(ri) & is.finite(le), (rri - rle)/2, rri))
 }

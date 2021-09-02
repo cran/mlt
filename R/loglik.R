@@ -51,9 +51,40 @@
     return(ret)
 }
 
-..mlt_loglik_interval <- function(d, mml, mmr, offset = 0, beta)
-    .log(.dealinf(mmr, beta, offset, d$p, 1) - 
-         .dealinf(mml, beta, offset, d$p, 0))
+..mlt_loglik_interval <- function(d, mml, mmr, offset = 0, beta) {
+    RC <- !is.finite(mmr[,1])
+    LC <- !is.finite(mml[,1])
+    ret <- numeric(nrow(mmr))
+    ### right-censored: ret = log(1 - F(...))
+    if (any(irc <- RC & !LC)) {
+        if (is.matrix(beta)) 
+            ret[irc] <- .dealinf(mml[irc,,drop = FALSE], beta[irc,,drop = FALSE], 
+                offset[irc], function(x) d$p(x, lower.tail = FALSE, log.p = TRUE), 0)
+        else
+            ret[irc] <- .dealinf(mml[irc,,drop = FALSE], beta, offset[irc], 
+                function(x) d$p(x, lower.tail = FALSE, log.p = TRUE), 0)
+    }
+    ### left-censored:  ret = log(F(...))
+    if (any(ilc <- !RC & LC)) {
+        if (is.matrix(beta))
+            ret[ilc] <- .dealinf(mmr[ilc,,drop = FALSE], beta[ilc,,drop = FALSE],
+                offset[ilc], function(x) d$p(x, lower.tail = TRUE, log.p = TRUE), 1)
+        else
+            ret[ilc] <- .dealinf(mmr[ilc,,drop = FALSE], beta, offset[ilc], 
+                function(x) d$p(x, lower.tail = TRUE, log.p = TRUE), 1)
+    }
+    ### interval-censored: log(F(...) - F(...))
+    iic <- !RC & !LC
+    if (is.matrix(beta)) 
+        ret[iic] <- .log(.dealinf(mmr[iic,,drop = FALSE], beta[iic,,drop = FALSE], 
+                                  offset[iic], d$p, 1) - 
+                         .dealinf(mml[iic,,drop = FALSE], beta[iic,,drop = FALSE], 
+                                  offset[iic], d$p, 0))
+    else
+        ret[iic] <- .log(.dealinf(mmr[iic,,drop = FALSE], beta, offset[iic], d$p, 1) - 
+                         .dealinf(mml[iic,,drop = FALSE], beta, offset[iic], d$p, 0))
+    ret
+}
 
 .mlt_loglik_interval <- function(d, mml, mmr, offset = 0, mmtrunc = NULL) {
     if (is.null(mmtrunc))

@@ -9,6 +9,7 @@
 \alias{R.response}
 \alias{as.Surv}
 \alias{as.Surv.response}
+\alias{as.double.response}
 \title{
     Response Variables
 }
@@ -26,11 +27,13 @@ R(object, ...)
 \method{R}{Surv}(object, as.R.ordered = FALSE, ...)
 as.Surv(object)
 \method{as.Surv}{response}(object)
+\method{as.double}{response}(x, ...)
 }
 \arguments{
   \item{object}{
   A vector of (conceptually) exact measurements or an object of class
   \code{response} (for \code{as.Surv}) or a list.}
+  \item{x}{same as \code{object}.}
   \item{cleft}{
   A vector of left borders of censored measurements}
   \item{cright}{

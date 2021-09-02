@@ -68,6 +68,9 @@ S3method("Gradient", "mlt")
 S3method("as.mlt", "mlt")
 
 S3method("as.Surv", "response")
+S3method("[", "response")
+S3method("[<-", "response")
+S3method("as.double", "response")
 
 #S3method("model.matrix", "mlt")
 #S3method("paraboot", "mlt")
@@ -80,3 +83,5 @@ S3method("bread", "mlt_fit")
 S3method("coef", "fmlt")
 S3method("Hessian", "fmlt")
 S3method("vcov", "fmlt")
+
+

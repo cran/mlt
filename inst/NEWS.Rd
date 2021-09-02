@@ -2,6 +2,23 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.3-2 (2021-08-24)}{
+  \subsection{New features}{
+    \itemize{
+      \item{Add \code{as.double} for \code{response} objects 
+            (replaces \code{trtf:::.R2vec}).}
+    }
+  }
+}
+
+\section{Changes in Version 1.3-1 (2021-03-22)}{
+  \subsection{New features}{
+    \itemize{
+      \item{Improved numerical stability for censored data.}
+    }
+  }
+}
+
 \section{Changes in Version 1.3-0 (2021-03-03)}{
   \subsection{New features}{
     \itemize{

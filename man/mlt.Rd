@@ -13,7 +13,7 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
 \arguments{
   \item{model}{a conditional transformation model as specified by \code{\link{ctm}}}
   \item{data}{a \code{data.frame} containing all variables specified in \code{model}}
-  \item{weights}{an optional vector of weights}
+  \item{weights}{an optional vector of case weights}
   \item{offset}{an optional vector of offset values}
   \item{fixed}{a named vector of fixed regression coefficients; the names
                need to correspond to column names of the design matrix}
