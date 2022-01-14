@@ -5,7 +5,7 @@ importFrom("Matrix", "Matrix", "colSums", "rowSums", "crossprod")
 import("numDeriv") ### needed by BB???
 importFrom("BB", "spg", "BBoptim")
 importFrom("alabama", "auglag")
-importFrom("nloptr", "nloptr")
+#importFrom("nloptr", "nloptr")
 importFrom("sandwich", "estfun", "bread")
 importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "vcov", "AIC", "coef", "confint", "dlogis", "dnorm",

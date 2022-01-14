@@ -200,7 +200,7 @@ Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
     ll <- function(addparm, parm) {
         model$todistr <- do.call(model$todistr$call, as.list(addparm))
         m <- mlt(model = model, data = object$data, weights = w,
-                 subset = object$subset, offset = object$offset, dofit = FALSE,
+                 offset = object$offset, dofit = FALSE,
                  theta = parm,
                  fixed = object$fixed, scale = object$scale, optim = object$optim)
         -logLik(m, parm = parm, w = w)
@@ -208,7 +208,7 @@ Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
     sc <- function(addparm, parm, which = 1L) {
         model$todistr <- do.call(model$todistr$call, as.list(addparm))
         m <- mlt(model = model, data = object$data, weights = w,
-                 subset = object$subset, offset = object$offset, dofit = FALSE,
+                 offset = object$offset, dofit = FALSE,
                  theta = parm,
                  fixed = object$fixed, scale = object$scale, optim = object$optim)
         ### note: weights(m) are used by estfun

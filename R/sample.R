@@ -81,7 +81,7 @@ paraboot.mlt <- function(object, parm = coef(object), B = 100, ...) {
     for (b in 1:B) {
         ndf[[y]] <- simulate(object, ...)
         m <- mlt(model = object$model, data = ndf, theta = parm, weights = object$weights, 
-                 scale = object$scale, offset = object$offset, check = FALSE, checkGrad = FALSE)
+                 scale = object$scale, offset = object$offset)
         coefs[b,] <- coef(m)
         logLR[b] <- -2 * (logLik(m, parm = parm) - logLik(m))
     }

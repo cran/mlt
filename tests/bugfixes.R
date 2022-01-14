@@ -48,7 +48,7 @@ basis_y <- Bernstein_basis(y, order = 2, ui = "incre")
 x <- names(bodyfat)[-2]
 xfm <- as.formula(paste("~", x, collapse = "+"))
 m <- ctm(basis_y, shift = xfm, data = bodyfat)
-mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
+mod <- mlt(m, data = bodyfat, scale = TRUE)
 summary(mod)
 
 ### parm can be a matrix with subject-specific parameters
@@ -62,7 +62,7 @@ y <- bodyfat$DEXfat
 sF <- rep(FALSE, length(y))
 library("survival")
 bodyfat$DEXfat <- Surv(y, sF)
-mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
+mod <- mlt(m, data = bodyfat, scale = TRUE)
 mod$convergence
 
 

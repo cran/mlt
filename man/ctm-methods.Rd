@@ -10,7 +10,8 @@
 }
 \usage{
 \method{variable.names}{ctm}(object, 
-              which = c("all", "response", "interacting", "shifting"), 
+              which = c("all", "response", "interacting", 
+                        "shifting", "scaling"), 
               ...)
 \method{coef}{ctm}(object, ...)
 }

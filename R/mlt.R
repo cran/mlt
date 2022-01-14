@@ -16,6 +16,8 @@
     } else {
         Y <- eY$Y
     }
+    Assign <- attr(Y, "Assign")
+    SCALE <- "bscaling" %in% Assign[2,]
 
     ui <- attr(Y, "constraint")$ui
     ci <- attr(Y, "constraint")$ci
@@ -58,11 +60,36 @@
         fix <- rep(FALSE, ncol(Y))
     } 
 
+    .sparm <- function(beta) {
+        if (SCALE) {
+            sparm <- .parm(beta)
+            sparm[Assign[2,] != "bscaling"] <- 0L
+            sterm <- c(sqrt(exp(Y %*% sparm)))
+            parm <- beta
+            parm[Assign[2,] == "bscaling"] <- 0L
+            Parm <- matrix(parm, nrow = nrow(Y), ncol = length(parm), byrow = TRUE)
+            if (model$scale_shift) {
+                idx <- !Assign[2,] %in% "bscaling"
+            } else {
+                idx <- !Assign[2,] %in% c("bshifting", "bscaling")
+            }
+            Parm[, idx] <- Parm[, idx] * sterm
+            Parm
+        } else {
+            .parm(beta)
+        }
+    }
+
     .ofuns <- function(weights, subset = NULL, offset = NULL, 
                        perm = NULL, permutation = NULL, 
                        distr = todistr) ### <- change todistr via update(, distr =)
     {
-        if (is.null(offset)) offset <- rep(0, nrow(data))
+        if (is.null(offset)) {
+            offset <- rep(0, nrow(data))
+        } else {
+            if (SCALE && max(abs(offset)) > .Machine$double.eps) 
+                warning("offset ignored in scaling term")
+        }
         es <- .exact_subset(.exact(y), subset)
         exY <- NULL
         iYleft <- NULL
@@ -155,13 +182,13 @@
                 }
                 if (!is.null(es$full_ex))
                     ret[es$full_ex] <- .mlt_loglik_exact(distr, 
-                        exY, exYprime, exoffset, extrunc)(.parm(beta_ex))
+                        exY, exYprime, exoffset, extrunc)(.sparm(beta_ex))
                 if (!is.null(es$full_nex))
                     ret[es$full_nex] <- .mlt_loglik_interval(distr, 
-                        iYleft, iYright, ioffset, itrunc)(.parm(beta_nex))
+                        iYleft, iYright, ioffset, itrunc)(.sparm(beta_nex))
                 return(ret)
             },
-            sc = function(beta, Xmult = TRUE) {
+            sc = function(beta, Xmult = TRUE, ret_all = FALSE) {
                 ### Xmult = FALSE means
                 ### score wrt to an intercept term. This avoids
                 ### multiplication with the whole design matrix.
@@ -181,7 +208,7 @@
                 }
                 if (!is.null(es$full_ex)) {
                     scr <- .mlt_score_exact(distr, 
-                        exY, exYprime, exoffset, extrunc)(.parm(beta_ex), Xmult)
+                        exY, exYprime, exoffset, extrunc)(.sparm(beta_ex), Xmult)
                     if (EX_ONLY) {
                         ret <- scr
                     } else {
@@ -190,7 +217,7 @@
                 }
                 if (!is.null(es$full_nex)) {
                     scr <- .mlt_score_interval(distr, 
-                        iYleft, iYright, ioffset, itrunc)(.parm(beta_nex), Xmult)
+                        iYleft, iYright, ioffset, itrunc)(.sparm(beta_nex), Xmult)
                     if (IN_ONLY) {
                         ret <- scr
                     } else {
@@ -199,6 +226,8 @@
                 }
                 if (!Xmult) return(ret)
                 colnames(ret) <- colnames(Y)
+                ### return all scores, no questions asked
+                if (ret_all) return(ret)
                 ### in case beta contains fix parameters,
                 ### return all scores
                 if (!is.null(fixed)) {
@@ -220,11 +249,11 @@
                 if (!is.null(es$full_ex))
                     ret <- ret + .mlt_hessian_exact(distr, 
                         exY, exYprime, exoffset, extrunc, 
-                        exweights)(.parm(beta_ex))
+                        exweights)(.sparm(beta_ex))
                 if (!is.null(es$full_nex))
                     ret <- ret + .mlt_hessian_interval(distr, 
                         iYleft, iYright, ioffset, itrunc, 
-                        iweights)(.parm(beta_nex))
+                        iweights)(.sparm(beta_nex))
                 colnames(ret) <- rownames(ret) <- colnames(Y)
                 ### in case beta contains fix parameters,
                 ### return all scores
@@ -256,8 +285,27 @@
                      offset = offset, ...)
         loglikfct <- function(beta, weights)  
             -sum(weights * of$ll(beta))
-        score <- function(beta, weights, Xmult = TRUE) 
-            weights * of$sc(beta, Xmult = Xmult)
+        score <- function(beta, weights, Xmult = TRUE) {
+            if (!"bscaling" %in% Assign[2,])
+                return(weights * of$sc(beta, Xmult = Xmult))
+            sc <- weights * of$sc(beta, Xmult = Xmult, ret_all = TRUE)
+            sparm <- .parm(beta)
+            sparm[Assign[2,] != "bscaling"] <- 0L
+            sterm <- c(sqrt(exp(Y %*% sparm)))
+            if (model$scale_shift) {
+                idx <- (!Assign[2,] %in% "bscaling")
+            } else {
+                idx <- (!Assign[2,] %in% c("bshifting", "bscaling"))
+            }
+            ret <- cbind(sterm * sc[, idx],
+                  if (!model$scale_shift) sc[, Assign[2, ] == "bshifting"],
+                  sterm * c(sc[, idx] %*% .parm(beta)[idx]) * .5 * Y[, Assign[2,] == "bscaling"])
+            if (!is.null(fixed)) {
+                if (all(names(fixed) %in% names(beta)))
+                    return(ret)
+            }
+            return(ret[, !fix, drop = FALSE])
+        }
         hessian <- function(beta, weights) 
             of$he(beta)
         scorefct <- function(beta, weights) 
@@ -299,7 +347,17 @@
         ### NOTE: this overwrites the functions taking the possibly updated
         ### offset into account
         ret$score <- score
-        ret$hessian <- hessian
+        wfit <- weights
+        if (SCALE) {
+            ret$hessian <- function(beta, weights) {
+                warning("Analytical Hessian not available, using numerical approximation")
+                ret <- numDeriv::hessian(loglikfct, beta, weights = weights)
+                rownames(ret) <- colnames(ret) <- colnames(Y)
+                return(ret)
+            }
+        } else {
+            ret$hessian <- hessian
+        }
         ret$loglik <- loglikfct
         ret$logliki <- logliki
 
@@ -437,7 +495,7 @@
 
 mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
                 theta = NULL, pstart = NULL, scale = FALSE,
-                dofit = TRUE, optim = mltoptim(), ...) {
+                dofit = TRUE, optim = mltoptim()) {
 
     vars <- as.vars(model)
     response <- variable.names(model, "response")
@@ -529,7 +587,7 @@ fmlt <- function(object, frailty = c("Gamma", "InvGauss", "PositiveStable"),
     model$todistr <- do.call(frailtyfun, list(om$minimum))
     ret <- mlt(model = model, data = object$data, 
                weights = weights(object),
-               subset = object$subset, offset = object$offset, 
+               offset = object$offset, 
                theta = coef(object), fixed = object$fixed, 
                scale = object$scale, optim = object$optim)
     class(ret) <- c("fmlt", class(ret))
@@ -553,7 +611,7 @@ cmlt <- function(object, interval = fr$support, ...) {
     model$todistr <- .CureRate(om$minimum, distr = distr)
     ### </FIXME>
     ret <- mlt(model = model, data = object$data, weights = weights(object),
-               subset = object$subset, offset = object$offset, 
+               offset = object$offset, 
                theta = coef(object), fixed = object$fixed, 
                scale = object$scale, optim = object$optim)
     class(ret) <- c("fmlt", class(ret))

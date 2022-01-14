@@ -13,6 +13,26 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
     vnx <- vn[!(vn %in% y)]
     model <- object$model
 
+    cf <- coef(object)
+    if ("bscaling" %in% names(model)) {
+        cf <- coef(object)
+        nd <- lapply(mkgrid(object, 2), function(x) x[1:2])
+        X <- model.matrix(model, data = as.data.frame(nd))
+        Assign <- attr(X, "Assign")
+        sterm <- sqrt(exp(predict(model, 
+                                  newdata = newdata, 
+                                  coef = cf, terms = "bscaling")))
+        cf[Assign[2,] == "bscaling"] <- 0
+        cf <- matrix(cf, nrow = length(sterm), ncol = length(cf), 
+                     byrow = TRUE)
+        if (object$scale_shift) {
+            idx <- !Assign[2,] %in% "bscaling"
+        } else {
+            idx <- !Assign[2,] %in% c("bshifting", "bscaling")
+        }
+        cf[, idx] <- cf[, idx] * sterm
+    }
+
     stopifnot(!is.null(newdata[[y]]) || !is.null(q))
 
     if (is.data.frame(newdata)) {
@@ -29,7 +49,7 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
         if (!is.null(newdata[[y]]) & is.null(q)) {
             stopifnot(is.atomic(newdata[[y]]))
             ret <- c(predict(model, newdata = newdata, 
-                             coef = coef(object), ...))
+                             coef = cf, ...))
             names(ret) <- rownames(newdata)
             ### P(Y \le y_K) = 1 but trafo can be < Inf
             ### depending on parameterisation
@@ -58,8 +78,9 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
         names(dim) <- c(y, vnx[1])
         newdata <- as.list(newdata)
         newdata[[y]] <- q
-        ret <- predict(object$model, newdata = newdata, 
-                       coef = coef(object), dim = dim, ...)
+
+        ret <- predict(model, newdata = newdata, 
+                       coef = cf, dim = dim, ...)
         dn <- vector(mode = "list", length = 2)
         names(dn) <- c(y, "newdata") ### deparse(substitute(newdata))) ?
         dn[[y]] <- .frmt(q)
@@ -87,8 +108,9 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
     stopifnot(is.atomic(newdata[[y]]))
     stopifnot(is.null(q))
     stopifnot(y %in% names(newdata))
-    ret <- predict(object$model, newdata = newdata, 
-                   coef = coef(object), dim = TRUE, ...)
+
+    ret <- predict(model, newdata = newdata, 
+                   coef = cf, dim = TRUE, ...)
     dn <- lapply(newdata, .frmt)
     dimnames(ret) <- dn
 

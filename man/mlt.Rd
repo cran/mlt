@@ -8,13 +8,14 @@
 }
 \usage{
 mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL, 
-    pstart = NULL, scale = FALSE, dofit = TRUE, optim = mltoptim(), ...)
+    pstart = NULL, scale = FALSE, dofit = TRUE, optim = mltoptim())
 }
 \arguments{
   \item{model}{a conditional transformation model as specified by \code{\link{ctm}}}
   \item{data}{a \code{data.frame} containing all variables specified in \code{model}}
   \item{weights}{an optional vector of case weights}
-  \item{offset}{an optional vector of offset values}
+  \item{offset}{an optional vector of offset values; offsets are not added
+                to an optional \code{scaling} term (see \code{link{ctm}})}
   \item{fixed}{a named vector of fixed regression coefficients; the names
                need to correspond to column names of the design matrix}
   \item{theta}{optional starting values for the model parameters}
@@ -25,7 +26,6 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
   \item{dofit}{a logical indicating if the model shall be fitted to the
                data (\code{TRUE}) or not}
   \item{optim}{a list of functions implementing suitable optimisers}
-  \item{\dots}{additional arguments, currently ignored}
 }
 \details{
   This function fits a conditional transformation model by searching for 

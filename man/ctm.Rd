@@ -7,7 +7,8 @@
   Specification of conditional transformation models
 }
 \usage{
-ctm(response, interacting = NULL, shifting = NULL, data = NULL, 
+ctm(response, interacting = NULL, shifting = NULL, scaling = NULL, 
+    scale_shift = FALSE, data = NULL, 
     todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal", "Exponential"), 
     sumconstr = inherits(interacting, c("formula", "formula_basis")), ...)
 }
@@ -15,6 +16,9 @@ ctm(response, interacting = NULL, shifting = NULL, data = NULL,
   \item{response}{a basis function, ie, an object of class \code{basis}}
   \item{interacting}{a basis function, ie, an object of class \code{basis}}
   \item{shifting}{a basis function, ie, an object of class \code{basis}}
+  \item{scaling}{a basis function, ie, an object of class \code{basis}}
+  \item{scale_shift}{a logical choosing between two different model types
+                     in the presence of a \code{scaling} term}
   \item{data}{either a \code{data.frame} containing the model variables
               or a formal description of these variables in an object of class \code{vars}}
   \item{todistr}{a character vector describing the distribution to be transformed}
@@ -22,11 +26,22 @@ ctm(response, interacting = NULL, shifting = NULL, data = NULL,
   \item{\dots}{arguments to \code{as.basis} when \code{shifting} is a formula}
 }
 \details{
+
+  Specification of a transformation model of the form
+  \deqn{P(Y \le y \mid X = x) = F_Z(\sqrt{\exp(s(x)^\top \gamma)} [(a(y) \otimes b(x))^\top \vartheta] + d(x)^\top \beta)}
+  (\code{scale_shift = FALSE}) or
+  \deqn{P(Y \le y \mid X = x) = F_Z(\sqrt{\exp(s(x)^\top \gamma)} [(a(y) \otimes b(x))^\top \vartheta + d(x)^\top \beta])}
+  (\code{scale_shift = TRUE})
+  with bases \eqn{a(y)} (\code{response}), \eqn{b(x)} (\code{interacting}),
+  \eqn{d(x)} (\code{shifting}), and \eqn{s(x)} (\code{scaling}). All except
+  \code{response} can be missing (in this case an unconditional distribution
+  is estimated).
+
   This function only specifies the model which can then be fitted using
   \code{\link{mlt}}. The shift term is positive by default.
 
   Possible choices of the distributions the model transforms to (the inverse
-  link functions) include the 
+  link functions \eqn{F_Z}) include the 
   standard normal (\code{"Normal"}), the standard logistic
   (\code{"Logistic"}), the standard minimum extreme value
   (\code{"MinExtrVal"}, also known as Gompertz distribution), and the

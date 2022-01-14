@@ -1,6 +1,6 @@
 
-R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
-Copyright (C) 2019 The R Foundation for Statistical Computing
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -79,11 +79,11 @@ y         [,1]
 > x <- names(bodyfat)[-2]
 > xfm <- as.formula(paste("~", x, collapse = "+"))
 > m <- ctm(basis_y, shift = xfm, data = bodyfat)
-> mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
+> mod <- mlt(m, data = bodyfat, scale = TRUE)
 > summary(mod)
 
 Call:
-mlt(model = m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
+mlt(model = m, data = bodyfat, scale = TRUE)
 
 Type:  continuous linear transformation model (transformed normal distribution)
 Log-Likelihood: -171.14 (df = 12)
@@ -104,7 +104,7 @@ Coefficients: 30.951 38.885 42.523 -0.01508 -0.058906 -0.12136 -0.054061 -0.4769
 > sF <- rep(FALSE, length(y))
 > library("survival")
 > bodyfat$DEXfat <- Surv(y, sF)
-> mod <- mlt(m, data = bodyfat, scale = TRUE, checkGrad = FALSE)
+> mod <- mlt(m, data = bodyfat, scale = TRUE)
 Warning message:
 In .checkR(y, weights) : response contains left-censored observations only
 > mod$convergence
@@ -155,4 +155,4 @@ In .checkR(y, weights) : response contains left-censored observations only
 > 
 > proc.time()
    user  system elapsed 
-  1.310   0.045   1.348 
+  1.700   0.109   1.783 

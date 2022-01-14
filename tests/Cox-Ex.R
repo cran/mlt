@@ -83,7 +83,8 @@ m <- ctm(response = logBb,
            interacting = as.basis(~ g, data = mydata),
            todist = "MinExtrVal")
 ## IGNORE_RDIFF_BEGIN
-coef(opt <- mlt(m, data = mydata, maxit = 5000, scale = TRUE))
+op <- mltoptim(spg = list(maxit = 5000, quiet = TRUE, checkGrad = FALSE))
+coef(opt <- mlt(m, data = mydata, optim = op, scale = TRUE))
 ## IGNORE_RDIFF_END
 coef(cph <- coxph(Surv(y, rep(TRUE, nrow(mydata))) ~ g, data = mydata))
 ## visualize
