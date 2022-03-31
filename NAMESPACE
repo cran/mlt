@@ -1,4 +1,6 @@
 
+useDynLib("mlt", .registration = TRUE)
+
 import("basefun")
 import("variables")
 importFrom("Matrix", "Matrix", "colSums", "rowSums", "crossprod")

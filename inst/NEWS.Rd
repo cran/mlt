@@ -2,6 +2,19 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.4-1 (2022-03-31)}{
+  \subsection{New features}{
+    \itemize{
+      \item{\code{update} allows fixing parameters.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Fix discrete gradient for shift-scale models.}
+    }
+  }
+}
+
 \section{Changes in Version 1.4-0 (2022-01-14)}{
   \subsection{New features}{
     \itemize{
@@ -21,6 +34,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.3-2 (2021-08-24)}{
   \subsection{New features}{

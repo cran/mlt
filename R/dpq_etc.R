@@ -19,9 +19,9 @@ tmlt <- function(object, newdata = NULL, q = NULL, ...) {
         nd <- lapply(mkgrid(object, 2), function(x) x[1:2])
         X <- model.matrix(model, data = as.data.frame(nd))
         Assign <- attr(X, "Assign")
-        sterm <- sqrt(exp(predict(model, 
-                                  newdata = newdata, 
-                                  coef = cf, terms = "bscaling")))
+        sterm <- exp(.5 * c(predict(model, 
+                                    newdata = newdata, 
+                                    coef = cf, terms = "bscaling")))
         cf[Assign[2,] == "bscaling"] <- 0
         cf <- matrix(cf, nrow = length(sterm), ncol = length(cf), 
                      byrow = TRUE)
@@ -218,7 +218,7 @@ Omlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
         ### use "old" code
         f <- f[rep(1:N, nsim), , drop = FALSE]
         f <- cbind(-Inf, f, Inf)
-        i <- rowSums(f < as.vector(z))
+        i <- base::rowSums(f < as.vector(z))
         return(q[i])
     }
 

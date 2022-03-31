@@ -1,7 +1,7 @@
 
 mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE), 
                      spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE),
-                     nloptr = NULL, ### list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8),
+                     ### nloptr = NULL, ### list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8),
                      trace = FALSE) 
 {
     ret <- list()
@@ -55,6 +55,7 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 ret <- list(par = theta, convergence = 1)
             return(ret)
         }
+    nloptr <- NULL
     if (!is.null(nloptr))
         stop("nloptr is currently not supported")
 #        ### Note: This is still experimental (and switched off by default)

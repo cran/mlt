@@ -18,7 +18,8 @@ R.Surv <- function(object, as.R.ordered = FALSE, ...) {
           tm <- if(type == "right") object[,"time"] else object[, "stop"]
           ### observed event times
           utm <- sort(unique(tm[status == 1]))
-          utm <- utm[-length(utm)]
+          if (all(tm[status == 0] < utm[length(utm)]))
+              utm <- utm[-length(utm)]
           ### convert to ordered factor
           ct <- cut(tm, breaks = c(-Inf, utm, Inf), ordered = TRUE)
           ### events in category k contribute
