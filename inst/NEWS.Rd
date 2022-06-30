@@ -2,6 +2,24 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.4-2 (2022-05-31)}{
+  \subsection{New features}{
+    \itemize{
+      \item{\code{as.R.interval} allows evaluation of nonparametric
+            likelihood for smoothly defined models.}
+      \item{New Laplace link function, contributed by Ainesh Sewak.}
+      \item{New cauchit link function.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{\code{drop = TRUE} in score for shift-scale models.}
+      \item{Eliminate fallout of fix of PR#17616 in Rout.save files.}
+    }
+  }
+}
+
+
 \section{Changes in Version 1.4-1 (2022-03-31)}{
   \subsection{New features}{
     \itemize{

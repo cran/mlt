@@ -103,6 +103,45 @@
          call = ".MaxExtrVal",
          name = "maximum extreme value")
 
+.Laplace <- function()
+    list(parm = function(x) NULL,
+         p = function(x, lower.tail = TRUE, log.p = FALSE) {
+            if (lower.tail && !log.p)
+                return(ifelse(x < 0, .5 * exp(x), 1 - .5 * exp(-x)))
+            if (!lower.tail && !log.p)
+                return(ifelse(x < 0, 1 - .5 * exp(x), .5 * exp(-x)))
+            if (lower.tail && log.p)
+                return(ifelse(x < 0, log(.5) + x, log1p(-.5 * exp(-x))))
+            if (!lower.tail && !log.p)
+                return(ifelse(x < 0, log1p(- .5 * exp(x)), log(.5) - x))
+         },
+         q = function(p) ifelse(p < 0.5, log(2 * p), -log(2 * (1 - p))),
+         d = function(x, log = FALSE) {
+             if (log)
+                 return(log(.5) - abs(x))
+             return(0.5 * exp(-abs(x)))
+         }, 
+         dd = function(x) -0.5 * sign(x) * exp(-abs(x)),
+         ddd = function(x) 0.5 * exp(-abs(x)),
+         dd2d = function(x) -sign(x),
+         call = ".Laplace",
+         name = "laplace")
+
+.Cauchy <- function() {
+    dd <- function(x) return(- 2 * x / (pi * (x^2 + 1)^2))
+    ddd <- function(x) 
+         return(8 * x^2 / (pi * (x^2 + 1)^3) - 2 / (pi * (x^2 + 1)^2))
+    list(parm = function(x) NULL,
+         p = pcauchy,
+         q = qcauchy,
+         d = dcauchy,
+         dd = dd,
+         ddd = ddd,
+         dd2d = function(x) return(dd(x) / dcauchy(x)),
+         call = ".Cauchy",
+         name = "cauchy")
+}
+
 ### see 10.1080/15598608.2013.772835
 .GammaFrailty <- function(logrho = 0) {
     logrho <- pmax(logrho, log(sqrt(.Machine$double.eps)))
@@ -290,9 +329,9 @@
                        options("digits")$digits), ")"))
 }
 
-.distr <- function(which = c("Normal", "Logistic", 
-                             "MinExtrVal", "MaxExtrVal", "Exponential")) {
+.distr <- function(which = c("Normal", "Logistic",
+                             "MinExtrVal", "MaxExtrVal", "Exponential", 
+                             "Laplace", "Cauchy")) {
     which <- match.arg(which)
     do.call(paste(".", which, sep = ""), list())
 }
-

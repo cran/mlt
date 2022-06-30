@@ -46,7 +46,8 @@ fm <- as.formula(paste("~ ", paste(names(x)[grep("^V", names(x))], collapse = "+
 m <- ctm(r, interacting = as.basis(fm, data = ox, scale = FALSE),
            todistr = "Logis")
 m2 <- mlt(m, data = ox, scale = TRUE)
-coef(m2)
+### fix of PR#17616, affects basefun
+unname(coef(m2))
 logLik(m2)
 
 s <- sort(unique(ox$y))

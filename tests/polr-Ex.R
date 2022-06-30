@@ -21,10 +21,11 @@ logLik(mod)
 
 coef(mp)
 mp$zeta
-coef(mod)
+### PR#17616
+unname(coef(mod))
 
 sqrt(diag(vcov(mp)))
-sqrt(diag(vcov(mod)))
+unname(sqrt(diag(vcov(mod))))
 
 mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "loglog")
 
@@ -39,10 +40,10 @@ logLik(mod)
 
 coef(mp)
 mp$zeta
-coef(mod)
+unname(coef(mod))
 
 sqrt(diag(vcov(mp)))
-sqrt(diag(vcov(mod)))
+unname(sqrt(diag(vcov(mod))))
 
 mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "cloglog")
 
@@ -57,10 +58,10 @@ logLik(mod)
 
 coef(mp)
 mp$zeta
-coef(mod)
+unname(coef(mod))
 
 sqrt(diag(vcov(mp)))
-sqrt(diag(vcov(mod)))
+unname(sqrt(diag(vcov(mod))))
 
 mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "probit")
 
@@ -75,8 +76,7 @@ logLik(mod)
 
 coef(mp)
 mp$zeta
-coef(mod)
+unname(coef(mod))
 
 sqrt(diag(vcov(mp)))
-sqrt(diag(vcov(mod)))
-
+unname(sqrt(diag(vcov(mod))))

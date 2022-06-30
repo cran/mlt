@@ -329,11 +329,11 @@
             if (!Xmult) {
                 fct <- c(weights * of$sc(beta, Xmult = FALSE))
                 return(cbind(shifting = if (model$scale_shift) sterm * fct else fct,
-                             scaling = sterm * c(sc[, idx] %*% .parm(beta)[idx]) * .5))
+                             scaling = sterm * c(sc[, idx, drop = FALSE] %*% .parm(beta)[idx]) * .5))
             }
-            ret <- cbind(sterm * sc[, idx],
-                  if (!model$scale_shift) sc[, Assign[2, ] == "bshifting"],
-                  sterm * c(sc[, idx] %*% .parm(beta)[idx]) * .5 * Z)
+            ret <- cbind(sterm * sc[, idx, drop = FALSE],
+                  if (!model$scale_shift) sc[, Assign[2, ] == "bshifting", drop = FALSE],
+                  sterm * c(sc[, idx, drop = FALSE] %*% .parm(beta)[idx]) * .5 * Z)
             colnames(ret) <- colnames(sc)
             if (!is.null(fixed)) {
                 if (all(names(fixed) %in% names(beta)))

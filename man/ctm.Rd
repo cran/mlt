@@ -9,7 +9,8 @@
 \usage{
 ctm(response, interacting = NULL, shifting = NULL, scaling = NULL, 
     scale_shift = FALSE, data = NULL, 
-    todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal", "Exponential"), 
+    todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal", 
+                "Exponential", "Laplace", "Cauchy"), 
     sumconstr = inherits(interacting, c("formula", "formula_basis")), ...)
 }
 \arguments{
@@ -48,6 +49,7 @@ ctm(response, interacting = NULL, shifting = NULL, scaling = NULL,
   standard maximum extreme value (\code{"MaxExtrVal"}, also known as Gumbel
   distribution) distributions. The exponential distribution
   (\code{"Exponential"}) can be used to fit Aalen additive hazard models.
+  Laplace and Cauchy distributions are also available.
 
 }
 \value{

@@ -1,6 +1,6 @@
 
-R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -98,11 +98,9 @@ Warning messages:
   use scale = TRUE in as.basis.formula with sumcontr = TRUE
 4: In model.matrix.box_bases(object = list(iresponse = function (data,  :
   use scale = TRUE in as.basis.formula with sumcontr = TRUE
-> coef(m2)
-y1:(Intercept) y2:(Intercept) y3:(Intercept)          y1:V1          y2:V1 
-      9.642082      15.583592      17.447408     -17.893593     -19.588233 
-         y3:V1 
-    -16.747988 
+> ### fix of PR#17616, affects basefun
+> unname(coef(m2))
+[1]   9.642082  15.583592  17.447408 -17.893593 -19.588233 -16.747988
 > logLik(m2)
 'log Lik.' -2556.062 (df=6)
 > 
@@ -125,4 +123,4 @@ y1:(Intercept) y2:(Intercept) y3:(Intercept)          y1:V1          y2:V1
 > 
 > proc.time()
    user  system elapsed 
-  2.656   0.072   2.729 
+  1.204   0.073   1.269 

@@ -9,6 +9,9 @@ R.Surv <- function(object, as.R.ordered = FALSE, ...) {
                           "interval2", "counting"))
     status <- object[, "status"]
 
+    ### <ToDo> implement as.R.interval for right-censored Surv objects
+    ### </ToDo>
+
     if (as.R.ordered && !type %in% c("right", "counting"))
         warning("as.R.ordered only implemented for right-censored observations")
     if (as.R.ordered && type %in% c("right", "counting")) {
@@ -143,7 +146,7 @@ R.interval <- function(object, ...) {
 ### handle exact integer / factor as interval censored
 R.numeric <- function(object = NA, cleft = NA, cright = NA, 
                       tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), 
-                      as.R.ordered = FALSE, ...) {
+                      as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
 
     ### treat extremely small intervals as `exact' observations
     d <- cright - cleft
@@ -177,6 +180,15 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
       attr(ret, "unique_obs") <- utm
       return(ret)
     }
+
+    if (as.R.interval) {
+      ### code response as interval-censored defining the nonparametric
+      ### likelihood BUT keep data as numeric
+      utm <- sort(unique(object))
+      ct <- cut(object, breaks = c(-Inf, utm, Inf))
+      return(R(Surv(time = c(-Inf, utm)[ct], time2 = utm[ct], type = "interval2")))
+    }
+
     ret <- .mkR(exact = object, cleft = cleft, cright = cright,
                 tleft = tleft, tright = tright)
     ### <FIXME>
