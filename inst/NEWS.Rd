@@ -2,7 +2,20 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
-\section{Changes in Version 1.4-2 (2022-05-31)}{
+\section{Changes in Version 1.4-3 (2022-10-31)}{
+  \subsection{New features}{
+    \itemize{
+      \item{\code{predict} and \code{plot} have new types involving logs.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{\code{plot()} ignored  \code{lwd}.}
+    }
+  }
+}
+
+\section{Changes in Version 1.4-2 (2022-06-30)}{
   \subsection{New features}{
     \itemize{
       \item{\code{as.R.interval} allows evaluation of nonparametric

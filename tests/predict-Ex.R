@@ -89,3 +89,14 @@ d$y <- mkgrid(m, n = 21)[["y"]]
 d <- d[c("y", "s1", "s2", "x")]
 p2 <- predict(m, newdata = d)
 stopifnot(isTRUE(all.equal(max(abs(c(p1) - c(p2))), 0)))
+
+type <- c("distribution", "density", "survivor", "hazard", "cumhazard", "odds")
+
+out <- sapply(type, function(ty) {
+ p1 <- log(predict(m, newdata = pnd, type = ty))
+ p2 <- predict(m, newdata = pnd, type = ty, log = TRUE)
+ p3 <- predict(m, newdata = pnd, type = paste0("log", ty))
+ stopifnot(isTRUE(all.equal(p1, p2)))
+ stopifnot(isTRUE(all.equal(p1, p3)))
+})
+

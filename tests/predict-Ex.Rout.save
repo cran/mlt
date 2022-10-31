@@ -1,6 +1,6 @@
 
-R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
-Copyright (C) 2019 The R Foundation for Statistical Computing
+R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
+Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -118,6 +118,17 @@ Loading required package: variables
 > p2 <- predict(m, newdata = d)
 > stopifnot(isTRUE(all.equal(max(abs(c(p1) - c(p2))), 0)))
 > 
+> type <- c("distribution", "density", "survivor", "hazard", "cumhazard", "odds")
+> 
+> out <- sapply(type, function(ty) {
++  p1 <- log(predict(m, newdata = pnd, type = ty))
++  p2 <- predict(m, newdata = pnd, type = ty, log = TRUE)
++  p3 <- predict(m, newdata = pnd, type = paste0("log", ty))
++  stopifnot(isTRUE(all.equal(p1, p2)))
++  stopifnot(isTRUE(all.equal(p1, p3)))
++ })
+> 
+> 
 > proc.time()
    user  system elapsed 
-  1.807   0.125   1.923 
+  1.605   0.049   1.649 

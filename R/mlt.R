@@ -659,7 +659,7 @@ cmlt <- function(object, interval = fr$support, ...) {
     ### take F_Z from fitted model
     distr <- get(object$model$todistr$call)
     ### no unknown parameters in frailties as of now
-    stopifnot(length(distr$parm()) == 0L)
+    stopifnot(length(distr()$parm()) == 0L)
     fr <- .CureRate(distr = distr)
     ### <FIXME> allow for additional parameters in frailty
     ll <- function(logitrho)

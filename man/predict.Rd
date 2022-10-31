@@ -12,15 +12,25 @@
   Plot, predict and sample from objects of class mlt
 }
 \usage{
-\method{plot}{ctm}(x, newdata, type = c("distribution", "survivor", "density", 
-     "logdensity", "hazard", "loghazard", "cumhazard", "logcumhazard", "odds",
-     "logodds", "quantile", "trafo"),
+\method{plot}{ctm}(x, newdata, type = c(
+         "distribution", "logdistribution", 
+         "survivor", "logsurvivor", 
+         "density", "logdensity", 
+         "hazard", "loghazard", 
+         "cumhazard", "logcumhazard", 
+         "odds", "logodds", 
+         "quantile", "trafo"),
      q = NULL, prob = 1:(K - 1) / K, K = 50, col = rgb(.1, .1, .1, .1), lty = 1, 
      add = FALSE, ...)
 \method{plot}{mlt}(x, ...)
-\method{predict}{ctm}(object, newdata, type = c("trafo", "distribution", 
-         "survivor", "density", "logdensity", "hazard", "loghazard", "cumhazard", 
-         "logcumhazard", "odds", "logodds", "quantile"), 
+\method{predict}{ctm}(object, newdata, type = c("trafo", 
+         "distribution", "logdistribution", 
+         "survivor", "logsurvivor", 
+         "density", "logdensity", 
+         "hazard", "loghazard", 
+         "cumhazard", "logcumhazard", 
+         "odds", "logodds", 
+         "quantile"), 
          terms = c("bresponse", "binteracting", "bshifting"), 
          q = NULL, prob = NULL, K = 50, interpolate = FALSE, ...)
 \method{predict}{mlt}(object, newdata = object$data, ...)

@@ -6,7 +6,9 @@
 }
 
 ### transformation function
-tmlt <- function(object, newdata = NULL, q = NULL, ...) {
+tmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
+
+    if (log) warning("argument log ignored")
 
     vn <- unlist(variable.names(object))
     y <- variable.names(object, "response")
@@ -267,7 +269,9 @@ Omlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
 
 ### quantile function
 qmlt <- function(object, newdata = NULL, q = NULL, prob = .5, n = 50, 
-                 interpolate = FALSE, ...) {
+                 interpolate = FALSE, log = FALSE, ...) {
+
+    if (log) warning("argument log ignored")
 
    if (interpolate)
         warning("Argument interpolate ignored in mlt >= 1.2-1")
