@@ -29,8 +29,8 @@ simulate.ctm <- function(object, nsim = 1, seed = NULL,
     newdata <- newdata[colnames(newdata) %in% variable.names(object)]
     newdata[y] <- NULL
     if (NCOL(newdata) == 0L) newdata <- data.frame(1)[rep(1, nrow(newdata)),, drop = FALSE]
-    U <- matrix(runif(nsim * NROW(newdata)), ncol = nsim)
-    pr <- predict(object, newdata = newdata, q = q, type = "distribution")
+    U <- log(matrix(runif(nsim * NROW(newdata)), ncol = nsim))
+    pr <- predict(object, newdata = newdata, q = q, type = "logdistribution")
     if (!is.matrix(pr)) pr <- matrix(pr, nrow = length(pr), ncol = NROW(newdata))
 
     ret <- .invf(object, f = t(pr), q = q, z = U)

@@ -1,36 +1,24 @@
 
-citHeader("To cite mlt in publications use either of these two references.")
-
-citEntry(entry="Article",
+bibentry(bibtype="Article",
          title = "Most Likely Transformations",
-         author = personList(as.person("Torsten Hothorn"), as.person("Lisa Möst"), 
-                             as.person("Peter Bühlmann")),
+         author = c(person("Torsten", "Hothorn"), person("Lisa", "Möst"), 
+                    person("Peter", "Bühlmann")),
          journal      = "Scandinavian Journal of Statistics",
          year         = "2018",
          volume       = "45",
          number       = "1",
          pages        = "110--134",
-
-         textVersion =
-         paste("Torsten Hothorn, Lisa Moest, Peter Buehlmann (2018).",
-               "Most Likely Transformations.",
-               "Scandinavian Journal of Statistics, 45(1), 110--134."),
-         header = "For theoretical issues cite:"
+         mheader = "For theoretical issues cite:"
 )
 
-citEntry(entry="Article",
+bibentry(bibtype="Article",
          title = "Most Likely Transformations: The mlt Package",
-         author = personList(as.person("Torsten Hothorn")),
+         author = person("Torsten Hothorn"),
          journal      = "Journal of Statistical Software",
          year         = "2020",
          volume       = "92",
          number       = "1",
          pages        = "1--68",
          doi          = "10.18637/jss.v092.i01",
-
-         textVersion =
-         paste("Torsten Hothorn (2020).",
-               "Most Likely Transformations: The mlt Package.",
-               "Journal of Statistical Software, 92(1), 1--68."),
-         header = "To cite mlt/basefun/variables in publications use:"
+         mheader = "To cite mlt/basefun/variables in publications use:"
 )
