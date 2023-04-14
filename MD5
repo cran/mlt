@@ -1,5 +1,5 @@
-df969acb283c9e0312cf0c5eba107999 *DESCRIPTION
-805aa2c5aa292b78a7048be4ecba343f *NAMESPACE
+73dab8769d0c0708403643dbbfd13e9a *DESCRIPTION
+9e4f6aa3ab4236ca708bf66cc0899d16 *NAMESPACE
 f0a4d149ca13e8840cc2c2fd80ac90f2 *R/R.R
 d2cd3551b75d248b1630149d9a11f48f *R/confband.R
 c652b5e5f145ef7c8043b4b15cfaf5cd *R/ctm.R
@@ -7,16 +7,16 @@ c652b5e5f145ef7c8043b4b15cfaf5cd *R/ctm.R
 c3ee4f10bba1755d13d91dbac1d58c08 *R/dpq_etc.R
 c4c9541ee7f122ed22ed33f42ee4e3de *R/loglik.R
 4d89ea46d42ec6cf3e0faa9eefb71dd9 *R/methods.R
-6a71ea910a48dba1076172d9833c4298 *R/mlt.R
-2fb54c85f9ff0d9a7b15a97075e3bd38 *R/mltoptim.R
+6778139de0323d1b472b8e27d4b5658e *R/mlt.R
+5b8dcd3c747211c1601adcf34357344c *R/mltoptim.R
 0d5b8885a1fdaa05577a8c1f40353ed6 *R/plot.R
 43625bea4b1cb1700f091f16a5dc8f46 *R/predict.R
 501e7d2f27ba8161eb5d1d1ec712953f *R/sample.R
 514ae5ccf7ba2841bda0c0b2e358b2ce *R/utils.R
-ea124a494ad7922985532ad3b308e4d5 *build/partial.rdb
+7f2094c7b4d5faa522b624cffc621f8b *build/partial.rdb
 1c9695dee7162d6e72883b552906e753 *cleanup
 dc5c2885d86a80bb9d2a28ffc796708c *inst/CITATION
-0bbd7d73b48dfaa0d3e2343331a724cb *inst/NEWS.Rd
+4605fb179bf091dc4feb97349ea864b9 *inst/NEWS.Rd
 39e017b48d3a12877d58a10f588b817b *man/R.Rd
 4141097f19682037945cf253537240c9 *man/confband.Rd
 4c1563206c7318aa68f9b2e46121e7df *man/ctm-methods.Rd
@@ -24,7 +24,7 @@ dc5c2885d86a80bb9d2a28ffc796708c *inst/CITATION
 da81550a5937a937e20d1c2d16366296 *man/mlt-methods.Rd
 d4dc0f0568a35ea8c0c0a3ee14a20233 *man/mlt-package.Rd
 9617f64a5a67fdf34435511aa28c6726 *man/mlt.Rd
-72123d9c863c2810662956c324127ec7 *man/mltoptim.Rd
+bd7c26682706cbbfb92d45b7cf6dcc6b *man/mltoptim.Rd
 c424cecc06aff7e7966c232758868eb4 *man/predict.Rd
 67337284ee9603e9858579dab3e2a7cd *src/init.c
 1ddc4cf7702d2e297e277ad0e08663a9 *src/rowSums.c

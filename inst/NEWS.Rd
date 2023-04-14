@@ -2,6 +2,19 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.4-6 (2023-04-14)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item{Register internal methods.}
+    }
+  }
+  \subsection{New features}{
+    \itemize{
+      \item{Re-add support for \pkg{nloptr} in \code{mltoptim()}.}
+    }
+  }
+}
+
 \section{Changes in Version 1.4-5 (2023-03-09)}{
   \subsection{Bug Fixes}{
     \itemize{
@@ -10,6 +23,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.4-4 (2022-11-02)}{
   \subsection{New features}{

@@ -357,13 +357,15 @@
             sc[gt1] <- 1 / sc[gt1]
             sc[lt1] <- 1
             f <- function(gamma) {
-                gamma[names(sc)] <- gamma[names(sc)] * sc
-                loglikfct(gamma, weights)
+                ## nloptr sometimes forgets about names(gamma)
+                ## but this name matching shouldn't be necessary anyhow
+                ## gamma[names(sc)] <- gamma[names(sc)] * sc
+                loglikfct(gamma * sc, weights)
             }
             g <- function(gamma) {
-                gamma[names(sc)] <- gamma[names(sc)] * sc
-                ret <- scorefct(gamma, weights)
-                ret[names(sc)] <- ret[names(sc)] * sc
+                ## gamma[names(sc)] <- gamma[names(sc)] * sc
+                ret <- scorefct(gamma * sc, weights) * sc
+                ## ret[names(sc)] <- ret[names(sc)] * sc
                 ret
             }
             theta <- theta / sc
