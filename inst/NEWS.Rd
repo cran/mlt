@@ -2,6 +2,21 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.4-7 (2023-05-22)}{
+  \subsection{Bug Fixes}{
+    \itemize{
+      \item{Starting values might end up being NA; set to zero.}
+    }
+  }
+  \subsection{New features}{
+    \itemize{
+      \item{\code{mlt(..., theta = theta, dofit = TRUE)} returns a "fitted"
+            \code{mlt} model with coefficients \code{theta}. 
+            If \code{theta} is missing, an unfitted model is returned.}
+    }
+  }
+}
+
 \section{Changes in Version 1.4-6 (2023-04-14)}{
   \subsection{Bug Fixes}{
     \itemize{
@@ -14,6 +29,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.4-5 (2023-03-09)}{
   \subsection{Bug Fixes}{

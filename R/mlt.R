@@ -2,7 +2,7 @@
 ### <FIXME> rename fixed to coef and allow for specification of coefs, 
 ###         ie fitted models? </FIXME>
 .mlt_setup <- function(model, data, y, offset = NULL, 
-                       fixed = coef(model)) {
+                       fixed = coef(model), dofit = TRUE) {
 
     response <- variable.names(model, "response")
     stopifnot(length(response) == 1)
@@ -376,9 +376,13 @@
             g <- function(gamma) scorefct(gamma, weights)
         }
 
-        for (i in 1:length(optim)) {
-            ret <- optim[[i]](theta, f, g, ui, ci)
-            if (ret$convergence == 0) break()
+        if (dofit) {
+            for (i in 1:length(optim)) {
+                ret <- optim[[i]](theta, f, g, ui, ci)
+                if (ret$convergence == 0) break()
+            }
+        } else {
+            ret <- list(par = theta, value = f(theta), convergence = 0)
         }
         if (ret$convergence != 0)
             warning("Optimisation did not converge")
@@ -510,6 +514,7 @@
         ret <- lm.fit(x = X, y = Z)$coef
     }
     names(ret) <- names(coef(model))[!fix]
+    ret[!is.finite(ret)] <- 0
     ret
 }
 
@@ -564,9 +569,9 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     stopifnot(nrow(data) == length(offset))
 
     s <- .mlt_setup(model = model, data = data, y = y, 
-                    offset = offset, fixed = fixed) 
+                    offset = offset, fixed = fixed, dofit = dofit) 
     s$convergence <- 1
-    if (!dofit) return(s)
+    if (!dofit && is.null(theta)) return(s)
 
     if (is.null(theta)) {
         ### unconditional ECDF, essentially

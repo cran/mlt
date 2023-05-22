@@ -24,7 +24,10 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
   \item{scale}{a logical indicating if (internal) scaling shall be applied to the
                model coefficients}
   \item{dofit}{a logical indicating if the model shall be fitted to the
-               data (\code{TRUE}) or not}
+               data (\code{TRUE}) or not. If \code{theta} is given,
+               a model of class \code{mlt} (a full "fitted" model)
+               featuring these parameters is returned. Otherwise,
+               an unfitted model of class \code{ctm} is returned}
   \item{optim}{a list of functions implementing suitable optimisers}
 }
 \details{
