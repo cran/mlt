@@ -1,7 +1,7 @@
 
 mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE), 
                      spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE),
-                     nloptr = NULL, ### list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8),
+                     nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8),
                      trace = FALSE) 
 {
     ret <- list()
@@ -55,8 +55,7 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 ret <- list(par = theta, convergence = 1)
             return(ret)
         }
-    if (!is.null(nloptr) && requireNamespace("nloptr"))
-        ### Note: This is still experimental (and switched off by default)
+    if (!is.null(nloptr))
         ret$nloptr <- function(theta, f, g, ui = NULL, ci = NULL) {
             control <- nloptr
             if (trace) control$print_level <- 2

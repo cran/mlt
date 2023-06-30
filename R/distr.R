@@ -182,7 +182,7 @@
          dd2d = function(x) {
              .dd(x) / .d(x)
          },
-         support = c(-25, log(10)),
+         support = log(sqrt(.Machine$double.eps)) * c(1, -1),
          call = ".GammaFrailty",
          name = paste0("GammaFrailty(rho = ", 
                        round(exp(logrho), 
@@ -239,7 +239,7 @@
              .dd(x) / .d(x)
          },
          call = ".InvGaussFrailty",
-         support = c(-25, log(10)),
+         support = log(sqrt(.Machine$double.eps)) * c(1, -1),
          name = paste0("InvGaussFrailty(theta = ", 
                        round(exp(logtheta), 
                        options("digits")$digits), ")"))

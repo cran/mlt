@@ -9,7 +9,8 @@
 \usage{
 mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE), 
          spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE), 
-         nloptr = NULL, trace = FALSE)
+         nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8), 
+         trace = FALSE)
 }
 \arguments{
   \item{auglag}{
@@ -23,7 +24,7 @@ mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE),
 }
   \item{nloptr}{
   A list with control parameters for the \code{\link[nloptr]{nloptr}}
-  family of optimisers. Experimental and turned-off by default.
+  family of optimisers. 
 }
   \item{trace}{
   A logical switching trace reports by the optimisers off.

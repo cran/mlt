@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.4-8 (2023-06-27)}{
+  \subsection{New features}{
+    \itemize{
+      \item{Better support for frailty parameter.}
+    }
+  }
+}
+
 \section{Changes in Version 1.4-7 (2023-05-22)}{
   \subsection{Bug Fixes}{
     \itemize{
