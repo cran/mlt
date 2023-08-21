@@ -2,6 +2,22 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.4-9 (2023-08-21)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Make sure \code{R(Surv(...), as.R.ordered = TRUE)} matches 
+            Kaplan-Meier for right-censored and possibly tied observations.
+            Such responses give NPML estimates.}
+    }
+  }
+  \subsection{New features}{
+    \itemize{
+      \item{\code{R(Surv(...), as.R.numeric = TRUE)} can be used to fit
+            smooth models by maximising the nonparametric likelihood.}
+    }
+  }
+}
+
 \section{Changes in Version 1.4-8 (2023-06-27)}{
   \subsection{New features}{
     \itemize{
@@ -11,7 +27,7 @@
 }
 
 \section{Changes in Version 1.4-7 (2023-05-22)}{
-  \subsection{Bug Fixes}{
+  \subsection{Bugfixes}{
     \itemize{
       \item{Starting values might end up being NA; set to zero.}
     }
@@ -26,7 +42,7 @@
 }
 
 \section{Changes in Version 1.4-6 (2023-04-14)}{
-  \subsection{Bug Fixes}{
+  \subsection{Bugfixes}{
     \itemize{
       \item{Register internal methods.}
     }
@@ -40,7 +56,7 @@
 
 
 \section{Changes in Version 1.4-5 (2023-03-09)}{
-  \subsection{Bug Fixes}{
+  \subsection{Bugfixes}{
     \itemize{
       \item{Fix S3 argument mismatches.}
       \item{Try to detect negative standard errors in case optimisation failed silently.}

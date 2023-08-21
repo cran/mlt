@@ -2,47 +2,69 @@
 R <- function(object, ...)
     UseMethod("R")
 
-R.Surv <- function(object, as.R.ordered = FALSE, ...) {
+R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
 
     type <- attr(object, "type")
     stopifnot(type %in% c("left", "right", "interval", 
                           "interval2", "counting"))
     status <- object[, "status"]
 
-    ### <ToDo> implement as.R.interval for right-censored Surv objects
-    ### </ToDo>
+    if (as.R.interval) {
+        if (as.R.ordered) warning("argument as.R.ordered is ignored")
+        ret <- R(object, as.R.ordered = TRUE)
+        utm <- c(0, attr(ret, "unique_obs"), Inf)
+        left <- unclass(ret$cleft) + 1L
+        left[is.na(left)] <- 1L
+        right <- unclass(ret$cright) + 1L
+        right[is.na(right)] <- nlevels(ret$cright) + 2L
+        obj <- numeric(length(left))
+        obj[] <- NA
+        if (!is.ordered(ret$tleft)) {
+            ret <- R(object = obj, cleft = utm[left], 
+                     cright = utm[right])
+        } else {
+            tleft <- unclass(ret$tleft) + 1L
+            tleft[is.na(tleft)] <- 1L
+            ret <- R(object = obj, cleft = utm[left], 
+                     cright = utm[right], tleft = utm[tleft])
+        }
+        return(ret)
+    }
 
     if (as.R.ordered && !type %in% c("right", "counting"))
-        warning("as.R.ordered only implemented for right-censored observations")
+        stop("as.R.ordered only implemented for right-censored observations")
     if (as.R.ordered && type %in% c("right", "counting")) {
-          ### code response as ordered factor with right-censoring
-          ### this defines the nonparametric likelihood
-          ### for right-censored data in terms of the observed event times
-          tm <- if(type == "right") object[,"time"] else object[, "stop"]
-          ### observed event times
-          utm <- sort(unique(tm[status == 1]))
-          if (all(tm[status == 0] < utm[length(utm)]))
-              utm <- utm[-length(utm)]
-          ### convert to ordered factor
-          ct <- cut(tm, breaks = c(-Inf, utm, Inf), ordered = TRUE)
-          ### events in category k contribute
-          ### Prob(k) - Prob(k - 1)
-          lf <- rg <- ct
-          lf[status == 1] <- rg[status == 1] <- NA
-          ### censored obs in category k contribute
-          ### 1 - Prob(k - 1)
-          rg[status == 0] <- levels(ct)[nlevels(ct)]
-          ### Note: Censoring before first event contributes
-          ### 1 - 0 = 1 (coded as interval with cleft = NA, cright = NA)
-          lf[status != 1] <- c(NA, levels(ct))[lf[status != 1]]
-          ### left truncation
-          tl <- NA
-          if (type == "counting")
-              tl <- cut(object[, "start"], breaks = c(-Inf, utm, Inf), ordered = TRUE)
-          ### is this a "response" representation of an ordered factor now
-          ret <- R(object = ct, cleft = lf, cright = rg, tleft = tl)
-          attr(ret, "unique_obs") <- utm
-          return(ret)
+         ### code response as ordered factor with right-censoring
+         ### this defines the nonparametric likelihood
+         ### for right-censored data in terms of the observed event times
+         tm <- if(type == "right") object[,"time"] else object[, "stop"]
+         ### observed event times
+         utm <- sort(unique(tm[status == 1]))
+         if (all(tm[status == 0] < utm[length(utm)]))
+             utm <- utm[-length(utm)]
+         ### convert to ordered factor
+         ct <- cut(tm, breaks = c(-Inf, utm, Inf), ordered_result = TRUE)
+         ### events in category k contribute
+         ### Prob(k) - Prob(k - 1)
+         lf <- rg <- ct
+         lf[status == 1] <- rg[status == 1] <- NA
+         ### censored obs in category k contribute
+         ### 1 - Prob(k - 1)
+         rg[status == 0] <- levels(ct)[nlevels(ct)]
+         ### Note: Censoring before first event contributes
+         ### 1 - 0 = 1 (coded as interval with cleft = NA, cright = NA)
+         ### handle censoring times tied to event times separately
+         idx <- which(status != 1)
+         idx <- idx[!(tm[idx] %in% utm)]	### censoring tied to event
+         lf[idx] <- c(NA, levels(ct))[lf[idx]]
+         ### left truncation
+         tl <- NA
+         if (type == "counting")
+             tl <- cut(object[, "start"], breaks = c(-Inf, utm, Inf), ordered = TRUE)
+         ### is this a "response" representation of an ordered factor now
+         ret <- R(object = ct, cleft = lf, cright = rg, tleft = tl)
+         attr(ret, "unique_obs") <- utm
+         return(ret)
     }
 
     ret <- switch(type,
