@@ -64,15 +64,14 @@
 
     .sparm <- function(beta, soffset = 0) {
         if (SCALE) {
-            sparm <- .parm(beta)
-            if (is.matrix(sparm)) {
-#                slp <- base::rowSums(soffset + Z * sparm[,Assign[2,] == "bscaling"])
-                slp <- .Call("R_offrowSums", soffset, Z, sparm[,Assign[2,] == "bscaling"])
+            parm <- .parm(beta)
+            if (is.matrix(parm)) {
+#                slp <- base::rowSums(soffset + Z * parm[,Assign[2,] == "bscaling"])
+                slp <- .Call("R_offrowSums", soffset, Z, parm[,Assign[2,] == "bscaling"])
             } else {
-                slp <- c(soffset + Z %*% sparm[Assign[2,] == "bscaling"])
+                slp <- c(soffset + Z %*% parm[Assign[2,] == "bscaling"])
             }
             sterm <- exp(.5 * slp)
-            parm <- .parm(beta)
             if (is.matrix(parm)) {
                 parm[,Assign[2,] == "bscaling"] <- 0L
                 Parm <- parm
@@ -194,9 +193,99 @@
         rownames(ret_scM) <- rownames(ret_sc) <- rownames(data)
         EX_ONLY <- isTRUE(all.equal(es$full_ex, 1:nrow(data)))
         IN_ONLY <- isTRUE(all.equal(es$full_nex, 1:nrow(data)))
+
+        ### evaluate the transformation function 
+        ### and it's derivative wrt its first argument (maybe externally
+        ### tram::mmlt)
+        trafo <- function(beta) {
+            trex <- trexprime <- trleft <- trright <- ret_ll
+            beta <- .sparm(beta, soffset)
+            if (is.matrix(beta)) {
+                beta_ex <- beta[es$full_ex,,drop = FALSE]
+                beta_nex <- beta[es$full_nex,,drop = FALSE]
+            } else {
+                beta_ex <- beta_nex <- beta
+            }
+            id <- function(x) x
+            if (!is.null(es$full_ex)) {
+                trex[es$full_ex] <- .dealinf(exY, beta_ex, exoffset, id, 0)
+                trexprime[es$full_ex] <- .dealinf(exYprime, beta_ex, exoffset, id, 0)
+            }
+            if (!is.null(es$full_nex)) {
+                trleft[es$full_nex] <- .dealinf(iYleft, beta_nex, ioffset, id, -Inf)
+                trright[es$full_nex] <- .dealinf(iYright, beta_nex, ioffset, id, Inf)
+            }
+            ret <- list(trex = trex, trexprime = trexprime,
+                        trleft = trleft, trright = trright)
+            return(ret)
+        }
+
         return(list(
             offset = offset,
             soffset = soffset,
+            trafo = trafo,
+            ### evaluate the derivative of the transformation function
+            ### wrt to its parameters (this is just the design matrix
+            ### for non-shift-scale models but more complex in this latter
+            ### class)
+            trafoprime = function(beta) {
+                ret <- vector(mode = "list", length = 4L)
+                names(ret) <- c("exY", "exYprime", "iYleft", "iYright")
+                idx <- !Assign[2,] %in% "bscaling"
+                if (!is.null(es$full_ex)) {
+                    ret$exY <- exY[,idx,drop = FALSE] * exweights
+                    ret$exYprime <- exYprime[,idx,drop = FALSE] * exweights
+                }
+                if (!is.null(es$full_nex)) {
+                    ret$iYleft <- iYleft[,idx,drop = FALSE] * iweights
+                    ret$iYright <- iYright[,idx,drop = FALSE] * iweights
+                }
+                if (!SCALE) return(ret)
+
+                sparm <- .parm(beta)
+                slp <- c(soffset + Z %*% sparm[Assign[2,] == "bscaling"])
+                sterm <- exp(.5 * slp)
+                tr <- trafo(beta)
+                names(tr) <- c("exY", "exYprime", "iYleft", "iYright")
+
+                if (model$scale_shift) {
+                    if (!is.null(es$full_ex)) {
+                        ret[c("exY", "exYprime")] <- lapply(c("exY", "exYprime"), 
+                            function(j) cbind(sterm[es$full_ex] * ret[[j]][es$full_ex,,drop = FALSE], 
+                                              .5 * tr[[j]][es$full_ex] * Z[es$full_ex,,drop = FALSE]))
+                    }
+                    if (!is.null(es$full_nex)) {
+                        ret[c("iYleft", "iYright")] <- lapply(c("iYleft", "iYright"), 
+                            function(j) cbind(sterm[es$full_nex] * ret[[j]][es$full_nex,,drop = FALSE], 
+                                              .5 * tr[[j]][es$full_nex] * Z[es$full_nex,,drop = FALSE]))
+                    }
+                } else {
+                    bbeta <- beta
+                    if (is.matrix(bbeta)) {
+                        bbeta[,Assign[2,] %in% c("bshifting", "bscaling")] <- 0
+                    } else {
+                        bbeta[Assign[2,] %in% c("bshifting", "bscaling")] <- 0
+                    }
+                    tr <- trafo(bbeta)
+                    names(tr) <- c("exY", "exYprime", "iYleft", "iYright")
+
+                    idx <- !Assign[2,idx] %in% "bshifting"
+                    
+                    if (!is.null(es$full_ex)) {
+                        ret[c("exY", "exYprime")] <- lapply(c("exY", "exYprime"), 
+                            function(j) cbind(sterm[es$full_ex] * ret[[j]][es$full_ex,idx,drop = FALSE], 
+                                              ret[[j]][es$full_ex,!idx,drop = FALSE], 
+                                              sterm[es$full_ex] * .5 * tr[[j]][es$full_ex] * Z[es$full_ex, , drop = FALSE]))
+                    }
+                    if (!is.null(es$full_nex)) {
+                        ret[c("iYleft", "iYright")]  <- lapply(c("iYleft", "iYright"), 
+                            function(j) cbind(sterm[es$full_nex] * ret[[j]][es$full_nex,idx,drop = FALSE], 
+                                              ret[[j]][es$full_nex,!idx,drop = FALSE], 
+                                              sterm[es$full_nex] * .5 * tr[[j]][es$full_nex] * Z[es$full_nex, , drop = FALSE]))
+                    }
+                }
+                return(ret)
+            },
             ll = function(beta) {
                 ret <- ret_ll 
                 beta <- .sparm(beta, soffset)
@@ -410,6 +499,7 @@
         }
         ret$loglik <- loglikfct
         ret$logliki <- logliki
+        if (scale) ret$parsc <- sc
 
         return(ret)
     }
@@ -428,6 +518,10 @@
     ret$todistr <- todistr
     ret$optimfct <- optimfct
 
+    ret$trafo <- function(beta, weights)
+        .ofuns(weights = weights, offset = offset)$trafo(beta)
+    ret$trafoprime <- function(beta, weights)
+        .ofuns(weights = weights, offset = offset)$trafoprime(beta)
     ret$loglik <- function(beta, weights)  
         -sum(weights * .ofuns(weights = weights, offset = offset)$ll(beta))
     ret$logliki <- function(beta, weights)

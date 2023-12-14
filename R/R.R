@@ -12,7 +12,11 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
     if (as.R.interval) {
         if (as.R.ordered) warning("argument as.R.ordered is ignored")
         ret <- R(object, as.R.ordered = TRUE)
-        utm <- c(0, attr(ret, "unique_obs"), Inf)
+        utm <- attr(ret, "unique_obs")
+        ### if utm contains 0, stay with 0 (users can chance data if they
+        ### want to). Otherwise, use sqrt(.Machine$double.eps) as smallest 
+        ### lower bound to facilitate log_first = TRUE in models
+        utm <- c(min(c(utm, sqrt(.Machine$double.eps))), utm, Inf)
         left <- unclass(ret$cleft) + 1L
         left[is.na(left)] <- 1L
         right <- unclass(ret$cright) + 1L
