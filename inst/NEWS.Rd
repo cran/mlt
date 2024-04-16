@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.5-1 (2024-04-11)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Remove warning when dealing with binary factors.}
+    }
+  }
+}
+
 \section{Changes in Version 1.5-0 (2023-12-13)}{
   \subsection{Bugfixes}{
     \itemize{

@@ -105,3 +105,11 @@ cright <- c(NA, Inf, 3)
 ### was not the same
 (surv <- as.Surv(resp))
 
+### fixed but increasing parameters
+### was always right in mlt() but test was missing
+dist <- numeric_var("dist", support = c(2.0, 100), bounds = c(0, Inf))
+speed <- numeric_var("speed", support = c(5.0, 23), bounds = c(0, Inf)) 
+ctmm <- ctm(response = Bernstein_basis(dist, order = 6, ui = "increasing"))
+m1 <- mlt(ctmm, data = cars)
+m2 <- mlt(ctmm, data = cars, fixed = coef(m1)[4])
+all.equal(c(logLik(m1)), c(logLik(m2)))

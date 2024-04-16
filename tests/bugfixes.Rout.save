@@ -1,6 +1,6 @@
 
-R version 4.1.2 (2021-11-01) -- "Bird Hippie"
-Copyright (C) 2021 The R Foundation for Statistical Computing
+R version 4.3.3 (2024-02-29) -- "Angel Food Cake"
+Copyright (C) 2024 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -152,7 +152,16 @@ In .checkR(y, weights) : response contains left-censored observations only
 > (surv <- as.Surv(resp))
 [1] 1  2+ 3-
 > 
+> ### fixed but increasing parameters
+> ### was always right in mlt() but test was missing
+> dist <- numeric_var("dist", support = c(2.0, 100), bounds = c(0, Inf))
+> speed <- numeric_var("speed", support = c(5.0, 23), bounds = c(0, Inf)) 
+> ctmm <- ctm(response = Bernstein_basis(dist, order = 6, ui = "increasing"))
+> m1 <- mlt(ctmm, data = cars)
+> m2 <- mlt(ctmm, data = cars, fixed = coef(m1)[4])
+> all.equal(c(logLik(m1)), c(logLik(m2)))
+[1] TRUE
 > 
 > proc.time()
    user  system elapsed 
-  1.700   0.109   1.783 
+  0.805   0.076   0.875 

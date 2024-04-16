@@ -1,6 +1,6 @@
 
-R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
-Copyright (C) 2022 The R Foundation for Statistical Computing
+R version 4.3.3 (2024-02-29) -- "Angel Food Cake"
+Copyright (C) 2024 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -35,9 +35,6 @@ Loading required package: variables
 > 
 > m <- ctm(~ y, shift = ~ X1 + X2, todist = "Logis", data = df)
 > m2 <- mlt(m, data = df, fixed = c("y1" = 0))
-Warning message:
-In R.factor(object = data[[response]]) : response is unordered factor;
-             results may depend on order of levels
 > coef(m2)
 (Intercept)          y1          X1          X2 
  -0.7372250   0.0000000   0.3848409   0.8291921 
@@ -123,4 +120,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-  1.204   0.073   1.269 
+  0.834   0.072   0.913 
