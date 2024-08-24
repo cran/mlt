@@ -1,7 +1,7 @@
 
 mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE), 
                      spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE),
-                     nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8),
+                     nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8, maxeval = 1000L),
                      trace = FALSE) 
 {
     ret <- list()
@@ -68,14 +68,32 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                     eval_grad = g, opts = control,
                     eval_g_ineq = function(par) mui %*% par + ci,
                     eval_jac_g_ineq = function(par) mui))
-                ret$convergence <- 0L # (0:1)[ret$status %in% c(1L, 4L) + 0L]
+                if (ret$status < 0) {
+                    ### some form of failure
+                    ret$convergence <- 1
+                    warning(ret$message)
+                } else {
+                    ret$convergence <- 0L
+                    ### some tolerance criterion reached
+                    if (ret$status > 1)
+                        warning(ret$message)
+                }
             } else { 
                 control$algorithm <- "NLOPT_LD_LBFGS"
                 ret <- try(nloptr::nloptr(
                     x0 = atheta, 
                     eval_f = f, 
                     eval_grad = g, opts = control))
-                ret$convergence <- 0L # (0:1)[ret$status %in% c(1L, 4L) + 0L]
+                if (ret$status < 0) {
+                    ### some form of failure
+                    ret$convergence <- 1
+                    warning(ret$message)
+                } else {
+                    ret$convergence <- 0L
+                    ### some tolerance criterion reached
+                    if (ret$status > 1)
+                        warning(ret$message)
+                }
             }
             if (inherits(ret, "try-error")) {
                 ret <- list(par = theta, convergence = 1)

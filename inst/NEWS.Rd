@@ -2,6 +2,20 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.5-2 (2024-08-24)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Handle \code{Surv} objects with smaller than zero values in \code{R.Surv(..., as.R.interval = TRUE)}.}
+    }
+  }
+  \subsection{New features}{
+    \itemize{
+      \item{Add \code{maxeval = 1000L} for \code{nloptr}.}
+      \item{Report \code{nloptr} more detailed status messages.}
+    }
+  }
+}
+
 \section{Changes in Version 1.5-1 (2024-04-11)}{
   \subsection{Bugfixes}{
     \itemize{

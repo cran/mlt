@@ -16,7 +16,17 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
         ### if utm contains 0, stay with 0 (users can chance data if they
         ### want to). Otherwise, use sqrt(.Machine$double.eps) as smallest 
         ### lower bound to facilitate log_first = TRUE in models
-        utm <- c(min(c(utm, sqrt(.Machine$double.eps))), utm, Inf)
+        ### if min(utm) < 0 (not really a survival time), use -Inf
+        ### as in R(<numeric>, as.R.interval = TRUE)
+        if (min(utm) > 0) {
+            utm <- c(sqrt(.Machine$double.eps), utm, Inf)
+        } else {
+            if (min(utm) < 0) {
+                utm <- c(-Inf, utm, Inf)
+            } else {
+                utm <- c(0, utm, Inf)
+            }
+        }
         left <- unclass(ret$cleft) + 1L
         left[is.na(left)] <- 1L
         right <- unclass(ret$cright) + 1L
