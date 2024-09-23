@@ -57,7 +57,8 @@ Gradient.mlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
     as.vector(colSums(estfun(object, parm = parm)))
 }
 
-vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), complete = FALSE, ...) {
+vcov.mlt <- function(object, parm = coef(object, fixed = FALSE), 
+                     complete = FALSE, ...) {
     ### <FIXME> implement complete argument </FIXME>
     args <- list(...)
     if (length(args) > 0)
@@ -92,10 +93,10 @@ logLik.mlt <- function(object, parm = coef(object, fixed = FALSE),
     if (is.null(w))
         w <- weights(object)
     if (!is.null(object$subset)) {
-        ret <- sum(object$logliki(parm, weights = w)[object$subset] * 
+        ret <- sum(object$logliki(parm)[object$subset] * 
                    w[object$subset])
     } else {
-        ret <- -object$loglik(parm, weights = w)
+        ret <- object$loglik(parm, weights = w)
     }
     ###    attr(ret, "df") <- length(coef(object, fixed = FALSE))
     attr(ret, "df") <- object$df
@@ -122,7 +123,8 @@ estfun.mlt <- function(x, parm = coef(x, fixed = FALSE),
 }
 
 residuals.mlt <- function(object, parm = coef(object, fixed = FALSE), 
-                          w = NULL, newdata, what = c("shifting", "scaling"), ...) {
+                          w = NULL, newdata, what = c("shifting", "scaling"), 
+                          ...) {
     args <- list(...)
     if (length(args) > 0)
         warning("Arguments ", names(args), " are ignored")
@@ -179,14 +181,16 @@ Model <- function(object)
     
 Model.ctm <- function(object) {
     x <- object$bases
-    ret <- list(response_trafo = c("continuous", "discrete")[.one_factor_only(x$response) + 1L],
+    ret <- list(response_trafo = c("continuous", "discrete")[
+                                     .one_factor_only(x$response) + 1L],
                 response_type = sapply(x$response, class),
                 response_var = as.vars(x$response),
                 interaction_trafo = !is.null(x$interacting),
                 shift_trafo = !is.null(x$shifting))
     if (ret$interaction_trafo) {
         ret$interaction_vars = as.vars(x$interacting)
-        ret$interaction_type = c("continuous", "discrete")[.one_factor_only(x$interacting) + 1L]
+        ret$interaction_type = c("continuous", "discrete")[
+                                   .one_factor_only(x$interacting) + 1L]
     }
     if (ret$shift_trafo) 
         ret$shift_vars = as.vars(x$shifting) 
@@ -223,7 +227,8 @@ Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
         m <- mlt(model = model, data = object$data, weights = w,
                  offset = object$offset, dofit = FALSE,
                  theta = parm,
-                 fixed = object$fixed, scale = object$scale, optim = object$optim)
+                 fixed = object$fixed, scale = object$scale, 
+                 optim = object$optim)
         -logLik(m, parm = parm, w = w)
     }
     sc <- function(addparm, parm, which = 1L) {
@@ -231,7 +236,8 @@ Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
         m <- mlt(model = model, data = object$data, weights = w,
                  offset = object$offset, dofit = FALSE,
                  theta = parm,
-                 fixed = object$fixed, scale = object$scale, optim = object$optim)
+                 fixed = object$fixed, scale = object$scale, 
+                 optim = object$optim)
         ### note: weights(m) are used by estfun
         Gradient(m, parm = parm)[which]
     }
@@ -301,7 +307,8 @@ description <- function(object) {
        "transformation model", 
        "(transformed", m$todistr, "distribution)")
     if (cond && lin && pm != "")
-        ret <- c(ret, paste(m$response_trafo, if (strat) "stratified", "proportional", pm, "model"))
+        ret <- c(ret, paste(m$response_trafo, 
+                 if (strat) "stratified", "proportional", pm, "model"))
     ret <- gsub("\\s\\s*", " ", ret)
     return(ret)
 }
@@ -318,7 +325,8 @@ summary.mlt <- function(object, ...) {
     ret
 }
 
-print.summary.mlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.summary.mlt <- function(x, digits = max(3L, getOption("digits") - 3L), 
+                              ...) {
 
     cat("\nCall:\n")
     print(x$call)
@@ -326,7 +334,8 @@ print.summary.mlt <- function(x, digits = max(3L, getOption("digits") - 3L), ...
     cat("\nCould not estimate parameters; optimisation did not converge!\n")
     cat("\nType: ", x$type)
 #    cat("\nAIC: ", x$AIC)
-    cat("\nLog-Likelihood: ", x$logLik, " (df = ", attr(x$logLik, "df"), ")", sep = "")
+    cat("\nLog-Likelihood: ", x$logLik, " (df = ", attr(x$logLik, "df"), ")", 
+        sep = "")
     cat("\n")
     cat("\nCoefficients:", x$coef)
     cat("\n\n")
@@ -371,7 +380,8 @@ print.response <- function(x, digits = getOption("digits"), ...) {
         trc[i] <- paste("| <", ac(x$tright[i]))
     i <- (!is.na(x$tleft) & !is.na(x$tright))
     if (sum(i) > 0)
-        trc[i] <- paste("| (", ac(x$tleft[i]), ", ", ac(x$tright[i]), "]", sep = "")
+        trc[i] <- paste("| (", ac(x$tleft[i]), ", ", ac(x$tright[i]), "]", 
+                        sep = "")
     ret <- paste("{", obs, trc, "}", sep = "")
     print(ret, quote = FALSE, ...)
 }

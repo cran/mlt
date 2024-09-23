@@ -3,8 +3,9 @@ useDynLib("mlt", .registration = TRUE)
 
 import("basefun")
 import("variables")
-importFrom("Matrix", "Matrix", "colSums", "rowSums", "crossprod")
+importFrom("Matrix", "Matrix", "colSums", "rowSums", "crossprod", "bdiag")
 import("numDeriv") ### needed by BB???
+import("mvtnorm")
 importFrom("BB", "spg", "BBoptim")
 importFrom("alabama", "auglag")
 importFrom("nloptr", "nloptr")
@@ -15,7 +16,7 @@ importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "runif", "stepfun", "weights", "approxfun", "xtabs", "resid",
            "complete.cases", "dexp", "pexp", "qexp",
            "approx", "optimise", "spline", "update",
-           "dcauchy", "pcauchy", "qcauchy")
+           "dcauchy", "pcauchy", "qcauchy", "rnorm", "var")
 
 # importFrom("quadprog", "solve.QP")
 importFrom("coneproj", "qprog")
@@ -25,7 +26,7 @@ importFrom("methods", "as")
 importFrom("survival", "Surv")
 
 export(R, "coef<-", mlt, ctm, confband, Hessian, Gradient, as.mlt, 
-       mltoptim, as.Surv)
+       mltoptim, as.Surv, mmlt)
 #, paraboot, description
 # Hmlt dmlt, hmlt, pmlt, qmlt, smlt, tmlt
 
@@ -89,4 +90,18 @@ S3method("coef", "fmlt")
 S3method("Hessian", "fmlt")
 S3method("vcov", "fmlt")
 
-
+S3method("logLik", "mmlt")
+S3method("estfun", "mmlt")
+S3method("coef", "cmmlt")
+S3method("coef", "mmmlt")
+S3method("coef<-", "mmlt")
+S3method("vcov", "mmlt")
+S3method("predict", "mmlt")
+S3method("summary", "mmlt")
+S3method("print", "mmlt")
+S3method("simulate", "mmlt")
+S3method("variable.names", "mmlt")
+S3method("mkgrid", "mmlt")
+S3method("Hessian", "mmlt")
+S3method("Gradient", "mmlt")
+S3method("weights", "mmlt")

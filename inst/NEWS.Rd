@@ -2,6 +2,33 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-0 (2024-09-23)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Allow interval censoring using \code{-Inf} and \code{Inf}.
+            Starting values are affected but the corresponding observations
+            contribute zero to the log-likelihood.}
+     \item{Make sure \code{R()} does not drop any unused levels (unlike \code{factor()}).}
+    }
+  }
+  \subsection{New features}{
+    \itemize{
+      \item{\code{mmlt} moved from \pkg{tram} allowing arbitrary mixes of continuous
+          and discrete data, including exact and censored observations
+          for the same variable and thus also allowing non-informative missings encoded as
+          \code{-Inf, Inf}, see below. Corresponding \code{logLik} and \code{estfun}
+          methods feature \code{newdata} and \code{weights} arguments, as the
+          methods for \code{mlt} always did.}
+      \item{\code{R()} translates missing response values to  \code{-Inf} and \code{Inf} interval censoring.
+            This means that missing values are allowed in response variables
+            and the corresponding observations do
+            not contribute to the log-likelihood. In contrast to
+            \code{na.omit}, the (technical) dimension of the training data is not
+            changed.}
+    }
+  }
+}
+
 \section{Changes in Version 1.5-2 (2024-08-24)}{
   \subsection{Bugfixes}{
     \itemize{

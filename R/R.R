@@ -7,6 +7,29 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
     type <- attr(object, "type")
     stopifnot(type %in% c("left", "right", "interval", 
                           "interval2", "counting"))
+
+    ### missing values in Surv() objects
+    ### recode such that the log-likelihood contribution is zero
+    if (any(ona <- is.na(object[, "status"]))) {
+        ### attr(Surv(..., type = "interval2"), "type") == "interval"
+        stopifnot(type %in% c("interval", "right", "left"))
+        if (type == "interval") {
+            ### recode as -Inf, Inf
+            object[ona, "status"] <- 3 ### "interval"
+            object[ona, "time1"] <- -Inf
+            object[ona, "time2"] <- Inf
+        }
+        if (type == "right") {
+            ### recode as -Inf, Inf
+            object[ona, "status"] <- 0 ### "censoring"
+            object[ona, "time"] <- -Inf
+        }
+        if (type == "left") {
+            ### recode as -Inf, Inf
+            object[ona, "status"] <- 0 ### "censoring"
+            object[ona, "time"] <- Inf
+        }
+    }        
     status <- object[, "status"]
 
     if (as.R.interval) {
@@ -120,7 +143,12 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
                        tleft = object[, "start"])
     )
     attr(ret, "prob") <- function(weights) {
-        sf <- survival::survfit(object ~ 1, subset = weights > 0, weights = weights)
+        ### FIXME: subsetting doesn't change this fct
+        if (length(weights) == NROW(object)) {
+            sf <- survival::survfit(object ~ 1, subset = weights > 0, weights = weights)
+        } else {
+            sf <- survival::survfit(object ~ 1)
+        }
         function(y) {
             uy <- sort(unique(y))
             s <- summary(sf, times = uy)$surv
@@ -139,7 +167,8 @@ R.factor <- function(object, ...) {
     if (nlevels(object) > 2)
         warning("response is unordered factor;
                  results may depend on order of levels")
-    return(R(as.ordered(object), ...))
+    return(R(ordered(object, levels = levels(object), 
+                     labels = levels(object)), ...))
 }
 
 R.ordered <- function(object, cleft = NA, cright = NA, ...) {
@@ -150,8 +179,11 @@ R.ordered <- function(object, cleft = NA, cright = NA, ...) {
     ret[is.na(ret$cleft), "cleft"] <- factor(unclass(object)[is.na(ret$cleft)] - 1,
         levels = 1:length(lev), labels = lev, exclude = 0, ordered = TRUE)
     ret$exact <- NA
-    ret[ret$cright == lev[nlevels(object)], "cright"] <- NA
+    ret[which(ret$cright == lev[nlevels(object)]), "cright"] <- NA
     attr(ret, "prob") <- function(weights) {
+        ### FIXME: subsetting doesn't change this fct
+        if (length(weights) != length(object))
+            weights <- rep(1, length(object))
         prt <- cumsum(prop.table(xtabs(weights ~ object)))
         function(y) prt[y]
     }
@@ -164,9 +196,9 @@ R.integer <- function(object, cleft = NA, cright = NA, bounds = c(min(object), I
 
     ret <- .mkR(exact = object, cleft = cleft, cright = cright, ...)
     ret$cright[is.na(ret$cright)] <- ret$exact[is.na(ret$cright)]
-    ret$cright[ret$cright == bounds[2]] <- NA
+    ret$cright[which(ret$cright == bounds[2])] <- NA
     ret$cleft[is.na(ret$cleft)] <- ret$exact[is.na(ret$cleft)] - 1
-    ret$cleft[ret$cleft < bounds[1]] <- NA
+    ret$cleft[which(ret$cleft < bounds[1])] <- NA
     ret$exact <- NA
     attr(ret, "prob") <- function(weights)
         .wecdf(object, weights)
@@ -228,6 +260,12 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
 
     ret <- .mkR(exact = object, cleft = cleft, cright = cright,
                 tleft = tleft, tright = tright)
+    ### if exact, left and right were NA, recode as -Inf, Inf
+    ### such that the log-likelihood contribution is zero
+    if (any(rna <- rowSums(is.na(ret[, c("exact", "cleft", "cright")])) == 3L)) {
+        ret[rna, "cleft"] <- -Inf
+        ret[rna, "cright"] <- Inf
+    }
     ### <FIXME>
     ### this fails if is.na(object) and only cleft/cright are given
     # attr(ret, "prob") <- function(weights)
@@ -400,6 +438,29 @@ R.default <- function(object, ...)
         attr(Yright, "Assign") <- attr(Ytmp, "Assign")
     }
 
+    ### only -Inf, Inf intervals present
+    if (is.null(Yleft) & is.null(Yright)) {
+        ### evaluate model.matrix and obtain dimensions and
+        ### constraints; no data from Ytmp is used!"
+        tmp <- tmpdata
+        yfake <- mkgrid(model, n = 3)[[response]][2]
+        tmp[[response]] <- yfake
+        Ytmp <- model.matrix(model, data = tmp)
+        .matrix <- matrix
+        if (inherits(Ytmp, "Matrix")) 
+            .matrix <- function(...) Matrix(..., sparse = TRUE)
+        Yleft <- .matrix(-Inf, nrow = nrow(Ytmp), ncol = ncol(Ytmp))
+        colnames(Yleft) <- colnames(Ytmp)
+        rownames(Yleft) <- rownames(tmpdata)
+        attr(Yleft, "constraint") <- attr(Ytmp, "constraint")
+        attr(Yleft, "Assign") <- attr(Ytmp, "Assign")
+        Yright <- .matrix(Inf, nrow = nrow(Ytmp), ncol = ncol(Ytmp))
+        colnames(Yright) <- colnames(Ytmp)
+        rownames(Yright) <- rownames(tmpdata)
+        attr(Yright, "constraint") <- attr(Ytmp, "constraint")
+        attr(Yright, "Assign") <- attr(Ytmp, "Assign")
+    }
+
     if (is.null(Yright)) { 
         Yright <- matrix(Inf, nrow = nrow(Yleft), ncol = ncol(Yleft))
         colnames(Yright) <- colnames(Yleft)
@@ -438,6 +499,8 @@ R.default <- function(object, ...)
 }
 
 .wecdf <- function(x, weights) {
+    ### FIXME: subsetting doesn't change this fct
+    if (length(weights) != length(x)) weights <- rep(1, length(x))
     ### from: spatstat::ewcdf
     ox <- order(x)
     x <- x[ox]

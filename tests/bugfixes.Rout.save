@@ -1,7 +1,7 @@
 
-R version 4.3.3 (2024-02-29) -- "Angel Food Cake"
+R version 4.4.1 (2024-06-14) -- "Race for Your Life"
 Copyright (C) 2024 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -105,8 +105,6 @@ Coefficients: 30.951 38.885 42.523 -0.01508 -0.058906 -0.12136 -0.054061 -0.4769
 > library("survival")
 > bodyfat$DEXfat <- Surv(y, sF)
 > mod <- mlt(m, data = bodyfat, scale = TRUE)
-Warning message:
-In .checkR(y, weights) : response contains left-censored observations only
 > mod$convergence
 [1] 1
 > 
@@ -162,6 +160,31 @@ In .checkR(y, weights) : response contains left-censored observations only
 > all.equal(c(logLik(m1)), c(logLik(m2)))
 [1] TRUE
 > 
+> ### mix of left / right censoring with missing values coded as -Inf, Inf
+> N <- 50
+> xl <- runif(N)
+> xr <- xl + 1
+> lc <- 1:5
+> xl[lc] <- -Inf
+> rc <- 6:10
+> xr[rc] <- Inf
+> ic <- 11:15
+> xl[ic] <- -Inf
+> xr[ic] <- Inf
+> 
+> d <- data.frame(1:N)
+> d$y <- R(cleft = xl, cright = xr)
+> m <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), order = 1)),
++              data = d, theta = c(-1, 1))
+> mi <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), order = 1)),
++               data = d[-ic,,drop = FALSE], theta = c(-1, 1))
+> all.equal(logLik(m), logLik(mi))
+[1] TRUE
+> 
+> 
+> 
+> 
+> 
 > proc.time()
    user  system elapsed 
-  0.805   0.076   0.875 
+  0.810   0.059   0.874 

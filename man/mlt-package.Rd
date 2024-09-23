@@ -4,13 +4,11 @@
 \title{General Information on the \pkg{mlt} Package}
 \description{
   The \pkg{mlt} package implements maximum likelihood estimation in 
-  conditional transformation models as introduced by Hothorn et al. (2020).
+  conditional transformation models as introduced by Hothorn et al. (2020),
+  Klein et al. (2022), and Siegfried et al. (2023).
 
   An introduction to the package is available in the \code{mlt} package
   vignette from package \code{mlt.docreg} (Hothorn, 2020).
-
-  A short talk on most likely transformations is available from
-  \url{https://channel9.msdn.com/Events/useR-international-R-User-conference/useR2016/Most-Likely-Transformations}.
 
   Novice users might find the high(er) level interfaces offered by package
   \pkg{tram} more convenient.
@@ -25,6 +23,16 @@
   Torsten Hothorn (2020), Most Likely Transformations: The mlt Package,
   \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
   \doi{10.18637/jss.v092.i01}
+
+  Nadja Klein, Torsten Hothorn, Luisa Barbanti, Thomas Kneib (2022),
+  Multivariate Conditional Transformation Models. \emph{Scandinavian Journal
+  of Statistics}, \bold{49}, 116--142, \doi{10.1111/sjos.12501}.
+
+  Sandra Siegfried, Lucas Kook, Torsten Hothorn (2023), 
+  Distribution-Free Location-Scale Regression, \emph{The American Statistician},
+  \bold{77}(4), 345--356, \doi{10.1080/00031305.2023.2203177}.
+
+  Torsten Hothorn (2024), On Nonparanormal Likelihoods. \doi{10.48550/arXiv.2408.17346}.
 
 }
 \author{

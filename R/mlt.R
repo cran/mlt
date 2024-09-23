@@ -66,8 +66,10 @@
         if (SCALE) {
             parm <- .parm(beta)
             if (is.matrix(parm)) {
-#                slp <- base::rowSums(soffset + Z * parm[,Assign[2,] == "bscaling"])
-                slp <- .Call("R_offrowSums", soffset, Z, parm[,Assign[2,] == "bscaling"])
+#               slp <- base::rowSums(soffset + 
+#                                    Z * parm[,Assign[2,] == "bscaling"])
+                slp <- .Call("R_offrowSums", soffset, Z, 
+                             parm[,Assign[2,] == "bscaling"])
             } else {
                 slp <- c(soffset + Z %*% parm[Assign[2,] == "bscaling"])
             }
@@ -92,14 +94,20 @@
         }
     }
 
-    .ofuns <- function(weights, subset = NULL, offset = NULL, 
+    .ofuns <- function(weights = NULL, subset = NULL, offset = NULL, 
                        perm = NULL, permutation = NULL, 
-                       distr = todistr) ### <- change todistr via update(, distr =)
+                       distr = todistr) ### <- 
+                       ### change todistr via update(, distr =)
     {
         if (is.null(offset)) {
             offset <- rep(0, nrow(data))
             soffset <- rep(0, nrow(data))
         }
+        ### weight are only necessary for computing the hessian
+        ### as we only compute the weighted sum, not the 
+        ### individual (to be weighted) contributions to the Fisher info
+        if (is.null(weights))
+            weights <- rep(1, nrow(data))
 
         if (SCALE) {
             if (is.matrix(offset)) {
@@ -209,180 +217,238 @@
             id <- function(x) x
             if (!is.null(es$full_ex)) {
                 trex[es$full_ex] <- .dealinf(exY, beta_ex, exoffset, id, 0)
-                trexprime[es$full_ex] <- .dealinf(exYprime, beta_ex, exoffset, id, 0)
+                trexprime[es$full_ex] <- .dealinf(exYprime, beta_ex, 
+                                                  exoffset, id, 0)
             }
             if (!is.null(es$full_nex)) {
-                trleft[es$full_nex] <- .dealinf(iYleft, beta_nex, ioffset, id, -Inf)
-                trright[es$full_nex] <- .dealinf(iYright, beta_nex, ioffset, id, Inf)
+                trleft[es$full_nex] <- .dealinf(iYleft, beta_nex, ioffset, 
+                                                id, -Inf)
+                trright[es$full_nex] <- .dealinf(iYright, beta_nex, ioffset, 
+                                                 id, Inf)
             }
             ret <- list(trex = trex, trexprime = trexprime,
                         trleft = trleft, trright = trright)
             return(ret)
         }
 
+        ### evaluate the derivative of the transformation function
+        ### wrt to its parameters (this is just the design matrix
+        ### for non-shift-scale models but more complex in this latter
+        ### class)
+        trafoprime <- function(beta) {
+            ret <- vector(mode = "list", length = 4L)
+            names(ret) <- c("exY", "exYprime", "iYleft", "iYright")
+            idx <- !Assign[2,] %in% "bscaling"
+            if (!is.null(es$full_ex)) {
+                ret$exY <- exY[,idx,drop = FALSE]
+                ret$exYprime <- exYprime[,idx,drop = FALSE]
+            }
+            if (!is.null(es$full_nex)) {
+                ret$iYleft <- iYleft[,idx,drop = FALSE]
+                ret$iYright <- iYright[,idx,drop = FALSE]
+            }
+            if (!SCALE) return(ret)
+
+            sparm <- .parm(beta)
+            slp <- c(soffset + Z %*% sparm[Assign[2,] == "bscaling"])
+            sterm <- exp(.5 * slp)
+            tr <- trafo(beta)
+            names(tr) <- c("exY", "exYprime", "iYleft", "iYright")
+
+            if (model$scale_shift) {
+                if (!is.null(es$full_ex)) {
+                    ret[c("exY", "exYprime")] <- lapply(c("exY", "exYprime"), 
+                        function(j) 
+                            cbind(sterm[es$full_ex] * 
+                                    ret[[j]][es$full_ex,,drop = FALSE], 
+                                  .5 * tr[[j]][es$full_ex] * 
+                                    Z[es$full_ex,,drop = FALSE]))
+                }
+                if (!is.null(es$full_nex)) {
+                    ret[c("iYleft", "iYright")] <- lapply(c("iYleft", "iYright"), 
+                        function(j) 
+                            cbind(sterm[es$full_nex] * 
+                                      ret[[j]][es$full_nex,,drop = FALSE], 
+                                  .5 * tr[[j]][es$full_nex] * 
+                                      Z[es$full_nex,,drop = FALSE]))
+                }
+            } else {
+                bbeta <- beta
+                if (is.matrix(bbeta)) {
+                    bbeta[,Assign[2,] %in% c("bshifting", "bscaling")] <- 0
+                } else {
+                    bbeta[Assign[2,] %in% c("bshifting", "bscaling")] <- 0
+                }
+                tr <- trafo(bbeta)
+                names(tr) <- c("exY", "exYprime", "iYleft", "iYright")
+
+                idx <- !Assign[2,idx] %in% "bshifting"
+                
+                if (!is.null(es$full_ex)) {
+                    ret[c("exY", "exYprime")] <- lapply(c("exY", "exYprime"), 
+                       function(j) 
+                            cbind(sterm[es$full_ex] * 
+                                      ret[[j]][es$full_ex,idx,drop = FALSE], 
+                                  ret[[j]][es$full_ex,!idx,drop = FALSE], 
+                                  sterm[es$full_ex] * .5 * 
+                                      tr[[j]][es$full_ex] * 
+                                       Z[es$full_ex, , drop = FALSE]))
+                }
+                if (!is.null(es$full_nex)) {
+                    ret[c("iYleft", "iYright")]  <- lapply(c("iYleft", "iYright"), 
+                        function(j) 
+                            cbind(sterm[es$full_nex] * 
+                                      ret[[j]][es$full_nex,idx,drop = FALSE], 
+                                  ret[[j]][es$full_nex,!idx,drop = FALSE], 
+                                  sterm[es$full_nex] * .5 * 
+                                     tr[[j]][es$full_nex] * 
+                                     Z[es$full_nex, , drop = FALSE]))
+                }
+            }
+            return(ret)
+        }
+
+        ll <- function(beta) {
+            ret <- ret_ll 
+            beta <- .sparm(beta, soffset)
+            if (is.matrix(beta)) {
+                beta_ex <- beta[es$full_ex,,drop = FALSE]
+                beta_nex <- beta[es$full_nex,,drop = FALSE]
+            } else {
+                beta_ex <- beta_nex <- beta
+            }
+            if (!is.null(es$full_ex))
+                ret[es$full_ex] <- .mlt_loglik_exact(distr, 
+                    exY, exYprime, exoffset, extrunc)(beta_ex)
+            if (!is.null(es$full_nex))
+                ret[es$full_nex] <- .mlt_loglik_interval(distr, 
+                    iYleft, iYright, ioffset, itrunc)(beta_nex)
+            return(ret)
+        }
+
+        ### score without shift-scale
+        sc0 <- function(beta, Xmult = TRUE, ret_all = FALSE) {
+            ### Xmult = FALSE means
+            ### score wrt to an intercept term. This avoids
+            ### multiplication with the whole design matrix.
+            ### Don't use on your own. 
+            if (Xmult) {
+                ret <- ret_scM 
+            } else {
+                ret <- ret_sc
+            }
+            beta <- .sparm(beta, soffset)
+            if (is.matrix(beta)) {
+                beta_ex <- beta[es$full_ex,,drop = FALSE]
+                beta_nex <- beta[es$full_nex,,drop = FALSE]
+                nm <- colnames(beta)
+            } else {
+                beta_ex <- beta_nex <- beta
+                nm <- names(beta)
+            }
+            if (!is.null(es$full_ex)) {
+                scr <- .mlt_score_exact(distr, 
+                    exY, exYprime, exoffset, extrunc)(beta_ex, Xmult)
+                if (EX_ONLY) {
+                    ret <- matrix(scr, nrow = NROW(scr), 
+                                  dimnames = dimnames(scr))
+                } else {
+                    ret[es$full_ex,] <- scr
+                }
+            }
+            if (!is.null(es$full_nex)) {
+                scr <- .mlt_score_interval(distr, 
+                    iYleft, iYright, ioffset, itrunc)(beta_nex, Xmult)
+                if (IN_ONLY) {
+                    ret <- matrix(scr, nrow = NROW(scr), 
+                                  dimnames = dimnames(scr))
+                } else {
+                    ret[es$full_nex,] <- scr
+                 }
+            }
+            if (!Xmult) return(ret)
+            colnames(ret) <- colnames(Y)
+            ### return all scores, no questions asked
+            if (ret_all) return(ret)
+            ### in case beta contains fix parameters,
+            ### return all scores
+            if (!is.null(fixed)) {
+                if (all(names(fixed) %in% nm))
+                    return(ret)
+            }
+            return(ret[, !fix, drop = FALSE])
+        }
+
+        ### with potential shift-scale
+        sc <- function(beta, Xmult = TRUE) {
+            if (!"bscaling" %in% Assign[2,])
+                return(sc0(beta, Xmult = Xmult))
+            sc <- sc0(beta, Xmult = TRUE, ret_all = TRUE)
+            sparm <- .parm(beta)
+            slp <- c(soffset + Z %*% sparm[Assign[2,] == "bscaling"])
+            sterm <- exp(.5 * slp)
+            if (model$scale_shift) {
+                idx <- (!Assign[2,] %in% "bscaling")
+            } else {
+                idx <- (!Assign[2,] %in% c("bshifting", "bscaling"))
+            }
+            if (!Xmult) {
+                fct <- c(sc0(beta, Xmult = FALSE))
+                return(cbind(shifting = if (model$scale_shift) sterm * fct 
+                                        else fct,
+                             scaling = sterm * c(sc[, idx, drop = FALSE] %*% 
+                                                 .parm(beta)[idx]) * .5))
+            }
+            ret <- cbind(sterm * sc[, idx, drop = FALSE],
+                  if (!model$scale_shift) sc[, Assign[2, ] == "bshifting", 
+                                             drop = FALSE],
+                  sterm * c(sc[, idx, drop = FALSE] %*% 
+                      .parm(beta)[idx]) * .5 * Z)
+            colnames(ret) <- colnames(sc)
+            if (!is.null(fixed)) {
+                if (all(names(fixed) %in% names(beta)))
+                    return(ret)
+            }
+            return(ret[, !fix, drop = FALSE])
+        }
+
+        he = function(beta) {
+             ret <- 0
+            if (is.matrix(beta)) {
+                beta_ex <- beta[es$full_ex,,drop = FALSE]
+                beta_nex <- beta[es$full_nex,,drop = FALSE]
+                nm <- colnames(beta)
+            } else {
+                beta_ex <- beta_nex <- beta
+                nm <- names(beta)
+            }
+            if (!is.null(es$full_ex))
+                ret <- ret + .mlt_hessian_exact(distr, 
+                    exY, exYprime, exoffset, extrunc, 
+                    exweights)(.sparm(beta_ex, soffset))
+            if (!is.null(es$full_nex))
+                ret <- ret + .mlt_hessian_interval(distr, 
+                    iYleft, iYright, ioffset, itrunc, 
+                    iweights)(.sparm(beta_nex, soffset))
+            colnames(ret) <- rownames(ret) <- colnames(Y)
+            ### in case beta contains fix parameters,
+            ### return all scores
+            if (!is.null(fixed)) {
+                if (all(names(fixed) %in% nm))
+                    return(ret)
+            }
+            return(ret[!fix, !fix, drop = FALSE])
+        }
+
         return(list(
             offset = offset,
             soffset = soffset,
+            ll = ll,
+            sc = sc,
+            he = he,
             trafo = trafo,
-            ### evaluate the derivative of the transformation function
-            ### wrt to its parameters (this is just the design matrix
-            ### for non-shift-scale models but more complex in this latter
-            ### class)
-            trafoprime = function(beta) {
-                ret <- vector(mode = "list", length = 4L)
-                names(ret) <- c("exY", "exYprime", "iYleft", "iYright")
-                idx <- !Assign[2,] %in% "bscaling"
-                if (!is.null(es$full_ex)) {
-                    ret$exY <- exY[,idx,drop = FALSE] * exweights
-                    ret$exYprime <- exYprime[,idx,drop = FALSE] * exweights
-                }
-                if (!is.null(es$full_nex)) {
-                    ret$iYleft <- iYleft[,idx,drop = FALSE] * iweights
-                    ret$iYright <- iYright[,idx,drop = FALSE] * iweights
-                }
-                if (!SCALE) return(ret)
-
-                sparm <- .parm(beta)
-                slp <- c(soffset + Z %*% sparm[Assign[2,] == "bscaling"])
-                sterm <- exp(.5 * slp)
-                tr <- trafo(beta)
-                names(tr) <- c("exY", "exYprime", "iYleft", "iYright")
-
-                if (model$scale_shift) {
-                    if (!is.null(es$full_ex)) {
-                        ret[c("exY", "exYprime")] <- lapply(c("exY", "exYprime"), 
-                            function(j) cbind(sterm[es$full_ex] * ret[[j]][es$full_ex,,drop = FALSE], 
-                                              .5 * tr[[j]][es$full_ex] * Z[es$full_ex,,drop = FALSE]))
-                    }
-                    if (!is.null(es$full_nex)) {
-                        ret[c("iYleft", "iYright")] <- lapply(c("iYleft", "iYright"), 
-                            function(j) cbind(sterm[es$full_nex] * ret[[j]][es$full_nex,,drop = FALSE], 
-                                              .5 * tr[[j]][es$full_nex] * Z[es$full_nex,,drop = FALSE]))
-                    }
-                } else {
-                    bbeta <- beta
-                    if (is.matrix(bbeta)) {
-                        bbeta[,Assign[2,] %in% c("bshifting", "bscaling")] <- 0
-                    } else {
-                        bbeta[Assign[2,] %in% c("bshifting", "bscaling")] <- 0
-                    }
-                    tr <- trafo(bbeta)
-                    names(tr) <- c("exY", "exYprime", "iYleft", "iYright")
-
-                    idx <- !Assign[2,idx] %in% "bshifting"
-                    
-                    if (!is.null(es$full_ex)) {
-                        ret[c("exY", "exYprime")] <- lapply(c("exY", "exYprime"), 
-                            function(j) cbind(sterm[es$full_ex] * ret[[j]][es$full_ex,idx,drop = FALSE], 
-                                              ret[[j]][es$full_ex,!idx,drop = FALSE], 
-                                              sterm[es$full_ex] * .5 * tr[[j]][es$full_ex] * Z[es$full_ex, , drop = FALSE]))
-                    }
-                    if (!is.null(es$full_nex)) {
-                        ret[c("iYleft", "iYright")]  <- lapply(c("iYleft", "iYright"), 
-                            function(j) cbind(sterm[es$full_nex] * ret[[j]][es$full_nex,idx,drop = FALSE], 
-                                              ret[[j]][es$full_nex,!idx,drop = FALSE], 
-                                              sterm[es$full_nex] * .5 * tr[[j]][es$full_nex] * Z[es$full_nex, , drop = FALSE]))
-                    }
-                }
-                return(ret)
-            },
-            ll = function(beta) {
-                ret <- ret_ll 
-                beta <- .sparm(beta, soffset)
-                if (is.matrix(beta)) {
-                    beta_ex <- beta[es$full_ex,,drop = FALSE]
-                    beta_nex <- beta[es$full_nex,,drop = FALSE]
-                } else {
-                    beta_ex <- beta_nex <- beta
-                }
-                if (!is.null(es$full_ex))
-                    ret[es$full_ex] <- .mlt_loglik_exact(distr, 
-                        exY, exYprime, exoffset, extrunc)(beta_ex)
-                if (!is.null(es$full_nex))
-                    ret[es$full_nex] <- .mlt_loglik_interval(distr, 
-                        iYleft, iYright, ioffset, itrunc)(beta_nex)
-                return(ret)
-            },
-            sc = function(beta, Xmult = TRUE, ret_all = FALSE) {
-                ### Xmult = FALSE means
-                ### score wrt to an intercept term. This avoids
-                ### multiplication with the whole design matrix.
-                ### Don't use on your own. 
-                if (Xmult) {
-                    ret <- ret_scM 
-                } else {
-                    ret <- ret_sc
-                }
-                beta <- .sparm(beta, soffset)
-                if (is.matrix(beta)) {
-                    beta_ex <- beta[es$full_ex,,drop = FALSE]
-                    beta_nex <- beta[es$full_nex,,drop = FALSE]
-                    nm <- colnames(beta)
-                } else {
-                    beta_ex <- beta_nex <- beta
-                    nm <- names(beta)
-                }
-                if (!is.null(es$full_ex)) {
-                    scr <- .mlt_score_exact(distr, 
-                        exY, exYprime, exoffset, extrunc)(beta_ex, Xmult)
-                    if (EX_ONLY) {
-                        ret <- matrix(scr, nrow = NROW(scr), 
-                                      dimnames = dimnames(scr))
-                    } else {
-                        ret[es$full_ex,] <- scr
-                    }
-                }
-                if (!is.null(es$full_nex)) {
-                    scr <- .mlt_score_interval(distr, 
-                        iYleft, iYright, ioffset, itrunc)(beta_nex, Xmult)
-                    if (IN_ONLY) {
-                        ret <- matrix(scr, nrow = NROW(scr), 
-                                      dimnames = dimnames(scr))
-                    } else {
-                        ret[es$full_nex,] <- scr
-                    }
-                }
-                if (!Xmult) return(ret)
-                colnames(ret) <- colnames(Y)
-                ### return all scores, no questions asked
-                if (ret_all) return(ret)
-                ### in case beta contains fix parameters,
-                ### return all scores
-                if (!is.null(fixed)) {
-                    if (all(names(fixed) %in% nm))
-                        return(ret)
-                }
-                return(ret[, !fix, drop = FALSE])
-            },
-            he = function(beta) {
-                ret <- 0
-                if (is.matrix(beta)) {
-                    beta_ex <- beta[es$full_ex,,drop = FALSE]
-                    beta_nex <- beta[es$full_nex,,drop = FALSE]
-                    nm <- colnames(beta)
-                } else {
-                    beta_ex <- beta_nex <- beta
-                    nm <- names(beta)
-                }
-                if (!is.null(es$full_ex))
-                    ret <- ret + .mlt_hessian_exact(distr, 
-                        exY, exYprime, exoffset, extrunc, 
-                        exweights)(.sparm(beta_ex, soffset))
-                if (!is.null(es$full_nex))
-                    ret <- ret + .mlt_hessian_interval(distr, 
-                        iYleft, iYright, ioffset, itrunc, 
-                        iweights)(.sparm(beta_nex, soffset))
-                colnames(ret) <- rownames(ret) <- colnames(Y)
-                ### in case beta contains fix parameters,
-                ### return all scores
-                if (!is.null(fixed)) {
-                    if (all(names(fixed) %in% nm))
-                        return(ret)
-                }
-
-                return(ret[!fix, !fix, drop = FALSE])
-            })
-        )
+            trafoprime = trafoprime
+        ))
     }
 
     if (all(!is.finite(ci))) {
@@ -394,48 +460,30 @@
         ui <- ui[!r0,,drop = FALSE]
         ci <- ci[!r0]
         if (nrow(ui) == 0) ui <- ci <- NULL
-#        ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
+#        ci <- ci + sqrt(.Machine$double.eps) ### 
+         ### we need ui %*% theta > ci, not >= ci
     }
 
     optimfct <- function(theta, weights, subset = NULL, offset = NULL, 
                          scale = FALSE, optim, ...) {
         of <- .ofuns(weights = weights, subset = subset, 
                      offset = offset, ...)
+
+        ### N contributions to the log-likelihood, UNWEIGHTED
+        logliki <- function(beta, weights = NULL)
+            of$ll(beta)
+        ### NEGATIVE sum of log-likelihood contributions, WEIGHTED
         loglikfct <- function(beta, weights)  
             -sum(weights * of$ll(beta))
-        score <- function(beta, weights, Xmult = TRUE) {
-            if (!"bscaling" %in% Assign[2,])
-                return(weights * of$sc(beta, Xmult = Xmult))
-            sc <- weights * of$sc(beta, Xmult = TRUE, ret_all = TRUE)
-            sparm <- .parm(beta)
-            slp <- c(of$soffset + Z %*% sparm[Assign[2,] == "bscaling"])
-            sterm <- exp(.5 * slp)
-            if (model$scale_shift) {
-                idx <- (!Assign[2,] %in% "bscaling")
-            } else {
-                idx <- (!Assign[2,] %in% c("bshifting", "bscaling"))
-            }
-            if (!Xmult) {
-                fct <- c(weights * of$sc(beta, Xmult = FALSE))
-                return(cbind(shifting = if (model$scale_shift) sterm * fct else fct,
-                             scaling = sterm * c(sc[, idx, drop = FALSE] %*% .parm(beta)[idx]) * .5))
-            }
-            ret <- cbind(sterm * sc[, idx, drop = FALSE],
-                  if (!model$scale_shift) sc[, Assign[2, ] == "bshifting", drop = FALSE],
-                  sterm * c(sc[, idx, drop = FALSE] %*% .parm(beta)[idx]) * .5 * Z)
-            colnames(ret) <- colnames(sc)
-            if (!is.null(fixed)) {
-                if (all(names(fixed) %in% names(beta)))
-                    return(ret)
-            }
-            return(ret[, !fix, drop = FALSE])
-        }
+        ### N contributions to the score function, UNWEIGHTED
+        scorei <- function(beta, weights = NULL, Xmult = TRUE)
+            of$sc(beta, Xmult = Xmult)
+        ### gradient of negative log-likelihood, WEIGHTED
+        scorefct <- function(beta, weights)
+            -colSums(weights * scorei(beta), na.rm = TRUE)
+        ### hessian of negative log-lik, ALWAYS WEIGHTED
         hessian <- function(beta, weights) 
-            of$he(beta)
-        scorefct <- function(beta, weights) 
-            -colSums(score(beta, weights), na.rm = TRUE)
-        logliki <- function(beta, weights)
-            of$ll(beta)
+            .ofuns(weights = weights, offset = offset)$he(beta)
 
         if (scale) {
             Ytmp <- Y
@@ -475,7 +523,8 @@
         }
         if (ret$convergence != 0)
             warning("Optimisation did not converge")
-        ### degrees of freedom: number of free parameters, ie #parm NOT meeting the constraints
+        ### degrees of freedom: number of free parameters, ie
+        ###  #parm NOT meeting the constraints
         ret$df <- length(ret$par)
         ### <FIXME> check on alternative degrees of freedom
 #        if (!is.null(ui)) 
@@ -483,10 +532,6 @@
         ### </FIXME>
         if (scale) ret$par <- ret$par * sc
 
-        ### NOTE: this overwrites the functions taking the possibly updated
-        ### offset into account
-        ret$score <- score
-        wfit <- weights
         if (SCALE) {
             ret$hessian <- function(beta, weights) {
                 # warning("Analytical Hessian not available, using numerical approximation")
@@ -497,8 +542,23 @@
         } else {
             ret$hessian <- hessian
         }
-        ret$loglik <- loglikfct
+
         ret$logliki <- logliki
+
+        ### sum of log-likelihood contributions, WEIGHTED
+        ret$loglik <- function(beta, weights)  
+            sum(weights * ret$logliki(beta))
+
+        ret$scorei <- scorei
+
+        ### N contributions to score function, WEIGHTED
+        ret$score <- function(beta, weights, Xmult = TRUE)
+            weights * ret$scorei(beta, Xmult = Xmult)
+
+        ### FIXME: remove weight arguments (needed in tram::mmlt)
+        ret$trafo <- function(beta, weights) of$trafo(beta)
+        ret$trafoprime <- function(beta, weights) of$trafoprime(beta)
+
         if (scale) ret$parsc <- sc
 
         return(ret)
@@ -518,24 +578,29 @@
     ret$todistr <- todistr
     ret$optimfct <- optimfct
 
-    ret$trafo <- function(beta, weights)
-        .ofuns(weights = weights, offset = offset)$trafo(beta)
-    ret$trafoprime <- function(beta, weights)
-        .ofuns(weights = weights, offset = offset)$trafoprime(beta)
-    ret$loglik <- function(beta, weights)  
-        -sum(weights * .ofuns(weights = weights, offset = offset)$ll(beta))
-    ret$logliki <- function(beta, weights)
+    ret$logliki <- function(beta, weights = NULL)
         .ofuns(weights = weights, offset = offset)$ll(beta)
-    ret$score <- function(beta, weights, Xmult = TRUE) 
-        weights * .ofuns(weights = weights, offset = offset)$sc(beta, Xmult = Xmult)
-    ret$hessian <- function(beta, weights) 
+
+    ### sum of log-likelihood contributions, WEIGHTED
+    ret$loglik <- function(beta, weights)  
+        sum(weights * .ofuns(weights = weights, offset = offset)$ll(beta))
+
+    ret$scorei <- function(beta, weights = NULL, Xmult = TRUE)
+        .ofuns(weights = weights, offset = offset)$sc(beta, Xmult = Xmult)
+
+    ### N contributions to score function, WEIGHTED
+    ret$score <- function(beta, weights = NULL, Xmult = TRUE)
+        weights * ret$scorei(beta, Xmult = Xmult)
+
+    hessian <- function(beta, weights) 
         .ofuns(weights = weights, offset = offset)$he(beta)
 
     class(ret) <- c("mlt_setup", "mlt")
     return(ret)
 }
 
-.mlt_start <- function(model, data, y, pstart, offset = NULL, fixed = NULL, weights = 1) {
+.mlt_start <- function(model, data, y, pstart, offset = NULL, fixed = NULL, 
+                       weights = 1) {
 
     stopifnot(length(pstart) == nrow(data))
 
@@ -594,11 +659,13 @@
         ui <- ui[!r0,,drop = FALSE]
         ci <- ci[!r0]
         if (nrow(ui) == 0) ui <- ci <- NULL
-        ci <- ci + sqrt(.Machine$double.eps) ### we need ui %*% theta > ci, not >= ci
+        ci <- ci + sqrt(.Machine$double.eps) 
+            ### we need ui %*% theta > ci, not >= ci
     }
 
     if (!is.null(ui)) {    
-        ret <- suppressWarnings(try(c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)))
+        ret <- suppressWarnings(try(c(coneproj::qprog(Dmat, dvec, 
+                                      ui, ci, msg = FALSE)$thetahat)))
         if (inherits(ret, "try-error")) {
             diag(Dmat) <- diag(Dmat) + 1e-3
             ret <- c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)
@@ -645,8 +712,10 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
     vars <- as.vars(model)
     response <- variable.names(model, "response")
     responsevar <- vars[[response]]
-    ### <FIXME>: how can we check Surv objects?
-    if (!inherits(data[[response]], "Surv"))
+    ### <FIXME>: how can we check Surv or R objects (which may contain
+    ### values outside bounds)?
+    if (!(inherits(data[[response]], "Surv") ||
+          inherits(data[[response]], "response")))
         stopifnot(check(responsevar, data))
     ### </FIXME>
     bounds <- bounds(responsevar)
@@ -669,10 +738,12 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
 
     if (is.null(theta)) {
         ### unconditional ECDF, essentially
-###        if (is.null(pstart)) pstart <- y$rank / max(y$rank)
-        if (is.null(pstart)) pstart <- attr(y, "prob")(weights)(y$approxy) ### y$rank / max(y$rank)
+        ### this doesn't really work for censored data, any alternative?
+        if (is.null(pstart)) 
+            pstart <- attr(y, "prob")(weights)(y$approxy) ### y$rank / max(y$rank)
         theta <- .mlt_start(model = model, data = data, y = y, 
-                            pstart = pstart, offset = offset, fixed = fixed, weights = weights)
+                            pstart = pstart, offset = offset, 
+                            fixed = fixed, weights = weights)
     }
 
     args <- list()

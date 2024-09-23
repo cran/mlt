@@ -48,6 +48,10 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
   \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
   \doi{10.18637/jss.v092.i01}
 
+  Sandra Siegfried, Lucas Kook, Torsten Hothorn (2023), 
+  Distribution-Free Location-Scale Regression, \emph{The American Statistician},
+  \bold{77}(4), 345--356, \doi{10.1080/00031305.2023.2203177}.
+
 }
 \examples{
  

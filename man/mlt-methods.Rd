@@ -75,9 +75,9 @@ Gradient(object, ...)
   \code{coef} can be used to get and set model parameters, \code{weights} and 
   \code{logLik} extract weights and evaluate the log-likelihood (also for
   parameters other than the maximum likelihood estimate). \code{Hessian}
-  returns the Hessian and \code{vcov} the inverse thereof. \code{Gradient}
-  gives the negative gradient (sum of the score contributions) 
-  and \code{estfun} the negative score contribution by each observation. \code{mkgrid}
+  returns the Hessian (of the \emph{negative} log-likelihood) and \code{vcov} the inverse thereof. \code{Gradient}
+  gives the negative gradient (minus sum of the score contributions) 
+  and \code{estfun} the \emph{negative} score contribution by each observation. \code{mkgrid}
   generates a grid of all variables (as returned by \code{variable.names}) in the model.
   \code{update} allows refitting the model with alternative weights and potentially
   different starting values. \code{bounds} gets bounds for bounded variables in the model.

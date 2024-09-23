@@ -42,8 +42,11 @@
     return(ret)
 }
 
-.log <- function(x)
-    return(log(.pmax(.Machine$double.eps, x)))
+.log <- function(x) {
+    ret <- log(.pmax(.Machine$double.eps, x))
+    dim(ret) <- dim(x)
+    return(ret)
+}
 
 ..mlt_loglik_interval <- function(d, mml, mmr, offset = 0, beta) {
     RC <- !is.finite(mmr[,1])
@@ -127,6 +130,7 @@
     mml[!is.finite(mml)] <- 0
     W3 <- mmr * w3
     W4 <- mml * w4
+    ### returns "- hessian" = Fisher info
     return(-(crossprod(mmr * w1, mmr) - crossprod(mml * w2, mml) - 
             (crossprod(W3) - crossprod(W3, W4) - 
                 crossprod(W4, W3) + crossprod(W4))))

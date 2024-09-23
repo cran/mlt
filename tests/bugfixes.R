@@ -113,3 +113,27 @@ ctmm <- ctm(response = Bernstein_basis(dist, order = 6, ui = "increasing"))
 m1 <- mlt(ctmm, data = cars)
 m2 <- mlt(ctmm, data = cars, fixed = coef(m1)[4])
 all.equal(c(logLik(m1)), c(logLik(m2)))
+
+### mix of left / right censoring with missing values coded as -Inf, Inf
+N <- 50
+xl <- runif(N)
+xr <- xl + 1
+lc <- 1:5
+xl[lc] <- -Inf
+rc <- 6:10
+xr[rc] <- Inf
+ic <- 11:15
+xl[ic] <- -Inf
+xr[ic] <- Inf
+
+d <- data.frame(1:N)
+d$y <- R(cleft = xl, cright = xr)
+m <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), order = 1)),
+             data = d, theta = c(-1, 1))
+mi <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), order = 1)),
+              data = d[-ic,,drop = FALSE], theta = c(-1, 1))
+all.equal(logLik(m), logLik(mi))
+
+
+
+
