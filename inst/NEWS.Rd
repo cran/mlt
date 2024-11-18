@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-1 (2024-11-18)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Try harder to obtain starting values meeting constraints, 
+            issue a warning if this failed.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-0 (2024-09-23)}{
   \subsection{Bugfixes}{
     \itemize{

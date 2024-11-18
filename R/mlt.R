@@ -659,18 +659,24 @@
         ui <- ui[!r0,,drop = FALSE]
         ci <- ci[!r0]
         if (nrow(ui) == 0) ui <- ci <- NULL
-        ci <- ci + sqrt(.Machine$double.eps) 
+        cipls <- ci + sqrt(.Machine$double.eps) 
             ### we need ui %*% theta > ci, not >= ci
     }
 
     if (!is.null(ui)) {    
-        ret <- suppressWarnings(try(c(coneproj::qprog(Dmat, dvec, 
-                                      ui, ci, msg = FALSE)$thetahat)))
-        if (inherits(ret, "try-error")) {
+        iter <- 0
+        while(iter < 5) {
+            iter <- iter + 1
+            ret <- suppressWarnings(try(c(coneproj::qprog(Dmat, dvec, 
+                                          ui, cipls, msg = FALSE)$thetahat)))
+            ### make sure constraints apply before moving on
+            if (!inherits(ret, "try-error")) {
+                if (all(ui %*% ret > ci)) break
+            }
             diag(Dmat) <- diag(Dmat) + 1e-3
-            ret <- c(coneproj::qprog(Dmat, dvec, ui, ci, msg = FALSE)$thetahat)
         }
-        ### was: solve.QP(Dmat, dvec, t(ui), ci, meq = 0)$solution
+        if (!all(ui %*% ret > ci))
+            warning("Starting values violate contraints")
     } else {
         ret <- lm.fit(x = X, y = Z)$coef
     }

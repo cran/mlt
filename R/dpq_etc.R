@@ -62,6 +62,9 @@ tmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
             } else {
                 ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1
                 ### <FIXME> what happens with deriv in ...? </FIXME>
+                ### <FIXME> might not be what one wants when, for example,
+                ###         terms = "bshifting" when into predict() via ...
+                ### </FIXME>
                 b <- bounds(as.vars(object)[[y]])[[1]]
                 ret[f < (b[1] + .Machine$double.eps)] <- -Inf
                 ret[f > (b[2] - .Machine$double.eps)] <- Inf
