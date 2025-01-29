@@ -667,8 +667,16 @@
         iter <- 0
         while(iter < 5) {
             iter <- iter + 1
-            ret <- suppressWarnings(try(c(coneproj::qprog(Dmat, dvec, 
-                                          ui, cipls, msg = FALSE)$thetahat)))
+            ### always produces solutions meeting the constraints;
+            ### problems with non-pd Dmat
+            ret <- try(c(quadprog::solve.QP(Dmat, dvec, 
+                                          t(ui), cipls)$solution),  
+                       silent = TRUE)
+            ### takes non-pd Dmat but does not always meet constraints
+            if (inherits(ret, "try-error"))
+                ret <- try(c(coneproj::qprog(Dmat, dvec, 
+                                             ui, cipls, msg = FALSE)$thetahat), 
+                           silent = TRUE)
             ### make sure constraints apply before moving on
             if (!inherits(ret, "try-error")) {
                 if (all(ui %*% ret > ci)) break

@@ -18,7 +18,7 @@ importFrom("stats", "simulate", "variable.names", "model.matrix", "logLik",
            "approx", "optimise", "spline", "update",
            "dcauchy", "pcauchy", "qcauchy", "rnorm", "var")
 
-# importFrom("quadprog", "solve.QP")
+importFrom("quadprog", "solve.QP")
 importFrom("coneproj", "qprog")
 importFrom("grDevices", "rgb")
 importFrom("graphics", "axis", "box", "lines", "plot")

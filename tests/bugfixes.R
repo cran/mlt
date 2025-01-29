@@ -5,18 +5,19 @@ set.seed(29)
 options(digits = 5)
 
 ### Nadja Klein
-dat <- data.frame(matrix(rnorm(300),ncol=3))
+dat <- data.frame(matrix(rnorm(900),ncol=3))
 names(dat) <- c("y","x1","x2")
+sup <- qnorm(c(.1, .9))
 ### set-up conditional transformation model for conditional
-y <- numeric_var("y", support = c(min(dat$y), max(dat$y)), bounds = c(-Inf, Inf))
-x1 <- numeric_var("x1", support = c(min(dat$x1), max(dat$x1)), bounds = c(-Inf, Inf)) 
-x2 <- numeric_var("x2", support = c(min(dat$x2), max(dat$x2)), bounds = c(-Inf, Inf)) 
+y <- numeric_var("y", support = sup, bounds = c(-Inf, Inf))
+x1 <- numeric_var("x1", support = sup, bounds = c(-Inf, Inf)) 
+x2 <- numeric_var("x2", support = sup, bounds = c(-Inf, Inf)) 
 ctmm2 <- ctm(response = Bernstein_basis(y, order = 4, ui = "increasing"),
               interacting = c(x1=Bernstein_basis(x1, order = 3),
-                              x2=Bernstein_basis(x2, order= 3)))
+                              x2=Bernstein_basis(x2, order = 3)))
 ### fit model
 mltm2 <- mlt(ctmm2, data = dat, scale = TRUE)
-round(p <- predict(mltm2, newdata = data.frame(x1=0, x2 = 0), q = mkgrid(mltm2, n = 10)[["y"]]), 2)
+p <- predict(mltm2, newdata = data.frame(x1=0, x2 = 0), q = mkgrid(mltm2, n = 10)[["y"]])
 ### plot data
 plot(mltm2,newdata=expand.grid(x1=0:1, x2 = 0:1))
 
@@ -133,7 +134,3 @@ m <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), orde
 mi <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), order = 1)),
               data = d[-ic,,drop = FALSE], theta = c(-1, 1))
 all.equal(logLik(m), logLik(mi))
-
-
-
-

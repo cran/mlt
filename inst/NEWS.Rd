@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-2 (2025-01-29)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Fall back to \pkg{coneproj} if \pkg{quadprog} fails to get starting values.}
+      \item{Stabilise bugfixes and avoid ATLAS issues.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-1 (2024-11-18)}{
   \subsection{Bugfixes}{
     \itemize{
@@ -10,6 +19,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.6-0 (2024-09-23)}{
   \subsection{Bugfixes}{

@@ -311,7 +311,9 @@
     } else {
         bx <- formula
         if (inherits(formula, "formula")) {
-            bx <- as.basis(formula, data)
+            bx <- as.basis(formula, data, drop.unused.levels = FALSE)
+            ### this function is called on small subsets of data
+            ### and formula ~ x might not contain all levels
         } 
         lX <- model.matrix(bx, data = data)
         if (conditional)
