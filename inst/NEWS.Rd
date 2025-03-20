@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-3 (2025-03-20)}{
+  \subsection{Features}{
+    \itemize{
+      \item{Add \code{as.Surv} method for numeric vectors.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-2 (2025-01-29)}{
   \subsection{Bugfixes}{
     \itemize{
@@ -10,6 +18,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.6-1 (2024-11-18)}{
   \subsection{Bugfixes}{

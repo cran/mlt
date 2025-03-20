@@ -549,6 +549,8 @@ as.Surv.response <- function(object) {
                 event = exact, type = "left"))
 }
 
+as.Surv.numeric <- function(object) Surv(object, rep(TRUE, length(object)))
+
 R.list <- function(object, ...) {
 
     ret <- lapply(object, R)

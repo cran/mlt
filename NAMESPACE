@@ -74,6 +74,7 @@ S3method("Gradient", "mlt")
 S3method("as.mlt", "mlt")
 
 S3method("as.Surv", "response")
+S3method("as.Surv", "numeric")
 S3method("[", "response")
 S3method("[<-", "response")
 S3method("as.double", "response")

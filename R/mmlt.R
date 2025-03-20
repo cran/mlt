@@ -607,7 +607,7 @@
             if (ret$convergence != 0)
                 warning("Optimisation did not converge")
         } else {
-            ret <- list(par = theta, value = f(theta, scl = 1), 
+            ret <- list(par = theta, value = NA, ### f(theta, scl = 1), (problem with dofit = FALSE)
                         convergence = NA, optim_hessian = NA)
         }
         names(ret$par) <- eparnames
