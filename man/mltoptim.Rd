@@ -10,6 +10,8 @@
 mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE), 
          spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE), 
          nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8, maxeval = 1000L), 
+         constrOptim = list(method = "BFGS", control = list(), mu = 1e-04, 
+                            outer.iterations = 100, outer.eps = 1e-05, hessian = FALSE),
          trace = FALSE)
 }
 \arguments{
@@ -25,6 +27,10 @@ mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE),
   \item{nloptr}{
   A list with control parameters for the \code{\link[nloptr]{nloptr}}
   family of optimisers. 
+}
+  \item{constrOptim}{
+  A list with control parameters for the \code{\link[stats]{constrOptim}}
+  optimiser. 
 }
   \item{trace}{
   A logical switching trace reports by the optimisers off.

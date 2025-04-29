@@ -705,7 +705,7 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
             idx <- which(j == cdpat)
             tmp <- data[idx,,drop = FALSE]
             nm <- lapply(models$models, function(mod) {
-                ret <- mlt(mod$model, data = tmp, theta = coef(as.mlt(mod)), 
+                ret <- mlt(mod$model, data = tmp, theta = coef(as.mlt(mod), fixed = FALSE), 
                            fixed = mod$fixed, scale = mod$scale, weights = mod$weights[idx],
                            offset = mod$offset[idx], dofit = FALSE)
                 ret

@@ -2,6 +2,8 @@
 mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE), 
                      spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE),
                      nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8, maxeval = 1000L),
+                     constrOptim = list(method = "BFGS", control = list(), mu = 1e-04, outer.iterations = 100, 
+                                        outer.eps = 1e-05, hessian = FALSE),
                      trace = FALSE) 
 {
     ret <- list()
@@ -102,6 +104,38 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 ret$value <- ret$objective
             }
             return(ret)
+        }
+    if (!is.null(constrOptim))
+        ret$constrOptim <- function(theta, f, g, ui = NULL, ci = NULL) {
+            control <- constrOptim$control
+            control$trace <- trace
+            if (!is.null(ui)) {
+                ret <- try(stats::constrOptim(theta = theta, f = f, grad = g,
+                                              ui = ui, ci = ci, mu = constrOptim$mu, 
+                                              control = control, method = constrOptim$method,
+                                              outer.iterations = constrOptim$outer.iterations, 
+                                              outer.eps = constrOptim$outer.eps, 
+                                              hessian = constrOptim$hessian))
+                rtn <- c("par", "convergence", "value")
+                if ("hessian" %in% names(ret)) {
+                    ret$optim_hessian <- ret$hessian
+                    rtn <- c(rtn, "optim_hessian")
+                }
+            } else { 
+                ret <- try(stats::optim(par = theta, fn = f, gr = g,
+                                        control = control, 
+                                        method = constrOptim$method,
+                                        hessian = constrOptim$hessian))
+                rtn <- c("par", "convergence", "value")
+                if ("hessian" %in% names(ret)) {
+                    ret$optim_hessian <- ret$hessian
+                    rtn <- c(rtn, "optim_hessian")
+                }
+            }
+            if (inherits(ret, "try-error"))
+                ret <- list(par = theta, convergence = 1)
+            return(ret)
+
         }
     return(ret)
 }

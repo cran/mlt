@@ -219,6 +219,8 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
 
     ### treat extremely small intervals as `exact' observations
     d <- cright - cleft
+    if (length(object) == 1L && all(is.na(object)))
+        object <- rep(NA, length(d))
     if (any(!is.na(d) | is.finite(d))) {
         if (any(d < 0, na.rm = TRUE)) stop("cleft > cright")
         i <- (d < tol)

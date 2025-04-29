@@ -2,6 +2,20 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-4 (2025-04-29)}{
+  \subsection{Features}{
+    \itemize{
+      \item{Improve \code{R()} for interval censored data.}
+      \item{Add \code{constrOptim} to \code{mltoptim}.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{Handle fixed starting values in \code{mmlt} correctly.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-3 (2025-03-20)}{
   \subsection{Features}{
     \itemize{
@@ -9,6 +23,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.6-2 (2025-01-29)}{
   \subsection{Bugfixes}{

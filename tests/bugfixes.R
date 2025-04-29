@@ -134,3 +134,9 @@ m <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), orde
 mi <- mlt(ctm(response = Bernstein_basis(numeric_var("y", bounds = c(0, 1)), order = 1)),
               data = d[-ic,,drop = FALSE], theta = c(-1, 1))
 all.equal(logLik(m), logLik(mi))
+
+### R with interval censoring
+lwr <- as.double(1:3)
+upr <- as.double(2:4)
+upr[2] <- 2
+R(cleft = lwr, cright = upr)

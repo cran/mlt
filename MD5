@@ -1,6 +1,6 @@
-21135adcce2e80392422c99198ae445c *DESCRIPTION
-8e02c114e41056a3554de5d7ecb68c02 *NAMESPACE
-d44975b4dd2e9b876498ae77ad37eb2d *R/R.R
+3908c71bf36bcd3aef63fb6ac84c6790 *DESCRIPTION
+be3182e6035c104d9b8e6a0284d0456e *NAMESPACE
+b1c3aea55e249ccbe1dab14bcf725122 *R/R.R
 d2cd3551b75d248b1630149d9a11f48f *R/confband.R
 c652b5e5f145ef7c8043b4b15cfaf5cd *R/ctm.R
 d46a492210bbba3b9fe5b76ade6e2c5e *R/distr.R
@@ -8,8 +8,8 @@ d46a492210bbba3b9fe5b76ade6e2c5e *R/distr.R
 ccd7bde613907ee0804f12b0c6734e94 *R/loglik.R
 6f62485f66dc1dd1071f5b3fda2ec795 *R/methods.R
 23d5a7bff52c8a01e774cb20541c2a98 *R/mlt.R
-33742d5af24b8069c29006b39598c8be *R/mltoptim.R
-194f619e538feaebf38f2b7adf415929 *R/mmlt.R
+71876bcb4c59d7583dd0760b97d48c61 *R/mltoptim.R
+13940917575ec8a0f4345780a69c2f94 *R/mmlt.R
 0d5b8885a1fdaa05577a8c1f40353ed6 *R/plot.R
 43625bea4b1cb1700f091f16a5dc8f46 *R/predict.R
 501e7d2f27ba8161eb5d1d1ec712953f *R/sample.R
@@ -17,7 +17,7 @@ caecfd377b2d2b12a8f2c7c9d3f400ed *R/utils.R
 4454e632feb75ce4f508807d50b3b12f *build/partial.rdb
 1c9695dee7162d6e72883b552906e753 *cleanup
 dc5c2885d86a80bb9d2a28ffc796708c *inst/CITATION
-ba731763a6c8e2434281055f8801727a *inst/NEWS.Rd
+948d2a3e647bff9a4dd4aaea936950db *inst/NEWS.Rd
 774a841f26a50ce84e10ca3ba3bd93fc *man/R.Rd
 4141097f19682037945cf253537240c9 *man/confband.Rd
 4c1563206c7318aa68f9b2e46121e7df *man/ctm-methods.Rd
@@ -25,7 +25,7 @@ ac420d0080d1ea054cb31d5f257c6226 *man/ctm.Rd
 fa9bbf401ae50349e35ebfa9153a2852 *man/mlt-methods.Rd
 2e1f78ba968abb1e523b429801f82024 *man/mlt-package.Rd
 5ecce2e77b109bf59c890e994d0f95e5 *man/mlt.Rd
-7109f7639e024e10647195a6b8e00c66 *man/mltoptim.Rd
+7600c8fd15a5ce1f8c0851d81663fb3b *man/mltoptim.Rd
 2d6fe7cf0377d334b9501794c06ea624 *man/mmlt-methods.Rd
 b63cc0345b84c825d4d1ebcd83bf7b61 *man/mmlt.Rd
 c424cecc06aff7e7966c232758868eb4 *man/predict.Rd
@@ -35,8 +35,8 @@ db0bcd162bd3125c10bd2a365fa92a3b *tests/2sample.R
 5a9f502537a95ce85d5627eff0a7b610 *tests/2sample.Rout.save
 ab9dd1047bc50ce3c02ee6f61ce52097 *tests/Cox-Ex.R
 be7cf5845dbab7aaec2bf4b7518842d9 *tests/Cox-Ex.Rout.save
-f1240949cb68fe586007d83b4c8ea144 *tests/bugfixes.R
-01ec9b0a369dfcab6ac8eac364836c72 *tests/bugfixes.Rout.save
+55b6b99da3fd410e19982972a1e70fe5 *tests/bugfixes.R
+a1ba3b298d7d272f79b765ff059b3ec1 *tests/bugfixes.Rout.save
 cab1777631a72c7a1dd8b7138cbdfd6f *tests/distr-Ex.R
 b75223ab19f6933f64d5de406eff6857 *tests/dpq-Ex.R
 da0c17493c6acf7da8a06a9a3718365d *tests/dpq-Ex.Rout.save
