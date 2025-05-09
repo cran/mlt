@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-5 (2025-05-09)}{
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{\code{rep} to \code{rep_len} when possible.}
+      \item{Avoid partial argument matches.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-4 (2025-04-29)}{
   \subsection{Features}{
     \itemize{

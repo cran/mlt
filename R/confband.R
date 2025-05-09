@@ -19,7 +19,7 @@ confband.mlt <- function(object, newdata, level = 0.95,
     stopifnot(nrow(newdata) == 1)
     y <- variable.names(object, "response")
     q <- mkgrid(object, n = K)[[y]]
-    nd <- newdata[rep(1, length(q)),,drop = FALSE]
+    nd <- newdata[rep_len(1, length(q)),,drop = FALSE]
     nd[[y]] <- q
     X <- model.matrix(object$model$model, data = nd)
     ci <- confint(multcomp::glht(multcomp::parm(coef(object), vcov(object)),

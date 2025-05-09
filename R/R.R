@@ -153,7 +153,7 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
             uy <- sort(unique(y))
             s <- summary(sf, times = uy)$surv
             if (length(s) < length(uy))
-                s <- c(s, rep(0, length(uy) - length(s)))
+                s <- c(s, rep_len(0, length(uy) - length(s)))
             s[is.na(s)] <- 0
             p <- 1 - s
             p[match(y, uy)]
@@ -183,7 +183,7 @@ R.ordered <- function(object, cleft = NA, cright = NA, ...) {
     attr(ret, "prob") <- function(weights) {
         ### FIXME: subsetting doesn't change this fct
         if (length(weights) != length(object))
-            weights <- rep(1, length(object))
+            weights <- rep_len(1, length(object))
         prt <- cumsum(prop.table(xtabs(weights ~ object)))
         function(y) prt[y]
     }
@@ -220,7 +220,7 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
     ### treat extremely small intervals as `exact' observations
     d <- cright - cleft
     if (length(object) == 1L && all(is.na(object)))
-        object <- rep(NA, length(d))
+        object <- rep_len(NA, length(d))
     if (any(!is.na(d) | is.finite(d))) {
         if (any(d < 0, na.rm = TRUE)) stop("cleft > cright")
         i <- (d < tol)
@@ -502,7 +502,7 @@ R.default <- function(object, ...)
 
 .wecdf <- function(x, weights) {
     ### FIXME: subsetting doesn't change this fct
-    if (length(weights) != length(x)) weights <- rep(1, length(x))
+    if (length(weights) != length(x)) weights <- rep_len(1, length(x))
     ### from: spatstat::ewcdf
     ox <- order(x)
     x <- x[ox]
@@ -551,7 +551,7 @@ as.Surv.response <- function(object) {
                 event = exact, type = "left"))
 }
 
-as.Surv.numeric <- function(object) Surv(object, rep(TRUE, length(object)))
+as.Surv.numeric <- function(object) Surv(object, rep_len(TRUE, length(object)))
 
 R.list <- function(object, ...) {
 

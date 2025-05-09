@@ -62,12 +62,3 @@
     return(list(full_ex = full_ex, redu_ex = redu_ex,
                 full_nex = full_nex, redu_nex = redu_nex))
 }
-
-if (FALSE) {
-exact <- c(TRUE, FALSE)[c(1, 2, 1, 1, 2, 2)]
-.exact_subset(rep(TRUE, 3))
-.exact_subset(rep(FALSE, 3))
-.exact_subset(exact)
-.exact_subset(exact, 1:2)
-.exact_subset(exact, 3:6)
-}

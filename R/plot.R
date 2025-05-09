@@ -38,15 +38,15 @@ plot.ctm <- function(x, newdata, type = c(
         if (is.null(args$xlab)) args$xlab <- type
         if (is.null(args$ylab)) args$ylab <- y
     }
-    if (length(col) == 1) col <- rep(col, ncol(pr))
-    if (length(lty) == 1) lty <- rep(lty, ncol(pr))
+    if (length(col) == 1) col <- rep_len(col, ncol(pr))
+    if (length(lty) == 1) lty <- rep_len(lty, ncol(pr))
     lwd <- 1
     if (!is.null(args$lwd)) lwd <- args$lwd
-    if (length(lwd) == 1) lwd <- rep(lwd, ncol(pr))
+    if (length(lwd) == 1) lwd <- rep_len(lwd, ncol(pr))
     
     if (!add) {
         args$x <- unclass(q)
-        args$y <- rep(rpr[1], length(q))
+        args$y <- rep_len(rpr[1], length(q))
         args$ylim <- ylim
         args$xlab <- ifelse(is.null(args$xlab), y, args$xlab)
         args$ylab <- ifelse(is.null(args$ylab), type, args$ylab)

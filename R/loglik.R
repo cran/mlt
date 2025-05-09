@@ -26,7 +26,7 @@
     if (all(OK)) {
         ret <- fun(lpr)
     } else {
-        ret <- rep(value, length(lpr))
+        ret <- rep(value, times = length(lpr))
         if (all(!OK)) {
             if (!Xmult) return(ret)
             return(matrix(ret, nrow = nrow(X), ncol = ncol(X)))
@@ -116,7 +116,7 @@
     fl <- .dealinf(mml, beta, offset, d$d, 0)
     dfr <- .dealinf(mmr, beta, offset, d$dd, 0)
     dfl <- .dealinf(mml, beta, offset, d$dd, 0)
-    if (length(w) != length(Fr)) w <- rep(w, length(Fr))
+    if (length(w) != length(Fr)) w <- rep_len(w, length(Fr))
     Frl <- Fr - Fl
     w1 <- dfr / Frl * w
     w2 <- dfl / Frl * w
@@ -174,7 +174,7 @@
                                w = 1) {
     function(beta) {
         mmb <- drop(.xmb(mm, beta)) + offset
-        if (length(w) != length(mmb)) w <- rep(w, length(mmb))
+        if (length(w) != length(mmb)) w <- rep_len(w, length(mmb))
         w1 <- -(d$ddd(mmb) / d$d(mmb) - d$dd2d(mmb)^2) * w
         w2 <- w / (drop(.xmb(mmprime, beta))^2)
         ret <- crossprod(mm * w1, mm) + crossprod(mmprime * w2, mmprime) 

@@ -67,7 +67,7 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 ret <- try(nloptr::nloptr(
                     x0 = atheta, 
                     eval_f = f, 
-                    eval_grad = g, opts = control,
+                    eval_grad_f = g, opts = control,
                     eval_g_ineq = function(par) mui %*% par + ci,
                     eval_jac_g_ineq = function(par) mui))
                 if (ret$status < 0) {
@@ -85,7 +85,7 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 ret <- try(nloptr::nloptr(
                     x0 = atheta, 
                     eval_f = f, 
-                    eval_grad = g, opts = control))
+                    eval_grad_f = g, opts = control))
                 if (ret$status < 0) {
                     ### some form of failure
                     ret$convergence <- 1

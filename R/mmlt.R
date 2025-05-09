@@ -42,7 +42,7 @@
 
     mcf <- lapply(m, function(x) coef(x, fixed = TRUE))
     P <- sapply(mcf, length)
-    fpar <- factor(rep(1:J, P))
+    fpar <- factor(rep(1:J, times = P))
 
     ### par always includes marginally fixed parameters
     parm <- function(par) {
@@ -158,7 +158,7 @@
     }
     if (what == "dzleft") {
         if (models$normal[[j]])
-            return(rep(1, length(trl)))
+            return(rep_len(1, length(trl)))
         qn <- qnorm(tmp$todistr$p(trl, log.p = TRUE), log.p = TRUE)
         dn <- dnorm(qn)
         dn[!is.finite(dn)] <- 1
@@ -171,7 +171,7 @@
     }
     if (what == "dzright") {
         if (models$normal[[j]])
-            return(rep(1, length(trr)))
+            return(rep_len(1, length(trr)))
         qn <- qnorm(tmp$todistr$p(trr, log.p = TRUE), log.p = TRUE)
         dn <- dnorm(qn)
         dn[!is.finite(dn)] <- 1
@@ -225,8 +225,8 @@
 
     rn <- rownames(unclass(ltMatrices(1:Jp, names = Jnames, byrow = TRUE)))
     lnames <- paste(rep(rn, each = length(xnames)),
-                    rep(xnames, length(rn)), sep = ".")
-    lambda_par <- rep(0, length(lnames))
+                    rep(xnames, times = length(rn)), sep = ".")
+    lambda_par <- rep_len(0, length(lnames))
     names(lambda_par) <- lnames
 
     start <- c(margin_par, lambda_par)
@@ -427,7 +427,7 @@
         if (identical(c(lX), 1)) {
             scL <- Lmat ### NaN might appear in scores
         } else {
-            scL <- Lmat * t(lX[,rep(1:ncol(lX), Jp), drop = FALSE])
+            scL <- Lmat * t(lX[,rep(1:ncol(lX), times = Jp), drop = FALSE])
         }
       
         scp <- vector(mode = "list", length = cJ + dJ)
@@ -706,7 +706,9 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
             tmp <- data[idx,,drop = FALSE]
             nm <- lapply(models$models, function(mod) {
                 ret <- mlt(mod$model, data = tmp, theta = coef(as.mlt(mod), fixed = FALSE), 
-                           fixed = mod$fixed, scale = mod$scale, weights = mod$weights[idx],
+                           fixed = mod$fixed, 
+                           scale = FALSE, ### because dofit = FALSE
+                           weights = mod$weights[idx],
                            offset = mod$offset[idx], dofit = FALSE)
                 ret
             })

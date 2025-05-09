@@ -59,7 +59,7 @@
         }
     } else {
         .parm <- function(beta) beta
-        fix <- rep(FALSE, ncol(Y))
+        fix <- rep_len(FALSE, ncol(Y))
     } 
 
     .sparm <- function(beta, soffset = 0) {
@@ -100,14 +100,14 @@
                        ### change todistr via update(, distr =)
     {
         if (is.null(offset)) {
-            offset <- rep(0, nrow(data))
-            soffset <- rep(0, nrow(data))
+            offset <- rep_len(0, nrow(data))
+            soffset <- rep_len(0, nrow(data))
         }
         ### weight are only necessary for computing the hessian
         ### as we only compute the weighted sum, not the 
         ### individual (to be weighted) contributions to the Fisher info
         if (is.null(weights))
-            weights <- rep(1, nrow(data))
+            weights <- rep_len(1, nrow(data))
 
         if (SCALE) {
             if (is.matrix(offset)) {
@@ -115,10 +115,10 @@
                 soffset <- offset[,2]
                 offset <- offset[1]
             } else {
-                soffset <- rep(0, nrow(data))
+                soffset <- rep_len(0, nrow(data))
             }
         } else {
-            soffset <- rep(0, nrow(data))
+            soffset <- rep_len(0, nrow(data))
         }
         es <- .exact_subset(.exact(y), subset)
         exY <- NULL
@@ -564,7 +564,7 @@
         return(ret)
     }
 
-    coef <- rep(NA, length(fix))
+    coef <- rep_len(NA, length(fix))
     coef[fix] <- fixed
     names(coef) <- colnames(Y)
 
@@ -625,7 +625,7 @@
         fixed <- fixed[colnames(Y)[fix]]
         ui <- ui[,!fix,drop = FALSE]
     } else {
-        fix <- rep(FALSE, ncol(Y))
+        fix <- rep_len(FALSE, ncol(Y))
     } 
 
     X <- matrix(0, nrow = NROW(y), ncol = ncol(Y))
@@ -686,7 +686,7 @@
         if (!all(ui %*% ret > ci))
             warning("Starting values violate contraints")
     } else {
-        ret <- lm.fit(x = X, y = Z)$coef
+        ret <- lm.fit(x = X, y = Z)$coefficients
     }
     names(ret) <- names(coef(model))[!fix]
     ret[!is.finite(ret)] <- 0
@@ -740,8 +740,8 @@ mlt <- function(model, data, weights = NULL, offset = NULL, fixed = NULL,
 
     if (!.checkR(y, weights)) dofit <- FALSE
 
-    if (is.null(weights)) weights <- rep(1, nrow(data))
-    if (is.null(offset)) offset <- rep(0, nrow(data))
+    if (is.null(weights)) weights <- rep_len(1, nrow(data))
+    if (is.null(offset)) offset <- rep_len(0, nrow(data))
     stopifnot(nrow(data) == length(weights))
     stopifnot(nrow(data) == length(offset))
 

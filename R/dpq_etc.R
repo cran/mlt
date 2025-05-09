@@ -221,7 +221,7 @@ Omlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
                           "continuous_var")
     if (discrete) {
         ### use "old" code
-        f <- f[rep(1:N, nsim), , drop = FALSE]
+        f <- f[rep(1:N, times = nsim), , drop = FALSE]
         f <- cbind(-Inf, f, Inf)
         i <- base::rowSums(f < as.vector(z))
         return(q[i])

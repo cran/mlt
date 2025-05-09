@@ -8,7 +8,7 @@ as.mlt.mlt <- function(object)
 weights.mlt <- function(object, ...) {
     if (!is.null(object$weights))
         return(object$weights)
-    rep(1, NROW(object$data))
+    rep_len(1, NROW(object$data))
 }
 
 coef.mlt <- function(object, fixed = TRUE, ...) {
