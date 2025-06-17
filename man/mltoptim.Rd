@@ -7,12 +7,12 @@
   Define optimisers and their control parameters
 }
 \usage{
-mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE), 
+mltoptim(auglag = list(maxtry = 5, kkt2.check = hessian), 
          spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE), 
          nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8, maxeval = 1000L), 
          constrOptim = list(method = "BFGS", control = list(), mu = 1e-04, 
-                            outer.iterations = 100, outer.eps = 1e-05, hessian = FALSE),
-         trace = FALSE)
+                            outer.iterations = 100, outer.eps = 1e-05, hessian = hessian),
+         trace = FALSE, hessian = FALSE)
 }
 \arguments{
   \item{auglag}{
@@ -34,6 +34,9 @@ mltoptim(auglag = list(maxtry = 5, kkt2.check = FALSE),
 }
   \item{trace}{
   A logical switching trace reports by the optimisers off.
+}
+  \item{hessian}{A logical indicating if a numerically differentiated Hessian matrix
+          be returned.
 }
 }
 \details{

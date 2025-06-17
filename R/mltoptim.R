@@ -1,10 +1,10 @@
 
-mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE), 
+mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = hessian), 
                      spg = list(maxit = 10000, quiet = TRUE, checkGrad = FALSE),
                      nloptr = list(algorithm = "NLOPT_LD_MMA", xtol_rel = 1.0e-8, maxeval = 1000L),
                      constrOptim = list(method = "BFGS", control = list(), mu = 1e-04, outer.iterations = 100, 
-                                        outer.eps = 1e-05, hessian = FALSE),
-                     trace = FALSE) 
+                                        outer.eps = 1e-05, hessian = hessian),
+                     trace = FALSE, hessian = FALSE) 
 {
     ret <- list()
     if (!is.null(auglag))
@@ -35,12 +35,16 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 quiet <- control$quiet
                 control$quiet <- NULL
                 ret <- try(BBoptim(par = theta, fn = f, gr = g, control = control, quiet = quiet))
+                ### we often only use this part for generating starting
+                ### values, so refrain from issuing a warning
+                # if (hessian)
+                #    warning("Cannot compute Hessian using BB::BBoptim")
             }
             if (inherits(ret, "try-error"))
                 ret <- list(par = theta, convergence = 1)
             return(ret)
         }
-    if (!is.null(spg)) 
+    if (!is.null(spg))
         ret$spg <- function(theta, f, g, ui = NULL, ci = NULL) {
             control <- spg
             control$trace <- trace
@@ -55,6 +59,8 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
             }
             if (inherits(ret, "try-error"))
                 ret <- list(par = theta, convergence = 1)
+            if (hessian)
+                warning("Cannot compute Hessian using BB::BBoptim")
             return(ret)
         }
     if (!is.null(nloptr))
@@ -103,6 +109,8 @@ mltoptim <- function(auglag = list(maxtry = 5, kkt2.check = FALSE),
                 ret$par <- ret$solution
                 ret$value <- ret$objective
             }
+            if (hessian)
+                warning("Cannot compute Hessian using nloptr::nloptr")
             return(ret)
         }
     if (!is.null(constrOptim))

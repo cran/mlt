@@ -1,7 +1,7 @@
 Package: mlt
 Title: Most Likely Transformations
-Version: 1.6-5
-Date: 2025-05-09
+Version: 1.6-6
+Date: 2025-06-17
 Authors@R: person("Torsten", "Hothorn", role = c("aut", "cre"),
                   email = "Torsten.Hothorn@R-project.org", comment = c(ORCID = "0000-0001-8301-0471"))  
 Description: Likelihood-based estimation of conditional transformation
@@ -20,9 +20,9 @@ URL: http://ctm.R-forge.R-project.org
 License: GPL-2
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2025-05-09 12:25:29 UTC; hothorn
+Packaged: 2025-06-17 11:20:04 UTC; hothorn
 Author: Torsten Hothorn [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-8301-0471>)
 Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
 Repository: CRAN
-Date/Publication: 2025-05-09 15:20:02 UTC
+Date/Publication: 2025-06-17 22:50:01 UTC

@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.6-6 (2025-06-17)}{
+  \subsection{Features}{
+    \itemize{
+      \item{Simpler switch for computing numerically approximated Hessians in \code{mltoptim}.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-5 (2025-05-09)}{
   \subsection{Bugfixes}{
     \itemize{
@@ -10,6 +18,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.6-4 (2025-04-29)}{
   \subsection{Features}{

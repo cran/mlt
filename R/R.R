@@ -97,7 +97,8 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
          ### left truncation
          tl <- NA
          if (type == "counting")
-             tl <- cut(object[, "start"], breaks = c(-Inf, utm, Inf), ordered = TRUE)
+             tl <- cut(object[, "start"], breaks = c(-Inf, utm, Inf), 
+                       ordered_result = TRUE)
          ### is this a "response" representation of an ordered factor now
          ret <- R(object = ct, cleft = lf, cright = rg, tleft = tl)
          attr(ret, "unique_obs") <- utm
@@ -241,12 +242,12 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
       utm <- sort(unique(object))
       utm <- utm[-length(utm)]
       ### convert to ordered factor
-      ct <- cut(object, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+      ct <- cut(object, breaks = c(-Inf, utm, Inf), ordered_result = TRUE)
       tl <- tr <- NA
       if (!all(is.na(tleft)))
-         tl <- cut(tleft, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+         tl <- cut(tleft, breaks = c(-Inf, utm, Inf), ordered_result = TRUE)
       if (!all(is.na(tright)))
-         tr <- cut(tright, breaks = c(-Inf, utm, Inf), ordered = TRUE)
+         tr <- cut(tright, breaks = c(-Inf, utm, Inf), ordered_result = TRUE)
       ret <- R(object = ct, tleft = tl, tright = tr)
       attr(ret, "unique_obs") <- utm
       return(ret)
