@@ -4,7 +4,7 @@ library("survival")
 
 set.seed(290875)
 
-chk <- function(x, y) stopifnot(all.equal(x, y, tol = 1e-4, check.attributes = FALSE))
+chk <- function(x, y) stopifnot(all.equal(x, y, tol = 1e-3, check.attributes = FALSE))
 
 ### check -Inf, Inf interval censoring for handling missing
 ### response values

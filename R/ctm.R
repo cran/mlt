@@ -18,6 +18,7 @@ ctm <- function(response, interacting = NULL, shifting = NULL,
         scaling <- as.basis(scaling, data = data, remove_intercept = TRUE, 
                             prefix = "scl_", ...)
 
+    todistr <- match.arg(todistr)
     if (is.character(todistr))
         todistr <- .distr(todistr)
 

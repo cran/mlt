@@ -1,6 +1,7 @@
 
 library("mlt")
 library("survival")
+options(digits = 4)
 set.seed(29)
 
 y <- rexp(10)

@@ -1,5 +1,6 @@
 \name{ctm}
 \alias{ctm}
+\alias{has_scale}
 \title{
   Conditional Transformation Models
 }
@@ -12,6 +13,7 @@ ctm(response, interacting = NULL, shifting = NULL, scaling = NULL,
     todistr = c("Normal", "Logistic", "MinExtrVal", "MaxExtrVal", 
                 "Exponential", "Laplace", "Cauchy"), 
     sumconstr = inherits(interacting, c("formula", "formula_basis")), ...)
+has_scale(object)
 }
 \arguments{
   \item{response}{a basis function, ie, an object of class \code{basis}}
@@ -24,6 +26,7 @@ ctm(response, interacting = NULL, shifting = NULL, scaling = NULL,
               or a formal description of these variables in an object of class \code{vars}}
   \item{todistr}{a character vector describing the distribution to be transformed}
   \item{sumconstr}{a logical indicating if sum constraints shall be applied}
+  \item{object}{an object of class \code{ctm}}
   \item{\dots}{arguments to \code{as.basis} when \code{shifting} is a formula}
 }
 \details{
@@ -53,7 +56,8 @@ ctm(response, interacting = NULL, shifting = NULL, scaling = NULL,
   specified as well. 
 }
 \value{
-  An object of class \code{ctm}.
+  An object of class \code{ctm}; and a logical is returned by
+  \code{has_scale} when a scale term is present in \code{object}.
 }
 \references{
 

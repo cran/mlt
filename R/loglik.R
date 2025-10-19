@@ -42,8 +42,22 @@
     return(ret)
 }
 
+### x can be a matrix and log(x) should only be computed for
+### x > 0, the remaining elements shall be -Inf
 .log <- function(x) {
-    ret <- log(.pmax(.Machine$double.eps, x))
+    ret <- x
+    if (any(is.na(x))) {
+        ret[] <- -Inf
+        return(ret)
+    }
+    neg <- x < 0
+    if (any(neg, na.rm = TRUE)) {
+        ret[neg] <- -Inf
+        ret[!neg] <- log(x[!neg]) 
+    } else {
+        ret <- log(x)
+    }
+    ### ret <- log(.pmax(.Machine$double.eps^10, x))
     dim(ret) <- dim(x)
     return(ret)
 }

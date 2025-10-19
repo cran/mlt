@@ -12,9 +12,11 @@
   or a mix of continuous and discrete outcomes
 }
 \usage{
-mmlt(..., formula = ~ 1, data, conditional = FALSE, theta = NULL, fixed = NULL,
-     scale = FALSE, optim = mltoptim(hessian = TRUE), 
-     args = list(seed = 1, M = 1000), dofit = TRUE, domargins = TRUE)
+mmlt(..., formula = ~ 1, data, conditional = FALSE, 
+     theta = NULL, fixed = NULL, scaleparm = FALSE,
+     optim = mltoptim(hessian = TRUE),  ### provides hessian
+     args = list(seed = 1, M = 1000), 
+     dofit = TRUE, domargins = TRUE)
 \method{coef}{cmmlt}(object, newdata, 
      type = c("all", "conditional", "Lambdapar", "Lambda", "Lambdainv", 
               "Precision", "PartialCorr", "Sigma", "Corr", 
@@ -52,8 +54,8 @@ gives the same likelihood but different parameter estimates.
 or a logical (for \code{coef}) indicating to also return fixed parameters
 (only when \code{type = "all"}).
 }
-  \item{scale}{a logical indicating if (internal) scaling shall be applied
-          to the model coefficients.
+  \item{scaleparm}{a logical indicating if (internal) scaling shall be applied
+          to the model parameters.
 }
   \item{optim}{a list of optimisers as returned by \code{\link{mltoptim}}
 }

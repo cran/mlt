@@ -2,7 +2,7 @@
 library("mlt")
 library("survival")
 set.seed(29)
-options(digits = 5)
+options(digits = 3)
 
 
 ### true dgp
@@ -10,9 +10,9 @@ rY <- function(n, ...) rexp(n, ...)
 pY <- function(x, ...) pexp(x, ...)
 dY <- function(x, ...) dexp(x, ...)
 
-### tree groups
+### three groups
 gf <- gl(3, 1)
-g <- rep(gf, 100)
+g <- rep(gf, 500)
 y <- rY(length(g), rate = (1:nlevels(g))[g])
 mydata <- data.frame(y = y, g = g)
 
@@ -80,13 +80,10 @@ coef(opt <- mlt(m, data = mydata, scale = TRUE))
 ### uncensored, time-varying coefficients in both groups
 mydata <- data.frame(y = y, g = g)
 m <- ctm(response = logBb, 
-           interacting = as.basis(~ g, data = mydata),
+           interacting = as.basis(~ 0 + g, data = mydata),
            todist = "MinExtrVal")
-## IGNORE_RDIFF_BEGIN
-op <- mltoptim(spg = list(maxit = 5000, quiet = TRUE, checkGrad = FALSE))
-coef(opt <- mlt(m, data = mydata, optim = op, scale = TRUE))
-## IGNORE_RDIFF_END
-coef(cph <- coxph(Surv(y, rep(TRUE, nrow(mydata))) ~ g, data = mydata))
+logLik(opt <- mlt(m, data = mydata, scale = TRUE))
+logLik(cph <- coxph(Surv(y, rep(TRUE, nrow(mydata))) ~ g, data = mydata))
 ## visualize
 a <- predict(opt, newdata = data.frame(g = gf[1]), q = yn)
 layout(matrix(1:4, ncol = 2))

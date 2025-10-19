@@ -1,5 +1,6 @@
 
 library("MASS")
+options(digits = 4)
 
 mp <- polr(Sat ~ Infl, weights = Freq, data = housing)
 

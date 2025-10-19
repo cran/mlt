@@ -72,7 +72,7 @@ vcov.mlt <- function(object, parm = coef(object, fixed = FALSE),
     }
     if (inherits(ret, "try-error"))
         stop("Hessian is not invertible")
-    if (any(diag(ret) < 0)) 
+    if (isTRUE(any(diag(ret) < 0))) 
         stop("Hessian is not invertible")
     if (step > 1)
         warning("Hessian is not invertible, an approximation is used")
@@ -226,7 +226,7 @@ Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
         m <- mlt(model = model, data = object$data, weights = w,
                  offset = object$offset, dofit = FALSE,
                  theta = parm,
-                 fixed = object$fixed, scale = object$scale, 
+                 fixed = object$fixed, scaleparm = object$scaleparm, 
                  optim = object$optim)
         -logLik(m, parm = parm, w = w)
     }
@@ -235,7 +235,7 @@ Hessian.fmlt <- function(object, parm = coef(object, fixed = FALSE), ...) {
         m <- mlt(model = model, data = object$data, weights = w,
                  offset = object$offset, dofit = FALSE,
                  theta = parm,
-                 fixed = object$fixed, scale = object$scale, 
+                 fixed = object$fixed, scaleparm = object$scaleparm, 
                  optim = object$optim)
         ### note: weights(m) are used by estfun
         Gradient(m, parm = parm)[which]

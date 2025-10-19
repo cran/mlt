@@ -144,6 +144,22 @@ R.Surv <- function(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...) {
                        tleft = object[, "start"])
     )
     attr(ret, "prob") <- function(weights) {
+        if (attr(object, "type") == "interval") {
+            ### Turnbull estimation takes tooo looong
+            ### maybe fall back to Kaplan-Meier?
+            if (FALSE) {
+            time1 <- object[,"time1"]
+            time2 <- object[,"time2"]
+            status <- object[,"status"]
+            ### status = 3 means interval
+            time1[status == 3L] <- time1[status == 3L] + 
+                (time2[status == 3] - time1[status == 3]) / 2
+            status[status == 3] <- 1L
+            ### status = 2 is left censoring: FIXME
+            status[status == 2] <- 0L
+            object <- Surv(time = time1, event = status)
+            }
+        }
         ### FIXME: subsetting doesn't change this fct
         if (length(weights) == NROW(object)) {
             sf <- survival::survfit(object ~ 1, subset = weights > 0, weights = weights)
@@ -201,6 +217,7 @@ R.integer <- function(object, cleft = NA, cright = NA, bounds = c(min(object), I
     ret$cleft[is.na(ret$cleft)] <- ret$exact[is.na(ret$cleft)] - 1
     ret$cleft[which(ret$cleft < bounds[1])] <- NA
     ret$exact <- NA
+    ret$approxy <- object
     attr(ret, "prob") <- function(weights)
         .wecdf(object, weights)
     ret
@@ -257,8 +274,9 @@ R.numeric <- function(object = NA, cleft = NA, cright = NA,
       ### code response as interval-censored defining the nonparametric
       ### likelihood BUT keep data as numeric
       utm <- sort(unique(object))
+      utm <- utm[-length(utm)]     
       ct <- cut(object, breaks = c(-Inf, utm, Inf))
-      return(R(Surv(time = c(-Inf, utm)[ct], time2 = utm[ct], type = "interval2")))
+      return(R(Surv(time = c(-Inf, utm)[ct], time2 = c(utm, Inf)[ct], type = "interval2")))
     }
 
     ret <- .mkR(exact = object, cleft = cleft, cright = cright,
@@ -589,4 +607,262 @@ as.double.response <- function(x, ...) {
     rri[is.na(ri) | !is.finite(ri)] <- 0
     ### (-Inf, x] -> x and (x, Inf) -> x
     rex + (rle + ifelse(is.finite(ri) & is.finite(le), (rri - rle)/2, rri))
+}
+
+pstart <- function(x, weights = rep.int(1, NROW(x)))
+    UseMethod("pstart")
+
+pstart.numeric <- function(x, weights = rep.int(1, NROW(x))) {
+    if (is.null(weights)) weights <- rep.int(1, NROW(x))
+    .wecdf(x, weights = weights)(x)
+}
+
+pstart.factor <- function(x, weights = rep.int(1, NROW(x))) {
+    if (is.null(weights)) weights <- rep.int(1, NROW(x))
+    .wecdf(x, weights = weights)(x)
+}
+
+pstart.Surv <- function(x, weights = rep.int(1, NROW(x)))
+    ### always
+    pstart(R(x), weights = weights)
+
+pstart.response <- function(x, weights = rep.int(1, NROW(x))) {
+    if (is.null(weights)) weights <- rep.int(1, NROW(x))
+    if (is.ordered(x$approxy) || is.integer(x$approxy))
+        return(pstart(x$approxy, weights = weights))
+    lwr <- x$cleft
+    upr <- x$cright
+    ex <- x$exact
+    if (all(is.na(lwr)) && all(is.na(upr)))
+        return(pstart(ex, weights = weights))
+    if (any(nex <- !is.na(ex)))
+        lwr[nex] <- upr[nex] <- ex[nex]
+    lwr <- unclass(lwr)
+    upr <- unclass(upr)
+    lwr[is.na(lwr)] <- -Inf
+    upr[is.na(upr)] <- Inf
+    d <- data.frame(lwr = lwr, upr = upr, grp = gl(1, 1))
+    w0 <- weights > 0
+    TB <- icenReg::ic_np(cbind(lwr, upr) ~ grp, data = d[w0,,drop = FALSE], 
+                         weights = weights[w0])
+    sc <- TB$scurves
+    xint <- sc[[1]]$Tbull_ints
+    Prb <- 1 - sc[[1]]$S_curves$baseline
+    Plwr <- stepfun(xint[-1,"lower"], Prb)
+    Pupr <- stepfun(xint[-1,"upper"], Prb)
+    ret <- rowMeans(cbind(Plwr(lwr), Plwr(ex), Pupr(ex), Pupr(upr)), 
+                    na.rm = TRUE)
+    return(ret)
+}
+
+findsupport <- function(x, weights = rep.int(1, NROW(x)), probs = c(.1, .9))
+    UseMethod("findsupport")
+
+findsupport.numeric <- function(x, weights = rep.int(1, NROW(x)), probs = c(.1, .9)) {
+   if (max(abs(probs - c(0, 1))) < .Machine$double.eps) {
+        return(range(x, na.rm = TRUE))
+    }
+    if (is.null(weights)) weights <- rep.int(1, NROW(x))    
+    x <- rep(x, times = weights)
+    quantile(x[is.finite(x)], probs = probs, na.rm = TRUE)
+}
+
+findsupport.Surv <- function(x, weights = rep.int(1, NROW(x)), probs = c(.1, .9)) {
+    if (is.null(weights)) weights <- rep.int(1, NROW(x))
+    if (attr(x, "type") %in% c("left", "right")) {
+        if (max(abs(probs - c(0, 1))) < .Machine$double.eps) {
+            return(range(x[,"time"], na.rm = TRUE))
+        }
+        sf <- survfit(x ~ 1, data = data.frame(x = x),
+                      subset = weights > 0, weights = weights)
+        probs <- max(1 - sf$surv) * probs
+        return(quantile(sf, prob = probs)$quantile)
+    }
+    return(findsupport(R(x), weights = weights, probs = probs))
+}
+
+findsupport.response <- function(x, weights = rep.int(1, NROW(x)), probs = c(.1, .9)) {
+
+    if (is.null(weights)) weights <- rep.int(1, NROW(x))
+    lwr <- x$cleft
+    upr <- x$cright
+    ex <- x$exact
+    if (max(abs(probs - c(0, 1))) < .Machine$double.eps) {
+        x <- c(lwr, ex, ex)
+        return(range(x[is.finite(x)], na.rm = TRUE))
+    }
+    if (all(is.na(lwr)) && all(is.na(upr)))
+        return(findsupport(ex, weights = weights, probs = probs))
+    if (any(nex <- !is.na(ex)))
+        lwr[nex] <- upr[nex] <- ex[nex]
+    lwr <- unclass(lwr)
+    upr <- unclass(upr)
+    lwr[is.na(lwr)] <- -Inf
+    upr[is.na(upr)] <- Inf
+    d <- data.frame(lwr = lwr, upr = upr, grp = gl(1, 1))
+    w0 <- weights > 0
+    TB <- icenReg::ic_np(cbind(lwr, upr) ~ grp, data = d[w0,,drop = FALSE], 
+                         weights = weights[w0])
+    sc <- TB$scurves
+    xint <- sc[[1]]$Tbull_ints
+    Prb <- 1 - sc[[1]]$S_curves$baseline
+    if (!is.finite(xint[NROW(xint), "upper"])) {
+        Prb <- Prb[-NROW(xint)]
+        xint <- xint[-NROW(xint),,drop = FALSE]
+    }
+    xint <- xint[!duplicated(Prb),,drop = FALSE]
+    Prb <- Prb[!duplicated(Prb)]
+    ### this always gives a valid support
+    probs <- max(Prb) * probs
+    Plwr <- splinefun(Prb, xint[,"lower"])
+    Pupr <- splinefun(Prb, xint[,"upper"])
+    retlwr <- Plwr(probs) 
+    retupr <- Pupr(probs)
+    rowMeans(cbind(retlwr, retupr))
+}
+
+pretrafo <- function(y, weights)
+    UseMethod("pretrafo")
+
+.trafo <- function(support, order, coeff) {
+
+    yv <- numeric_var("y", support = support)
+    by <- Bernstein_basis(yv, order = order, ui = "increasing")
+
+    ret <- list(
+        trafo = function(y) {
+            Ym <- model.matrix(by, data = data.frame(y = y))
+            ### return h
+            return(ifelse(is.finite(y), c(Ym %*% coeff), y))
+
+            ### return plogis(h) in (0, 1)
+            ret <- c(plogis(Ym %*% coeff))
+            yinf <- !is.finite(y)
+            if (any(yinf))
+                ret[yinf] <- ifelse(y[yinf] < 0, 0, 1)
+            return(ret)
+        },
+        dtrafo = function(y) {
+            Ym1 <- model.matrix(by, data = data.frame(y = y), deriv = c("y" = 1))
+            return(ifelse(is.finite(y), c(Ym1 %*% coeff), y))
+
+            Ym <- model.matrix(by, data = data.frame(y = y))
+            ret <- c(dlogis(Ym %*% coeff)) * c(Ym1 %*% coeff)
+            yinf <- !is.finite(y)
+            if (any(yinf))
+                ret[yinf] <- 0
+            return(ret)
+        },
+        ddtrafo = function(y) {
+            Ym2 <- model.matrix(by, data = data.frame(y = y), deriv = c("y" = 2))
+            return(ifelse(is.finite(y), c(Ym2 %*% coeff), y))
+
+            Ym <- model.matrix(by, data = data.frame(y = y))
+            Ym1 <- model.matrix(by, data = data.frame(y = y), deriv = c("y" = 1))
+
+            ret <- c(.Logistic()$dd(Ym %*% coeff)) * c(Ym1 %*% coeff)^2
+            ret <- ret + c(dlogis(Ym %*% coeff)) * c(Ym2 %*% coeff)
+            yinf <- !is.finite(y)
+            if (any(yinf))
+                ret[yinf] <- 0
+            return(ret)
+        }
+    )
+    attr(ret, "support") <- support
+    attr(ret, "add") <- c(0, 0) ### c(-1, 1) * diff(support) / 2
+    return(ret)
+}
+
+pretrafo.numeric <- function(y, weights = NULL) {
+
+    sup <- range(y, na.rm = TRUE)
+    N <- max(c(length(y[!is.na(y)]), ifelse(!is.null(weights), 
+                                            sum(weights[!is.na(y)]), 0)))
+    order <- 6 + ceiling(sqrt(N))
+    grd <- seq(from = sup[1L], to = sup[2L],
+               length.out = order + 1)
+    Fgrd <- .wecdf(y, weights)(grd)
+    hgrd <- pmin(qlogis((N - 1) / N), qlogis(Fgrd))
+    ### derivative must be > 0 everywhere
+    hgrd <- hgrd + cumsum(c(0, (diff(hgrd) < sqrt(.Machine$double.eps)) * .1))
+    return(.trafo(support = sup, order = order, coeff = hgrd))
+}
+
+pretrafo.ordered <- function(y, weights = 1)
+    pretrafo(unclass(y), weights = weights)
+
+pretrafo.integer <- function(y, weights = 1)
+    pretrafo(as.numeric(y), weights = weights)
+
+pretrafo.Surv <- function(y, weights = 1) {
+
+    if (length(weights) == NROW(y)) {
+        sf <- survival::survfit(y ~ 1, subset = weights > 0, weights = weights)
+        N <- max(NROW(y[!is.na(y[,1]),]), sum(weights[!is.na(y[,1])])) ### case weights?
+    } else {
+        sf <- survival::survfit(y ~ 1)
+        N <- NROW(y[!is.na(y[,1]),])
+    }
+    tm <- sf$time
+    sv <- sf$surv
+    tm <- tm[diff(c(1, sv)) < 0]
+    sv <- sv[diff(c(1, sv)) < 0]
+
+    sup <- range(tm)
+    order <- 6 + ceiling(sqrt(N))
+    grd <- seq(from = sup[1L], to = sup[2L],
+               length.out = order + 1)
+    Fgrd <- stepfun(tm[-1L], 1 - sv)(grd)
+    hgrd <- pmax(qlogis(1 / N), pmin(qlogis((N - 1) / N), qlogis(Fgrd)))
+    ### derivative must be > 0 everywhere
+    hgrd <- hgrd + cumsum(c(0, (diff(hgrd) < sqrt(.Machine$double.eps)) * .1))
+
+    return(.trafo(support = sup, order = order, coeff = hgrd))
+}
+
+pretrafo.response <- function(y, weights = 1) {
+
+    if (is.ordered(y$approxy) || is.integer(y$approxy))
+        return(pretrafo(y$approxy, weights = weights))
+
+    lwr <- y$cleft
+    upr <- y$cright
+    ex <- y$exact
+    if (all(is.na(lwr)) && all(is.na(upr)))
+        return(pretrafo(ex, weights = weights))
+
+    if (any(nex <- !is.na(ex)))
+        lwr[nex] <- upr[nex] <- ex[nex]
+    lwr <- unclass(lwr)
+    upr <- unclass(upr)
+    lwr[is.na(lwr)] <- -Inf
+    upr[is.na(upr)] <- Inf
+    d <- data.frame(lwr = lwr, upr = upr, grp = gl(1, 1))
+    d <- d[complete.cases(d),,drop = FALSE]
+    if (length(weights) == NROW(y)) {
+        w0 <- weights > 0
+        TB <- icenReg::ic_np(cbind(lwr, upr) ~ grp, data = d[w0,,drop = FALSE], 
+                             weights = weights[w0])
+        N <- max(nrow(d), sum(weights))
+    } else {
+        TB <- icenReg::ic_np(cbind(lwr, upr) ~ grp, data = d)
+        N <- nrow(d)
+    }
+
+    sc <- TB$scurves
+    tm <- sc[[1]]$Tbull_ints[, "upper"]
+    sv <- sc[[1]]$S_curves$baseline
+    sv <- sv[is.finite(tm)]
+    tm <- tm[is.finite(tm)]
+
+    sup <- range(tm)
+    order <- 6 + ceiling(sqrt(N))
+    grd <- seq(from = sup[1L], to = sup[2L],
+               length.out = order + 1)
+    Fgrd <- stepfun(tm[-1L], 1 - sv)(grd)
+    hgrd <- pmax(qlogis(1 / N), pmin(qlogis((N - 1) / N), qlogis(Fgrd)))
+    ### derivative must be > 0 everywhere
+    hgrd <- hgrd + cumsum(c(0, (diff(hgrd) < sqrt(.Machine$double.eps)) * .1))
+
+    return(.trafo(support = sup, order = order, coeff = hgrd))
 }

@@ -1,7 +1,7 @@
 
-R version 4.2.1 (2022-06-23) -- "Funny-Looking Kid"
-Copyright (C) 2022 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -17,6 +17,7 @@ Type 'q()' to quit R.
 
 > 
 > library("MASS")
+> options(digits = 4)
 > 
 > mp <- polr(Sat ~ Infl, weights = Freq, data = housing)
 > 
@@ -36,28 +37,28 @@ Loading required package: variables
 > mod <- mlt(m, data = housing, weights = housing$Freq)
 > 
 > logLik(mp)
-'log Lik.' -1771.708 (df=4)
+'log Lik.' -1772 (df=4)
 > logLik(mod)
-'log Lik.' -1771.708 (df=4)
+'log Lik.' -1772 (df=4)
 > 
 > coef(mp)
 InflMedium   InflHigh 
- 0.5635756  1.2486832 
+    0.5636     1.2487 
 > mp$zeta
  Low|Medium Medium|High 
- -0.2013727   0.9484658 
+    -0.2014      0.9485 
 > ### PR#17616
 > unname(coef(mod))
-[1] -0.2013745  0.9484782 -0.5635842 -1.2486779
+[1] -0.2014  0.9485 -0.5636 -1.2487
 > 
 > sqrt(diag(vcov(mp)))
 
 Re-fitting to get Hessian
 
  InflMedium    InflHigh  Low|Medium Medium|High 
- 0.10357053  0.12479361  0.07662596  0.08024304 
+    0.10357     0.12479     0.07663     0.08024 
 > unname(sqrt(diag(vcov(mod))))
-[1] 0.07662595 0.08024303 0.10357053 0.12479363
+[1] 0.07663 0.08024 0.10357 0.12479
 > 
 > mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "loglog")
 > 
@@ -68,27 +69,27 @@ Re-fitting to get Hessian
 > mod <- mlt(m, data = housing, weights = housing$Freq)
 > 
 > logLik(mp)
-'log Lik.' -1776.416 (df=4)
+'log Lik.' -1776 (df=4)
 > logLik(mod)
-'log Lik.' -1776.416 (df=4)
+'log Lik.' -1776 (df=4)
 > 
 > coef(mp)
 InflMedium   InflHigh 
- 0.3851078  0.7837681 
+    0.3851     0.7838 
 > mp$zeta
  Low|Medium Medium|High 
-  0.2425732   1.0315129 
+     0.2426      1.0315 
 > unname(coef(mod))
-[1]  0.2425772  1.0315177 -0.3851189 -0.7837785
+[1]  0.2426  1.0315 -0.3851 -0.7838
 > 
 > sqrt(diag(vcov(mp)))
 
 Re-fitting to get Hessian
 
  InflMedium    InflHigh  Low|Medium Medium|High 
- 0.07219408  0.07953692  0.05453940  0.06090649 
+    0.07219     0.07954     0.05454     0.06091 
 > unname(sqrt(diag(vcov(mod))))
-[1] 0.05453958 0.06090668 0.07219424 0.07953700
+[1] 0.05454 0.06091 0.07219 0.07954
 > 
 > mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "cloglog")
 > 
@@ -99,27 +100,27 @@ Re-fitting to get Hessian
 > mod <- mlt(m, data = housing, weights = housing$Freq)
 > 
 > logLik(mp)
-'log Lik.' -1772.924 (df=4)
+'log Lik.' -1773 (df=4)
 > logLik(mod)
-'log Lik.' -1772.924 (df=4)
+'log Lik.' -1773 (df=4)
 > 
 > coef(mp)
 InflMedium   InflHigh 
- 0.3662567  0.8792058 
+    0.3663     0.8792 
 > mp$zeta
  Low|Medium Medium|High 
- -0.5679040   0.2655082 
+    -0.5679      0.2655 
 > unname(coef(mod))
-[1] -0.5679043  0.2655074 -0.3662565 -0.8792066
+[1] -0.5679  0.2655 -0.3663 -0.8792
 > 
 > sqrt(diag(vcov(mp)))
 
 Re-fitting to get Hessian
 
  InflMedium    InflHigh  Low|Medium Medium|High 
- 0.06980195  0.09157487  0.05441248  0.04894207 
+    0.06980     0.09157     0.05441     0.04894 
 > unname(sqrt(diag(vcov(mod))))
-[1] 0.05441250 0.04894209 0.06980196 0.09157492
+[1] 0.05441 0.04894 0.06980 0.09157
 > 
 > mp <- polr(Sat ~ Infl, weights = Freq, data = housing, method = "probit")
 > 
@@ -130,28 +131,28 @@ Re-fitting to get Hessian
 > mod <- mlt(m, data = housing, weights = housing$Freq)
 > 
 > logLik(mp)
-'log Lik.' -1772.056 (df=4)
+'log Lik.' -1772 (df=4)
 > logLik(mod)
-'log Lik.' -1772.056 (df=4)
+'log Lik.' -1772 (df=4)
 > 
 > coef(mp)
 InflMedium   InflHigh 
- 0.3465900  0.7608878 
+    0.3466     0.7609 
 > mp$zeta
  Low|Medium Medium|High 
- -0.1246930   0.5834263 
+    -0.1247      0.5834 
 > unname(coef(mod))
-[1] -0.1246927  0.5834267 -0.3465902 -0.7608882
+[1] -0.1247  0.5834 -0.3466 -0.7609
 > 
 > sqrt(diag(vcov(mp)))
 
 Re-fitting to get Hessian
 
  InflMedium    InflHigh  Low|Medium Medium|High 
- 0.06360385  0.07529229  0.04741187  0.04867417 
+    0.06360     0.07529     0.04741     0.04867 
 > unname(sqrt(diag(vcov(mod))))
-[1] 0.04741187 0.04867418 0.06360385 0.07529229
+[1] 0.04741 0.04867 0.06360 0.07529
 > 
 > proc.time()
    user  system elapsed 
-  1.089   0.071   1.153 
+  0.729   0.065   0.790 

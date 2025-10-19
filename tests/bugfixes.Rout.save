@@ -1,5 +1,5 @@
 
-R version 4.4.3 (2025-02-28) -- "Trophy Case"
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
 Copyright (C) 2025 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
@@ -72,12 +72,12 @@ Loading required package: variables
 > summary(mod)
 
 Call:
-mlt(model = m, data = bodyfat, scale = TRUE)
+mlt(model = m, data = bodyfat, scaleparm = TRUE)
 
 Type:  continuous linear transformation model (transformed normal distribution)
 Log-Likelihood: -171.14 (df = 12)
 
-Coefficients: 30.951 38.885 42.523 -0.01508 -0.058906 -0.12136 -0.054061 -0.47698 -0.34424 -2.4143 -1.1319 0.36928
+Coefficients: 30.945 38.878 42.517 -0.015081 -0.0591 -0.12127 -0.053832 -0.47681 -0.34665 -2.4195 -1.1309 0.37634
 
 > 
 > ### parm can be a matrix with subject-specific parameters
@@ -179,4 +179,4 @@ Coefficients: 30.951 38.885 42.523 -0.01508 -0.058906 -0.12136 -0.054061 -0.4769
 > 
 > proc.time()
    user  system elapsed 
-  0.816   0.068   0.879 
+  0.942   0.048   0.985 

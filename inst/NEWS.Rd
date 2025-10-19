@@ -2,6 +2,39 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.7-0 (2025-10-17)}{
+  \subsection{Features}{
+    \itemize{
+      \item{\code{mltoptim()} features \code{nlminb} for unconstrained optimisation.}
+      \item{\code{mltoptim()} features \code{optim} for unconstrained optimisation.}
+      \item{\code{mltoptim()} defaults changed for all algorithms.}
+      \item{\code{mltoptim()} refrains from generating random starting
+            values now. Consequently, results are fully reproducible in the absence of
+            user-defined seeds.}
+      \item{The log-likelihood for infeasible parameter configurations
+            is now always \code{-Inf}.}
+      \item{Argument \code{scale} was renamed to \code{scaleparm} because
+            of a conflict in \code{tram::Survreg}.}
+      \item{Compute better starting values, especially for interval-censored
+            outcomes using the fast Turnbull estimators provided 
+            by \pkg{icenReg}.}
+      \item{Implement (internal) pre-transformation based on nonparametric
+            unconditional distribution to be used by \pkg{tram}.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+      \item{\code{summary.mmlt} works now.}
+      \item{Improved error messages in \code{mmlt}.}
+      \item{\code{R(, as.R.interval = TRUE)} produces correct empirical
+            likelihood for numeric outcomes.}
+      \item{\code{mmlt} only uses optimisers able to approximate the
+            Hessian by default.}
+      \item{\code{simulate.ctm} might have got internal dimensions wrong.}
+    }
+  }
+}
+
 \section{Changes in Version 1.6-6 (2025-06-17)}{
   \subsection{Features}{
     \itemize{

@@ -62,3 +62,8 @@
     return(list(full_ex = full_ex, redu_ex = redu_ex,
                 full_nex = full_nex, redu_nex = redu_nex))
 }
+
+has_scale <- function(object) {
+    stopifnot(inherits(object, "ctm"))
+    return(!is.null(object$bases$scaling))
+}

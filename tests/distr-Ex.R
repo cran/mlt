@@ -1,5 +1,6 @@
 
 library("mlt")
+library("numDeriv")
 
 ### 10.1080/15598608.2013.772835
 ### rho = exp(logrho)
@@ -49,4 +50,74 @@ stopifnot(max(abs(lg$ddd(x) - mlt:::.MinExtrVal()$ddd(x))) < tol)
 stopifnot(max(abs(lg$dd2d(x) - mlt:::.MinExtrVal()$dd2d(x))) < tol)
 
 stopifnot(max(abs(lg$q(p) - mlt:::.MinExtrVal()$q(p))) < tol)
+
+### log.p in quantile
+prb <- 1:9 / 10
+d <- eval(formals(mlt:::.distr)$which)
+q1 <- sapply(d, function(w) mlt:::.distr(which = w)$q(prb))
+q2 <- sapply(d, function(w) mlt:::.distr(which = w)$q(log(prb), log.p = TRUE))
+stopifnot(isTRUE(all.equal(q1, q2)))
+
+x <- -20:20 + .5
+d1 <- sapply(d, function(w) grad(mlt:::.distr(which = w)$p, x))
+d2 <- sapply(d, function(w) mlt:::.distr(which = w)$d(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(d, function(w) grad(mlt:::.distr(which = w)$d, x))
+d2 <- sapply(d, function(w) mlt:::.distr(which = w)$dd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(d, function(w) grad(mlt:::.distr(which = w)$dd, x))
+d2 <- sapply(d, function(w) mlt:::.distr(which = w)$ddd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+prm <- -7:7
+q1 <- sapply(prm, function(p) mlt:::.GammaFrailty(p)$q(prb))
+q2 <- sapply(prm, function(p) mlt:::.GammaFrailty(p)$q(log(prb), log.p = TRUE))
+stopifnot(isTRUE(all.equal(q1, q2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.GammaFrailty(p)$p, x))
+d2 <- sapply(prm, function(p) mlt:::.GammaFrailty(p)$d(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.GammaFrailty(p)$d, x))
+d2 <- sapply(prm, function(p) mlt:::.GammaFrailty(p)$dd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.GammaFrailty(p)$dd, x))
+d2 <- sapply(prm, function(p) mlt:::.GammaFrailty(p)$ddd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+q1 <- sapply(prm, function(p) mlt:::.InvGaussFrailty(p)$q(prb))
+q2 <- sapply(prm, function(p) mlt:::.InvGaussFrailty(p)$q(log(prb), log.p = TRUE))
+stopifnot(isTRUE(all.equal(q1, q2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.InvGaussFrailty(p)$p, x))
+d2 <- sapply(prm, function(p) mlt:::.InvGaussFrailty(p)$d(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.InvGaussFrailty(p)$d, x))
+d2 <- sapply(prm, function(p) mlt:::.InvGaussFrailty(p)$dd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.InvGaussFrailty(p)$dd, x))
+d2 <- sapply(prm, function(p) mlt:::.InvGaussFrailty(p)$ddd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+q1 <- sapply(prm, function(p) mlt:::.PositiveStableFrailty(p)$q(prb))
+q2 <- sapply(prm, function(p) mlt:::.PositiveStableFrailty(p)$q(log(prb), log.p = TRUE))
+stopifnot(isTRUE(all.equal(q1, q2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.PositiveStableFrailty(p)$p, x))
+d2 <- sapply(prm, function(p) mlt:::.PositiveStableFrailty(p)$d(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.PositiveStableFrailty(p)$d, x))
+d2 <- sapply(prm, function(p) mlt:::.PositiveStableFrailty(p)$dd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
+d1 <- sapply(prm, function(p) grad(mlt:::.PositiveStableFrailty(p)$dd, x))
+d2 <- sapply(prm, function(p) mlt:::.PositiveStableFrailty(p)$ddd(x))
+stopifnot(isTRUE(all.equal(d1, d2)))
+
 

@@ -1,4 +1,16 @@
 
+### log(1 - exp(-a))
+### https://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf
+.log1mexp <- function(a) {
+    ret <- numeric(length(a))
+    if (any(a < 0)) stop("negative argument")
+    if (any(sa <- (a < log(2))))
+        ret[sa] <- log(- expm1(-a[sa]))
+    if (any(!sa))
+        ret[!sa] <- log1p(-exp(-a[!sa]))
+    return(ret)
+}
+
 .Normal <- function()
     list(parm = function(x) NULL,
          p = pnorm, d = dnorm, q = qnorm, 
@@ -41,17 +53,20 @@
     list(parm = function(x) NULL,
          p = function(x, lower.tail = TRUE, log.p = FALSE) {
              ### p = 1 - exp(-exp(x))
-             ret <- exp(-exp(x))
+             nlogret <- exp(x)
              if (log.p) {
                  if (lower.tail)
-                     return(log1p(-ret))
+                     return(.log1mexp(nlogret))
                  return(-exp(x))
              }
              if (lower.tail)
-                 return(1 - exp(-exp(x)))
-             return(ret)             
+                 return(-expm1(-exp(x)))
+             return(exp(-nlogret))             
          },
-         q = function(p) log(-log1p(- p)),
+         q = function(p, log.p = FALSE) {
+                if (log.p) p <- exp(p)
+                log(-log1p(- p))
+         },
          d = function(x, log = FALSE) {
              ret <- x - exp(x)
              if (!log) return(exp(ret))
@@ -66,7 +81,7 @@
              (ex - 3*ex^2 + ex^3) / exp(ex)
          },
          dd2d = function(x)
-             1 - exp(x),
+             -expm1(x),
          call = ".MinExtrVal",
          name = "minimum extreme value")
 
@@ -78,13 +93,16 @@
              if (log.p) {
                  if (lower.tail)
                      return(-exp(-x))
-                 return(log1p(-exp(-exp(-x))))
+                 return(.log1mexp(exp(-x)))
              }
              if (lower.tail)
                  return(exp(-exp(-x)))
-             1 - exp(-exp(-x))
+             -expm1(-exp(-x))
          },
-         q = function(p) -log(-log(p)),
+         q = function(p, log.p = FALSE) {
+                if (!log.p) p <- log(p)
+                -log(-p)
+         },
          d = function(x, log = FALSE) {
              ret <- - x - exp(-x)
              if (!log) return(exp(ret))
@@ -99,7 +117,7 @@
              exp(-x - ex) * (ex - 1)^2 - exp(-ex - 2 * x)
          },
          dd2d = function(x)
-             exp(-x) - 1,
+             expm1(-x),
          call = ".MaxExtrVal",
          name = "maximum extreme value")
 
@@ -115,7 +133,11 @@
             if (!lower.tail && !log.p)
                 return(ifelse(x < 0, log1p(- .5 * exp(x)), log(.5) - x))
          },
-         q = function(p) ifelse(p < 0.5, log(2 * p), -log(2 * (1 - p))),
+         q = function(p, log.p = FALSE) {
+             if (log.p) p <- exp(p)
+             ### <FIXME> handle log.p better
+             ifelse(p < 0.5, log(2 * p), -log(2 * (1 - p)))
+         },
          d = function(x, log = FALSE) {
              if (log)
                  return(log(.5) - abs(x))
@@ -142,27 +164,30 @@
          name = "cauchy")
 }
 
+
 ### see 10.1080/15598608.2013.772835
 .GammaFrailty <- function(logrho = 0) {
-    logrho <- pmax(logrho, log(sqrt(.Machine$double.eps)))
+    # logrho <- pmax(logrho, log(sqrt(.Machine$double.eps)))
     list(parm = function() c("logrho" = logrho),
          ### note: p(x) is 1 - LaplaceTransform(exp(x))
          p = function(x, lower.tail = TRUE, log.p = FALSE) {
              ### p = 1 - (1 + exp(x + logrho))^(-exp(-logrho))
-             ret <- (1 + exp(x + logrho))^(-exp(-logrho))
+             nlogret <- exp(-logrho) * log1p(exp(x + logrho))
              if (log.p) {
                  if (lower.tail)
-                     return(log1p(-ret))
-                 return(log(ret))
+                     return(.log1mexp(nlogret))
+                 return(-nlogret)
              }
              if (lower.tail)
-                 return(1 - ret)
-             return(ret)
+                 return(1 - exp(-nlogret))
+             return(exp(-nlogret))
          },
-         q = function(p)
-             log((1 - p)^(-exp(logrho)) - 1) - logrho,
+         q = function(p, log.p = FALSE) {
+             if (log.p) p <- exp(p)
+             log((1 - p)^(-exp(logrho)) - 1) - logrho
+         },
          d = .d <- function(x, log = FALSE) {
-             ret <- x + (-exp(-logrho) - 1) * log(exp(x + logrho) + 1)
+             ret <- x + (-exp(-logrho) - 1) * log1p(exp(x + logrho))
              if (!log) return(exp(ret))
              ret
          },
@@ -191,7 +216,7 @@
 
 ### see 10.1002/sim.687
 .InvGaussFrailty <- function(logtheta = 0) {
-    logtheta <- pmax(logtheta, log(sqrt(.Machine$double.eps)))
+    # logtheta <- pmax(logtheta, log(sqrt(.Machine$double.eps)))
     list(parm = function() c("logtheta" = logtheta),
          ### note: p(x) is 1 - LaplaceTransform(exp(x))
          p = function(x, lower.tail = TRUE, log.p = FALSE) {
@@ -206,7 +231,8 @@
                  return(1 - ret)
              return(ret)
          },
-         q = function(p) {
+         q = function(p, log.p = FALSE) {
+             if (log.p) p <- exp(p)
              theta <- exp(logtheta)
              log((-log1p(- p) + 2 * theta)^2 / (4 * theta) - theta)
          },
@@ -261,8 +287,10 @@
                  return(1 - ret)
              return(ret)
          },
-         q = function(p)
-             log(-log1p(-p)) / plogis(logitalpha),
+         q = function(p, log.p = FALSE) {
+             if (log.p) p <- exp(p)
+             log(-log1p(-p)) / plogis(logitalpha)
+         },
          d = .d <- function(x, log = FALSE) {
              alpha <- plogis(logitalpha)
              ret <- plogis(logitalpha, log.p = TRUE) + 
@@ -308,8 +336,11 @@
                  return(plogis(logitrho) * d$p(x))
              return(1 - plogis(logitrho) * d$p(x))
          },
-         q = function(p)
-             d$q(p / plogis(logitrho)),
+         q = function(p, log.p = FALSE) {
+             if (log.p) 
+                 return(d$q(p - plogis(logitrho, log.p = TRUE), log.p = TRUE))
+             d$q(p / plogis(logitrho))
+         },
          d = .d <- function(x, log = FALSE) {
              if (log)
                  return(plogis(logitrho, log.p = TRUE) + d$d(x, log = TRUE))
@@ -331,7 +362,10 @@
 
 .distr <- function(which = c("Normal", "Logistic",
                              "MinExtrVal", "MaxExtrVal", "Exponential", 
-                             "Laplace", "Cauchy")) {
+                             "Laplace", "Cauchy", "GammaFrailty",
+                             "InvGaussFrailty", "PositiveStableFrailty"
+                             # , "CureRate" <FIXME>
+                             )) {
     which <- match.arg(which)
     do.call(paste(".", which, sep = ""), list())
 }

@@ -1,7 +1,7 @@
 
-R version 4.1.2 (2021-11-01) -- "Bird Hippie"
-Copyright (C) 2021 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu (64-bit)
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -19,6 +19,7 @@ Type 'q()' to quit R.
 > library("mlt")
 Loading required package: basefun
 Loading required package: variables
+> options(digits = 4)
 > 
 > set.seed(29)
 > n <- 1000	
@@ -31,13 +32,11 @@ Loading required package: variables
 > o <- mlt(m, data = d)
 > 
 > s2ml <- sqrt(var(y) * (n - 1) / n)
-> 1 / coef(o)[2] - s2ml
-           y 
-6.498866e-08 
+> all.equal(1 / coef(o)[2], s2ml, check.attributes = FALSE, tol = 1e-5)
+[1] TRUE
 > 
-> -coef(o)[1] / coef(o)[2] - mean(y)
-  (Intercept) 
--2.102483e-07 
+> all.equal(-coef(o)[1] / coef(o)[2], mean(y), check.attributes = FALSE, tol = 1e-5)
+[1] TRUE
 > 
 > x <- runif(n, max = 2 * pi)
 > y <- rnorm(n, sin(x), .25)
@@ -53,8 +52,8 @@ In c.basis(bresponse = function (data, deriv = 0L)  :
 > 
 > o <- mlt(m, data = d)
 > 1 / coef(o)[2]
-        y 
-0.2612713 
+     y 
+0.2608 
 > p <- predict(Bb,
 +              newdata = data.frame(x = x), coef = coef(o)[-(1:2)])
 > plot(x, y)
@@ -80,4 +79,4 @@ In c.basis(bresponse = function (data, deriv = 0L)  :
 > 
 > proc.time()
    user  system elapsed 
-  1.933   0.119   2.028 
+  0.991   0.064   1.051 

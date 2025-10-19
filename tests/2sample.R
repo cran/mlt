@@ -1,5 +1,6 @@
 
 library("mlt")
+options(digits = 4)
 
 set.seed(28)
 n <- 100

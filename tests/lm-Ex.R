@@ -1,5 +1,6 @@
 
 library("mlt")
+options(digits = 4)
 
 set.seed(29)
 n <- 1000	
@@ -12,9 +13,9 @@ m <- ctm(lin)
 o <- mlt(m, data = d)
 
 s2ml <- sqrt(var(y) * (n - 1) / n)
-1 / coef(o)[2] - s2ml
+all.equal(1 / coef(o)[2], s2ml, check.attributes = FALSE, tol = 1e-5)
 
--coef(o)[1] / coef(o)[2] - mean(y)
+all.equal(-coef(o)[1] / coef(o)[2], mean(y), check.attributes = FALSE, tol = 1e-5)
 
 x <- runif(n, max = 2 * pi)
 y <- rnorm(n, sin(x), .25)

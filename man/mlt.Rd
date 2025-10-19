@@ -7,8 +7,9 @@
   Likelihood-based model estimation in conditional transformation models
 }
 \usage{
-mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL, 
-    pstart = NULL, scale = FALSE, dofit = TRUE, optim = mltoptim())
+mlt(model, data, weights = NULL, offset = NULL, fixed = NULL,
+    theta = NULL, pstart = NULL, scaleparm = TRUE,
+    dofit = TRUE, optim = mltoptim(hessian = has_scale(model)))
 }
 \arguments{
   \item{model}{a conditional transformation model as specified by \code{\link{ctm}}}
@@ -21,14 +22,17 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL, theta = NULL,
   \item{theta}{optional starting values for the model parameters}
   \item{pstart}{optional starting values for the distribution function
                 evaluated at the data}
-  \item{scale}{a logical indicating if (internal) scaling shall be applied to the
-               model coefficients}
+  \item{scaleparm}{a logical indicating if (internal) scaling shall be applied to the
+               model parameters; \code{TRUE} unless a location-scale model
+               is fitted where the numerically approximated Hessian is only
+               available on the original parameter scale}
   \item{dofit}{a logical indicating if the model shall be fitted to the
                data (\code{TRUE}) or not. If \code{theta} is given,
                a model of class \code{mlt} (a full "fitted" model)
                featuring these parameters is returned. Otherwise,
                an unfitted model of class \code{ctm} is returned}
-  \item{optim}{a list of functions implementing suitable optimisers}
+  \item{optim}{a list of functions implementing suitable optimisers,
+               requires numerical Hessian for location-scale models}
 }
 \details{
   This function fits a conditional transformation model by searching for 
