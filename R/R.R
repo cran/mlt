@@ -706,10 +706,9 @@ findsupport.response <- function(x, weights = rep.int(1, NROW(x)), probs = c(.1,
     sc <- TB$scurves
     xint <- sc[[1]]$Tbull_ints
     Prb <- 1 - sc[[1]]$S_curves$baseline
-    if (!is.finite(xint[NROW(xint), "upper"])) {
-        Prb <- Prb[-NROW(xint)]
-        xint <- xint[-NROW(xint),,drop = FALSE]
-    }
+    isf <- rowSums(is.finite(xint)) == 2
+    xint <- xint[isf,,drop = FALSE]
+    Prb <- Prb[isf]
     xint <- xint[!duplicated(Prb),,drop = FALSE]
     Prb <- Prb[!duplicated(Prb)]
     ### this always gives a valid support

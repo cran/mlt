@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.7-1 (2025-10-30)}{
+  \subsection{Bugfixes}{
+    \itemize{
+       \item{Handle infinite values when computing quantiles from 
+             \code{response} objects.}
+    }
+  }
+}
+
 \section{Changes in Version 1.7-0 (2025-10-17)}{
   \subsection{Features}{
     \itemize{
