@@ -1,6 +1,6 @@
-3e5abe60a8abbb2385d3e7240ccba885 *DESCRIPTION
+4089f96eb2ba1dd5a57d3b9941379182 *DESCRIPTION
 2547b79960353c919b6e156a889ed096 *NAMESPACE
-6ecdb84e6ece08e734c56da2aba6e5a3 *R/R.R
+b70337ca35e34ceaa460525b6c199814 *R/R.R
 a7f5ffe44d174bddd1e9f3d705f8c4f3 *R/confband.R
 6ad74f6a1fbdead1d4119665357683ce *R/ctm.R
 d02e957db4364086fda2039185d6e1a8 *R/distr.R
@@ -14,11 +14,11 @@ b8bdfa948d06e0fd3b1bc26a4b33e12a *R/loglik.R
 43625bea4b1cb1700f091f16a5dc8f46 *R/predict.R
 5364a1dbf29885bc605bdb33ff22f321 *R/sample.R
 1ec2a416f8cdb5ad285542a254019b1e *R/utils.R
-1bf18d9c216b8d95033f0bd2fe2906b2 *build/partial.rdb
+76e123f5dcc8dee07678412adc0a2a84 *build/partial.rdb
 1c9695dee7162d6e72883b552906e753 *cleanup
 dc5c2885d86a80bb9d2a28ffc796708c *inst/CITATION
-638b3abdaf218284830759de9e6c4512 *inst/NEWS.Rd
-774a841f26a50ce84e10ca3ba3bd93fc *man/R.Rd
+b4898c02cf118fc19d6330fbf28bef28 *inst/NEWS.Rd
+980b8bba9f5a6e63c19f72b78a119793 *man/R.Rd
 4141097f19682037945cf253537240c9 *man/confband.Rd
 4c1563206c7318aa68f9b2e46121e7df *man/ctm-methods.Rd
 5efabef7ec20538966d06a69a92a016e *man/ctm.Rd

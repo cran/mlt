@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.7-2 (2025-11-11)}{
+  \subsection{Bugfixes}{
+    \itemize{
+       \item{\code{R(<integer with missing values>)} was handled incorrectly.
+             Spotted by Lukas Graz.}
+    }
+  }
+}
+
 \section{Changes in Version 1.7-1 (2025-10-30)}{
   \subsection{Bugfixes}{
     \itemize{
@@ -10,6 +19,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.7-0 (2025-10-17)}{
   \subsection{Features}{

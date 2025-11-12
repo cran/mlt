@@ -22,7 +22,8 @@ R(object, ...)
    tleft = NA, tright = NA, tol = sqrt(.Machine$double.eps), 
    as.R.ordered = FALSE, as.R.interval = FALSE, ...)
 \method{R}{ordered}(object, cleft = NA, cright = NA, ...)
-\method{R}{integer}(object, cleft = NA, cright = NA, bounds = c(min(object), Inf), ...)
+\method{R}{integer}(object, cleft = NA, cright = NA, 
+   bounds = c(min(object, na.rm = TRUE), Inf), ...)
 \method{R}{factor}(object, ...)
 \method{R}{Surv}(object, as.R.ordered = FALSE, as.R.interval = FALSE, ...)
 as.Surv(object)
