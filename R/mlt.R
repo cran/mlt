@@ -34,7 +34,7 @@
     ### check for constant columns and fix corresponding parameters
     const <- NULL
     cYt <- which(colSums(abs(Yt)) < .Machine$double.eps)
-    if (length(cYt)) {
+    if (length(cYt) && dofit) {
         nf <- rep.int(0, length(cYt))
         names(nf) <- colnames(Yt)[cYt]
         fixed <- c(fixed, nf)

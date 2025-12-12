@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.7-3 (2025-12-11)}{
+  \subsection{Bugfixes}{
+    \itemize{
+       \item{Remove constant columns only when dofit is TRUE.}
+    }
+  }
+}
+
 \section{Changes in Version 1.7-2 (2025-11-11)}{
   \subsection{Bugfixes}{
     \itemize{
@@ -10,6 +18,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.7-1 (2025-10-30)}{
   \subsection{Bugfixes}{

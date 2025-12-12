@@ -69,7 +69,7 @@ mltoptim <- function(
                 control$trace <- trace
                 quiet <- control$quiet
                 control$quiet <- NULL
-                ret <- try(BBoptim(par = theta, fn = f, gr = g, control = control, quiet = quiet))
+                ret <- try(BB::BBoptim(par = theta, fn = f, gr = g, control = control, quiet = quiet))
                 if (inherits(ret, "try-error"))
                     return(list(par = theta, convergence = 1))
                 ### we often only use this part for generating starting
@@ -90,7 +90,7 @@ mltoptim <- function(
                                        projectArgs = list(A = ui, b = ci, meq = 0), control = control,
                                        quiet = quiet))
             } else { 
-                ret <- try(BBoptim(par = theta, fn = f, gr = g, control = control, quiet = quiet))
+                ret <- try(BB::BBoptim(par = theta, fn = f, gr = g, control = control, quiet = quiet))
             }
             if (inherits(ret, "try-error"))
                 ret <- list(par = theta, convergence = 1)
