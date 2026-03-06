@@ -2,6 +2,22 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.7-4 (2026-03-06)}{
+  \subsection{Features}{
+    \itemize{
+       \item{Add \code{type = "Omega"} in \code{coef}. \code{type = "Lambda"} 
+             now always returns a unit lower-triagular matrix. This now
+             matches the notation used in papers.}
+       \item{Generate references from \file{REFERENCES.bib}.}
+    }
+  }
+  \subsection{Bugfixes}{
+    \itemize{
+       \item{Determine constant columns in design matrices correctly.}
+    }
+  }
+}
+
 \section{Changes in Version 1.7-3 (2025-12-11)}{
   \subsection{Bugfixes}{
     \itemize{

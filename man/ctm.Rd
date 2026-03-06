@@ -34,7 +34,7 @@ has_scale(object)
   This function only specifies the model which can then be fitted using
   \code{\link{mlt}}. The shift term is positive by default. All arguments except
   \code{response} can be missing (in this case an unconditional distribution
-  is estimated). Hothorn et al. (2018) explain the model class.
+  is estimated). \bibcitet{mlt::Hothorn:Moest:Buehlmann:2017} explain the model class.
 
   Possible choices of the distributions the model transforms to (the inverse
   link functions \eqn{F_Z}) include the 
@@ -46,7 +46,7 @@ has_scale(object)
   (\code{"Exponential"}) can be used to fit Aalen additive hazard models.
   Laplace and Cauchy distributions are also available.
 
-  Shift-scale models (Siegfried et al., 2023) of the form
+  Shift-scale models \bibcitep{mlt::Siegfried_Kook_Hothorn_2023} of the form
   \deqn{P(Y \le y \mid X = x) = F_Z(\sqrt{\exp(s(x)^\top \gamma)} [(a(y) \otimes b(x))^\top \vartheta] + d(x)^\top \beta)}
   (\code{scale_shift = FALSE}) or
   \deqn{P(Y \le y \mid X = x) = F_Z(\sqrt{\exp(s(x)^\top \gamma)} [(a(y) \otimes b(x))^\top \vartheta + d(x)^\top \beta])}
@@ -59,14 +59,4 @@ has_scale(object)
   An object of class \code{ctm}; and a logical is returned by
   \code{has_scale} when a scale term is present in \code{object}.
 }
-\references{
-
-  Torsten Hothorn, Lisa Moest, Peter Buehlmann (2018), Most Likely
-  Transformations, \emph{Scandinavian Journal of Statistics}, \bold{45}(1),
-  110--134, \doi{10.1111/sjos.12291}.
-
-  Sandra Siegfried, Lucas Kook, Torsten Hothorn (2023), 
-  Distribution-Free Location-Scale Regression, \emph{The American Statistician},
-  \bold{77}(4), 345--356, \doi{10.1080/00031305.2023.2203177}.
-
-}
+\references{\bibshow{*}}

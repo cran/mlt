@@ -14,6 +14,7 @@
 
     if (is.null(eY)) {
         Y <- Yt <- iY$Yleft
+        Yt <- rbind(Yt, iY$Yright)
     } else {
         Y <- Yt <- eY$Y
         if (!is.null(iY)) Yt <- rbind(Yt, iY$Yleft)

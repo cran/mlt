@@ -94,16 +94,9 @@
   in the model with fixed regression coefficient using the \code{fixed}
   argument in \code{\link{mlt}}.
 
-  More examples can be found in Hothorn (2018).
-
+  More examples can be found in \bibcitep{mlt::Hothorn:2018}.
 }
-\references{
-
-  Torsten Hothorn (2020), Most Likely Transformations: The mlt Package,
-  \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
-  \doi{10.18637/jss.v092.i01}
-
-}
+\references{\bibshow{*}}
 \examples{
 
   library("survival")

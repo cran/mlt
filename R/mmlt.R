@@ -838,7 +838,9 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
 
 
 .coef.mmlt <- function(object, newdata,
-                       type = c("all", "Lambdapar", "Lambda", "Lambdainv", 
+                       type = c("all", "Lambdapar",
+                                "Lambda", "Omega",
+                                "Lambdainv", "Omegainv", 
                                 "Precision", "PartialCorr", "Sigma", "Corr", 
                                 "Spearman", "Kendall"), 
                        fixed = TRUE, ...)
@@ -860,25 +862,25 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
     prm <- object$parm(cf)
     prm <- prm[[length(prm)]]
 
-    if (missing(newdata) || is.null(object$bx)) {
-        if (NROW(prm) > 1L && type != "Lambda")
-            stop("newdata not specified")
-        ret <- ltMatrices(t(prm), byrow = TRUE, diag = FALSE, 
+    if (is.null(object$bx)) {
+        ret0 <- ret <- ltMatrices(t(prm), byrow = TRUE, diag = FALSE, 
                           names = object$names)
     } else {
+        if (missing(newdata))
+            stop("Argument newdata not specified")
         X <- model.matrix(object$bx, data = newdata)
-        ret <- ltMatrices(t(X %*% prm), byrow = TRUE, diag = FALSE, 
-                          names = object$names)
+        ret0 <- ret <- ltMatrices(t(X %*% prm), byrow = TRUE, diag = FALSE, 
+                                  names = object$names)
     }
 
-    if (inherits(object, "mmmlt")) {
-        ret0 <- ret
+    if (inherits(object, "mmmlt"))
         ret <- mvtnorm::standardize(invchol = ret)
-    }
 
-    ret <- switch(type, "Lambdapar" = ret0, 
-                        "Lambda" = ret,
-                        "Lambdainv" = solve(ret),
+    ret <- switch(type, "Lambdapar" = ret0,   ### to be deprecated
+                        "Lambda" = ret0, 
+                        "Omega"  = ret,
+                        "Lambdainv" = solve(ret0),
+                        "Omegainv" = solve(ret),
                         "Precision" = invchol2pre(ret),
                         "PartialCorr" = invchol2pc(ret),
                         "Sigma" = invchol2cov(ret),
@@ -887,8 +889,10 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
 }
 
 coef.cmmlt <- function(object, newdata,
-                       type = c("all", "conditional", "Lambdapar", "Lambda", 
-                                "Lambdainv", "Precision", "PartialCorr", 
+                       type = c("all", "conditional", "Lambdapar",
+                                "Lambda",  "Omega",
+                                "Lambdainv", "Omegainv",
+                                "Precision", "PartialCorr", 
                                 "Sigma", "Corr", "Spearman", "Kendall"), 
                        fixed = TRUE,
                        ...)
@@ -908,8 +912,10 @@ coef.cmmlt <- function(object, newdata,
 }
 
 coef.mmmlt <- function(object, newdata,
-                       type = c("all", "marginal", "Lambdapar", "Lambda", 
-                                "Lambdainv", "Precision", "PartialCorr", 
+                       type = c("all", "marginal", "Lambdapar",
+                                "Lambda", "Omega",
+                                "Lambdainv", "Omegainv",
+                                "Precision", "PartialCorr", 
                                 "Sigma", "Corr", "Spearman", "Kendall"), 
                        fixed = TRUE,
                        ...)
@@ -1084,7 +1090,7 @@ predict.mmlt <- function (object, newdata, margins = 1:J,
 
     if (type == "trafo") {
         stopifnot(!log)
-        L <- coef(object, newdata = newdata, type = "Lambda")
+        L <- coef(object, newdata = newdata, type = "Omega")
         if (length(margins) != J) 
             L <- marg_mvnorm(invchol = L, which = margins)$invchol
         return(Mult(L, z))
@@ -1092,7 +1098,7 @@ predict.mmlt <- function (object, newdata, margins = 1:J,
     if (type == "distribution") {
         lower <- matrix(-Inf, ncol = ncol(z), nrow = nrow(z))
         upper <- z
-        Linv <- coef(object, newdata = newdata, type = "Lambdainv")
+        Linv <- coef(object, newdata = newdata, type = "Omegainv")
         if (length(margins) != J) 
             Linv <- marg_mvnorm(chol = Linv, which = margins)$chol
         a <- args
@@ -1107,7 +1113,7 @@ predict.mmlt <- function (object, newdata, margins = 1:J,
     if (type == "survivor") {
         lower <- z 
         upper <- matrix(Inf, ncol = ncol(z), nrow = nrow(z))
-        Linv <- coef(object, newdata = newdata, type = "Lambdainv")
+        Linv <- coef(object, newdata = newdata, type = "Omegainv")
         if (length(margins) != J) 
             Linv <- marg_mvnorm(chol = Linv, which = margins)$chol
         a <- args
@@ -1128,7 +1134,7 @@ predict.mmlt <- function (object, newdata, margins = 1:J,
     } else {
         zprime <- matrix(zprime, nrow = 1)
     }
-    L <- coef(object, newdata = newdata, type = "Lambda")
+    L <- coef(object, newdata = newdata, type = "Omega")
         if (length(margins) != J) 
             L <- marg_mvnorm(invchol = L, which = margins)$invchol
     ret <- ldmvnorm(obs = z, invchol = L, logLik = FALSE)
@@ -1164,7 +1170,7 @@ simulate.mmlt <- function(object, nsim = 1L, seed = NULL, newdata, K = 50,
                          simplify = FALSE))
 
     J <- length(object$models$models)
-    L <- coef(object, newdata = newdata, type = "Lambda")
+    L <- coef(object, newdata = newdata, type = "Omega")
     N <- nrow(newdata)
 
     Z <- matrix(rnorm(J * N), ncol = N)

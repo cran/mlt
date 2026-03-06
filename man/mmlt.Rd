@@ -18,12 +18,14 @@ mmlt(..., formula = ~ 1, data, conditional = FALSE,
      args = list(seed = 1, M = 1000), 
      dofit = TRUE, domargins = TRUE)
 \method{coef}{cmmlt}(object, newdata, 
-     type = c("all", "conditional", "Lambdapar", "Lambda", "Lambdainv", 
+     type = c("all", "conditional", "Lambdapar", 
+              "Lambda", "Omega", "Lambdainv", "Omegainv",
               "Precision", "PartialCorr", "Sigma", "Corr", 
               "Spearman", "Kendall"), fixed = TRUE, 
      ...)
 \method{coef}{mmmlt}(object, newdata, 
-     type = c("all", "marginal", "Lambdapar", "Lambda", "Lambdainv", 
+     type = c("all", "marginal", "Lambdapar", 
+              "Lambda", "Omega", "Lambdainv", "Omegainv",
               "Precision", "PartialCorr", "Sigma", "Corr", 
               "Spearman", "Kendall"), fixed = TRUE,
      ...)
@@ -87,19 +89,19 @@ variable, or multiple integers (currently only \code{1:j} implemented).
 \details{
   The function implements core functionality for fitting 
   multivariate conditional transformation models
-  as described by Klein et al (2020). 
+  as described by \bibcitet{mlt::Klein:Hothorn:Barbanti:2020}.
 }
 \value{
 An object of class \code{mmlt} with \code{coef} and \code{predict}
 methods.
+
+The model is always parameterised in terms of a unit lower-triangular matrix
+\eqn{\Lambda}. If \code{conditional = FALSE} (the default), it is standardised to a
+lower-triangular matrix \eqn{\Omega = \Lambda \text{diag}(\Lambda^{-1}
+\Lambda^{-\top})} such that \eqn{\Sigma = \Omega^{-1} \Omega^{-\top}} is a
+correlation matrix. Note that \eqn{Omega = \Lambda} when \code{conditional =
+TRUE} was requested.
+
 }
-\references{
-
-  Nadja Klein, Torsten Hothorn, Luisa Barbanti, Thomas Kneib (2022),
-  Multivariate Conditional Transformation Models. \emph{Scandinavian Journal
-  of Statistics}, \bold{49}, 116--142, \doi{10.1111/sjos.12501}.
-
-  Torsten Hothorn (2024), On Nonparanormal Likelihoods. \doi{10.48550/arXiv.2408.17346}.
-
-}
+\references{\bibshow{*}}
 \keyword{models}

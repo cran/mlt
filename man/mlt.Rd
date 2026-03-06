@@ -36,27 +36,15 @@ mlt(model, data, weights = NULL, offset = NULL, fixed = NULL,
 }
 \details{
   This function fits a conditional transformation model by searching for 
-  the most likely transformation as described in Hothorn et al. (2018) and
-  Hothorn (2020).
+  the most likely transformation as described in
+  \bibcitet{mlt::Hothorn:Moest:Buehlmann:2017}, including location-scale models
+  \bibcitep{Siegfried_Kook_Hothorn_2023}. Implementation details are given
+  in \bibcitep{mlt::Hothorn:2018}.
 }
 \value{
   An object of class \code{mlt} with corresponding methods.
 }
-\references{
-
-  Torsten Hothorn, Lisa Moest, Peter Buehlmann (2018), Most Likely
-  Transformations, \emph{Scandinavian Journal of Statistics}, \bold{45}(1),
-  110--134, \doi{10.1111/sjos.12291}.
-
-  Torsten Hothorn (2020), Most Likely Transformations: The mlt Package,
-  \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
-  \doi{10.18637/jss.v092.i01}
-
-  Sandra Siegfried, Lucas Kook, Torsten Hothorn (2023), 
-  Distribution-Free Location-Scale Regression, \emph{The American Statistician},
-  \bold{77}(4), 345--356, \doi{10.1080/00031305.2023.2203177}.
-
-}
+\references{\bibshow{*}}
 \examples{
  
   ### set-up conditional transformation model for conditional

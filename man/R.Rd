@@ -73,17 +73,10 @@ as.Surv(object)
   \code{R} applied to a list calls \code{R} for each of the list elements
   and returns a joint object.
 
-  More examples can be found in Hothorn (2018) and in 
+  More examples can be found in \bibcitep{mlt::Hothorn:2018} and in 
   \code{vignette("tram", package = "tram")}.
-
 }
-\references{
-
-  Torsten Hothorn (2020), Most Likely Transformations: The mlt Package,
-  \emph{Journal of Statistical Software}, \bold{92}(1), 1--68,
-  \doi{10.18637/jss.v092.i01}
-
-}
+\references{\bibshow{*}}
 \examples{
 
  library("survival")
