@@ -2,6 +2,17 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.8-0 (2026-03-12)}{
+  \subsection{Features}{
+    \itemize{
+       \item{Implement \code{residuals.mmlt} (allowing sandwich estimation and permutation tests) 
+             and \code{update.mmlt} (a little bit faster refitting).}
+       \item{Remove \code{type = "Lambdapar"} from \code{coef.mmlt}, use 
+             \code{type = "Lambda"}.}
+    }
+  }
+}
+
 \section{Changes in Version 1.7-4 (2026-03-06)}{
   \subsection{Features}{
     \itemize{

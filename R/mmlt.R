@@ -94,7 +94,7 @@
 .mget <- function(models, j = 1, parm, newdata = NULL,
                   what = c("trafo", "dtrafo", "z", "zleft", 
                            "dzleft", "zright", "dzright", "zprime", 
-                           "trafoprime", "estfun", "scaleparm"), ...) {
+                           "trafoprime", "estfun", "resid", "scaleparm"), ...) {
 
     what <- match.arg(what)
 
@@ -189,6 +189,9 @@
     }
     if (what == "estfun") {
         return(tmp$scorei(prm, Xmult = TRUE))
+    }
+    if (what == "resid") {
+        return(tmp$scorei(prm, Xmult = FALSE))
     }
 }
 
@@ -394,7 +397,7 @@
                                  Lambda = Lambda))
     }
 
-    sc <- function(parm, newdata = NULL) {
+    sc <- function(parm, newdata = NULL, Xmult = TRUE) {
 
         if (!is.null(newdata) && !isTRUE(all.equal(formula, ~ 1))) 
             lX <- model.matrix(bx, data = newdata)
@@ -444,8 +447,9 @@
                 zp <- .rbind(.mget(models, j = which(models$cont), parm = parm, 
                                    what = "zprime", newdata = newdata))
                 scp[which(models$cont)] <- lapply(1:cJ, function(j) {
-                    mm[[j]]$exY * c(sc$obs[j,]) + 
-                        mm[[j]]$exYprime / c(zp[j,])
+                    if (Xmult) return(mm[[j]]$exY * c(sc$obs[j,]) + 
+                                      mm[[j]]$exYprime / c(zp[j,]))
+                    return(c(sc$obs[j,]) + 1 / c(zp[j,]))
                 })
             } else {
                 dz <- .rbind(.mget(models, j = which(models$cont), parm = parm, 
@@ -453,12 +457,16 @@
                 ### these are the unweighted score contributions
                 ef <- lapply(which(models$cont), 
                              function(j) 
-                                 .mget(models, j = j, parm = parm, what = "estfun", 
+                                 .mget(models, j = j, parm = parm, 
+                                       what = ifelse(Xmult, "estfun", "resid"),
                                        newdata = newdata))
                 ### note: estfun() gives negative weighted gradient of loglik
                 scp[which(models$cont)] <- lapply(1:cJ, function(j) {
-                    (mm[[j]]$exY * c(sc$obs[j,] + z[j,]) / 
-                        c(dnorm(z[j,])) * c(dz[j,])) + ef[[j]]
+                    if (Xmult) return(mm[[j]]$exY * c(sc$obs[j,] + z[j,]) / 
+                                      c(dnorm(z[j,])) * c(dz[j,]) 
+                                      + ef[[j]])
+                    return(c(sc$obs[j,] + z[j,]) / c(dnorm(z[j,])) * c(dz[j,]) 
+                           + c(ef[[j]]))
                 })
             }
         }
@@ -469,8 +477,9 @@
                                   newdata = newdata))
             if (all(models$normal)) {
                 scp[which(!models$cont)] <- lapply(1:dJ, function(j) {
-                    mm[[j]]$iYleft * c(sc$lower[j,]) +
-                    mm[[j]]$iYright * c(sc$upper[j,])
+                    if (Xmult) return(mm[[j]]$iYleft * c(sc$lower[j,]) +
+                                      mm[[j]]$iYright * c(sc$upper[j,]))
+                    return(c(sc$lower[j,]) + c(sc$upper[j,]))
                 })
             } else {
                 dzl <- .rbind(.mget(models, j = which(!models$cont), parm = parm, 
@@ -480,12 +489,21 @@
                                     what = "dzright", newdata = newdata))
                 dzr[!is.finite(dzr)] <- 0
                 scp[which(!models$cont)] <- lapply(1:dJ, function(j) {
-                    return((mm[[j]]$iYleft * c(dzl[j,]) * c(sc$lower[j,])) +
-                           (mm[[j]]$iYright * c(dzr[j,]) * c(sc$upper[j,])))
+                    if (Xmult)
+                        return((mm[[j]]$iYleft * c(dzl[j,]) * c(sc$lower[j,])) +
+                               (mm[[j]]$iYright * c(dzr[j,]) * c(sc$upper[j,])))
+                    return((c(dzl[j,]) * c(sc$lower[j,])) +
+                           (c(dzr[j,]) * c(sc$upper[j,])))
                 })
             }
         }
         
+        if (!Xmult) {
+            ret <- cbind(do.call("cbind", scp), t(Lmat))
+            colnames(ret) <- c(models$names, rownames(Lmat))
+            return(ret)
+        }
+
         ret <- cbind(do.call("cbind", scp), t(scL))
         colnames(ret) <- parnames
         return(ret)
@@ -505,15 +523,13 @@
 
     ### N contributions to the score function, UNWEIGHTED
     ret$scorei <- function(parm, newdata = NULL, Xmult = TRUE) {
-        if (!Xmult) stop("Xmult not implemented")
-        sc(parm, newdata = newdata)
+        sc(parm, newdata = newdata, Xmult = Xmult)
     }
 
     ### N contributions to score function, WEIGHTED
     ret$score <- function(parm, weights = NULL, newdata = NULL, Xmult = TRUE) {
-        if (!Xmult) stop("Xmult not implemented")
-        if (is.null(weights)) return(sc(parm, newdata = newdata))
-        weights * sc(parm, newdata = newdata)
+        if (is.null(weights)) return(sc(parm, newdata = newdata, Xmult = Xmult))
+        weights * sc(parm, newdata = newdata, Xmult = Xmult)
     }
 
     scl <- rep(apply(abs(lX), 2, max, na.rm = TRUE), times = Jp)
@@ -577,7 +593,8 @@
                 p <- c(p, fixed)
                 par <- p[parnames]
             }
-            ret <- - colSums(score(par * scl, weights = weights, ...) * scl)
+            ret <- - colSums(score(par * scl, weights = weights, 
+                                   Xmult = TRUE, ...) * scl)
             if (is.null(fixed)) return(ret)
             if (is.matrix(ret))
                 return(ret[, !parnames %in% names(fixed)])
@@ -652,7 +669,10 @@
     object$weights <- weights
     object$optim <- optim
     ll <- object$loglik
-    object$loglik <- function(parm, ...) {
+    
+    ### likelihood and score function handling of fixed parameters
+    ### to be called in logLik() and estfun() and residuals()
+    object$loglikfx <- function(parm, ...) {
         if (!is.null(fixed)) {
             eparnames <- object$parnames[!object$parnames %in% names(fixed)]
             stopifnot(length(parm) == length(eparnames))
@@ -664,7 +684,7 @@
         ll(parm = parm, ...)
     }
     sc <- object$score
-    object$score <- function(parm, ...) {
+    object$scorefx <- function(parm, ...) {
         if (!is.null(fixed)) {
             eparnames <- object$parnames[!object$parnames %in% names(fixed)]
             stopifnot(length(parm) == length(eparnames))
@@ -726,6 +746,9 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
         }
         idx <- match(1:length(cdpat), do.call("c", split(1:length(cdpat), cdpat)))
         ret <- mm[[1L]]
+        ### overwrite models with the original arguments (not the subsetted
+        ### ones)
+        ret$models <- models
         ret$data <- data
         ret$logliki <- function(parm, newdata = NULL) {
             if (!is.null(newdata))
@@ -734,10 +757,10 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
             ll <- ll[idx]
             return(ll)
         }
-        ret$scorei <- function(parm, newdata = NULL) {
+        ret$scorei <- function(parm, newdata = NULL, ...) {
             if (!is.null(newdata))
                 stop("newdata not implemented")
-            sc <- do.call("rbind", lapply(mm, function(m) m$scorei(parm)))
+            sc <- do.call("rbind", lapply(mm, function(m) m$scorei(parm, ...)))
             sc <- sc[idx,,drop = FALSE]
             return(sc)
         }
@@ -836,9 +859,21 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
     return(ret)
 }
 
+update.mmlt <- function(object, weights = stats::weights(object), optim = object$optim,
+                        theta = coef(object, fixed = FALSE), 
+                        fixed = NULL, ...)
+{
+
+    ret <- .mmlt_fit(object, weights = weights, optim = optim,
+                     theta = theta[!names(theta) %in% names(fixed)], 
+                     fixed = fixed)
+    class(ret) <- class(object)
+    ret$call <- match.call()
+    return(ret)
+}
 
 .coef.mmlt <- function(object, newdata,
-                       type = c("all", "Lambdapar",
+                       type = c("all",
                                 "Lambda", "Omega",
                                 "Lambdainv", "Omegainv", 
                                 "Precision", "PartialCorr", "Sigma", "Corr", 
@@ -863,21 +898,20 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
     prm <- prm[[length(prm)]]
 
     if (is.null(object$bx)) {
-        ret0 <- ret <- ltMatrices(t(prm), byrow = TRUE, diag = FALSE, 
-                          names = object$names)
+        ret <- t(prm)
     } else {
         if (missing(newdata))
             stop("Argument newdata not specified")
         X <- model.matrix(object$bx, data = newdata)
-        ret0 <- ret <- ltMatrices(t(X %*% prm), byrow = TRUE, diag = FALSE, 
-                                  names = object$names)
+        ret <- t(X %*% prm)
     }
+    ret0 <- ret <- as.invchol(ltMatrices(ret, byrow = TRUE, diag = FALSE, 
+                                         names = object$names))
 
     if (inherits(object, "mmmlt"))
         ret <- mvtnorm::standardize(invchol = ret)
 
-    ret <- switch(type, "Lambdapar" = ret0,   ### to be deprecated
-                        "Lambda" = ret0, 
+    ret <- switch(type, "Lambda" = ret0, 
                         "Omega"  = ret,
                         "Lambdainv" = solve(ret0),
                         "Omegainv" = solve(ret),
@@ -889,7 +923,7 @@ mmlt <- function(..., formula = ~ 1, data, conditional = FALSE,
 }
 
 coef.cmmlt <- function(object, newdata,
-                       type = c("all", "conditional", "Lambdapar",
+                       type = c("all", "conditional",
                                 "Lambda",  "Omega",
                                 "Lambdainv", "Omegainv",
                                 "Precision", "PartialCorr", 
@@ -912,7 +946,7 @@ coef.cmmlt <- function(object, newdata,
 }
 
 coef.mmmlt <- function(object, newdata,
-                       type = c("all", "marginal", "Lambdapar",
+                       type = c("all", "marginal",
                                 "Lambda", "Omega",
                                 "Lambdainv", "Omegainv",
                                 "Precision", "PartialCorr", 
@@ -990,7 +1024,7 @@ logLik.mmlt <- function (object, parm = coef(object, fixed = FALSE), w = NULL, n
         warning("Arguments ", names(args), " are ignored")
     if (is.null(w) && is.null(newdata))
         w <- weights(object)
-    ret <- object$loglik(parm, newdata = newdata, weights = w)
+    ret <- object$loglikfx(parm, newdata = newdata, weights = w)
     attr(ret, "df") <- length(object$par)
     class(ret) <- "logLik"
     ret
@@ -1003,7 +1037,17 @@ estfun.mmlt <- function(x, parm = coef(x, fixed = FALSE),
         warning("Arguments ", names(args), " are ignored")
     if (is.null(w) && is.null(newdata))
         w <- weights(x)
-    return(-x$score(parm, newdata = newdata, weights = w))
+    return(-x$scorefx(parm, newdata = newdata, weights = w, Xmult = TRUE))
+}
+
+residuals.mmlt <- function(object, parm = coef(object, fixed = FALSE), 
+                           w = NULL, newdata = NULL, ...) {
+    args <- list(...)
+    if (length(args) > 0)
+        warning("Arguments ", names(args), " are ignored")
+    if (is.null(w) && is.null(newdata))
+        w <- weights(object)
+    return(-object$scorefx(parm, newdata = newdata, weights = w, Xmult = FALSE))
 }
 
 weights.mmlt <- weights.mlt
