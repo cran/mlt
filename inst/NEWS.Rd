@@ -2,6 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.8-1 (2026-07-21)}{
+  \subsection{Bugfixes}{
+    \itemize{
+       \item Corrected \code{residuals} for \code{mmlt}, spotted by Leticia Wuethrich.
+    }
+  }
+}
+
 \section{Changes in Version 1.8-0 (2026-03-12)}{
   \subsection{Features}{
     \itemize{

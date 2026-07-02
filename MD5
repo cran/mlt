@@ -1,4 +1,4 @@
-5261dae35047db9d8de0fdb1fab6ff3a *DESCRIPTION
+f6d8612ec7af035d62cf1bf9be07bcca *DESCRIPTION
 cc0b96554e873184388e3d947f40a20d *NAMESPACE
 b70337ca35e34ceaa460525b6c199814 *R/R.R
 a7f5ffe44d174bddd1e9f3d705f8c4f3 *R/confband.R
@@ -9,15 +9,15 @@ b8bdfa948d06e0fd3b1bc26a4b33e12a *R/loglik.R
 3227d6d56c10d7b65755ff95d3f47fdc *R/methods.R
 7f3ae3fb85ce4492616ad17ed3f17015 *R/mlt.R
 0e1a3113b603bad36002c80ff8af81c6 *R/mltoptim.R
-b9617d1f9b2c0c9791538cb6ba26fd84 *R/mmlt.R
+5ac58293ac1d1b5006bbbab0631afe42 *R/mmlt.R
 395a74eae63cdf3483b7a84e473d1f34 *R/plot.R
 43625bea4b1cb1700f091f16a5dc8f46 *R/predict.R
 5364a1dbf29885bc605bdb33ff22f321 *R/sample.R
 1ec2a416f8cdb5ad285542a254019b1e *R/utils.R
-30042f02f8433a255691b23470041ee9 *build/partial.rdb
-1c9695dee7162d6e72883b552906e753 *cleanup
+1dc85198a30def851c7e62afafebd442 *build/partial.rdb
+9dfac60e0c10205daf2f586811010db4 *cleanup
 dc5c2885d86a80bb9d2a28ffc796708c *inst/CITATION
-172863a389b3e265be54b1cb22f47541 *inst/NEWS.Rd
+0816c9fc966dcb2d5155decd1005c012 *inst/NEWS.Rd
 ad5fb2a1f521dbec01cd2c152301ee7e *inst/REFERENCES.bib
 985e1f7dca7a9ee4fceca06e459f81ac *man/R.Rd
 4141097f19682037945cf253537240c9 *man/confband.Rd

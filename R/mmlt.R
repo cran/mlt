@@ -449,7 +449,7 @@
                 scp[which(models$cont)] <- lapply(1:cJ, function(j) {
                     if (Xmult) return(mm[[j]]$exY * c(sc$obs[j,]) + 
                                       mm[[j]]$exYprime / c(zp[j,]))
-                    return(c(sc$obs[j,]) + 1 / c(zp[j,]))
+                    return(c(sc$obs[j,]))
                 })
             } else {
                 dz <- .rbind(.mget(models, j = which(models$cont), parm = parm, 
