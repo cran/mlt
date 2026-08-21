@@ -27,18 +27,28 @@ speed <- numeric_var("speed", support = c(5.0, 23), bounds = c(0, Inf))
 ctmm <- ctm(response = Bernstein_basis(dist, order = 4, ui = "increasing"),
             interacting = Bernstein_basis(speed, order = 3))
 
-m <- mlt(ctmm, data = cars)
-e <- estfun(m)
 w <- runif(nrow(cars)) < .8
-m1 <- update(m, weights = w, theta = coef(m))
-e1 <- estfun(m1, parm = coef(m))
-stopifnot(max(abs(e * w - e1)) < .Machine$double.eps)
-e1 <- estfun(m1)
-m2 <- mlt(ctmm, data = cars[w > 0,], theta = coef(m))
-stopifnot(isTRUE(all.equal(logLik(m1), logLik(m2))))
-stopifnot(isTRUE(all.equal(logLik(m1, coef(m2)), logLik(m2, coef(m1)))))
-e2 <- estfun(m2, parm = coef(m1))
-stopifnot(max(abs(e1[w > 0,] - e2)) < .Machine$double.eps)
+m <- mlt(ctmm, data = cars)
+m0 <- update(m, subset =  which(w), theta = coef(m))
+m1 <- update(m, weights = as.integer(w), theta = coef(m))
+m2 <- mlt(ctmm, data = cars[w,], theta = coef(m))
+m3 <- mlt(ctmm, data = cars, weights = as.integer(w), theta = coef(m))
+
+### comparing the maximised log-likelihoods failed with
+### openblas 0.3.29+ds-3 but worked with 0.3.33+ds-3
+stopifnot(isTRUE(all.equal(logLik(m0, parm = coef(m)),
+                           logLik(m1, parm = coef(m)))))
+stopifnot(isTRUE(all.equal(logLik(m0, parm = coef(m)),
+                           logLik(m2, parm = coef(m)))))
+stopifnot(isTRUE(all.equal(logLik(m0, parm = coef(m)),
+                           logLik(m3, parm = coef(m)))))
+
+stopifnot(isTRUE(all.equal(Gradient(m0, parm = coef(m)),  
+                           Gradient(m1, parm = coef(m)))))
+stopifnot(isTRUE(all.equal(Gradient(m0, parm = coef(m)),  
+                           Gradient(m2, parm = coef(m)))))
+stopifnot(isTRUE(all.equal(Gradient(m0, parm = coef(m)),
+                           Gradient(m3, parm = coef(m)))))
 
 ### Muriel Buri
 data("bodyfat", package = "TH.data")

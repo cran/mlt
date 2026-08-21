@@ -43,6 +43,7 @@ Gradient(object, ...)
 \method{update}{mlt_fit}(object, weights = stats::weights(object), 
        subset = NULL, offset = object$offset, theta = coef(object, fixed = FALSE), 
        fixed = NULL, ...)
+as.mlt(object)
 \method{as.mlt}{mlt}(object)
 }
 \arguments{

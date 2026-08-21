@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.8-2 (2026-08-21)}{
+  \subsection{Other}{
+    \itemize{
+       \item Documentation updates.
+       \item Handle impression visible with OpenBlas 0.3.29+ds-3 but not with 0.3.33+ds-3 
+    }
+  }
+}
+
 \section{Changes in Version 1.8-1 (2026-07-21)}{
   \subsection{Bugfixes}{
     \itemize{
@@ -9,6 +18,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.8-0 (2026-03-12)}{
   \subsection{Features}{
