@@ -322,6 +322,8 @@ R.default <- function(object, ...)
     if (all(sapply(args, function(x) all(is.na(x))))) {
         args$approxy <- NA
         ret <- do.call("as.data.frame", list(x = args))
+        if (is.null(ret$tleft)) ret$tleft <- NA
+        if (is.null(ret$tright)) ret$tright <- NA
         class(ret) <- c("response", class(ret))
         return(ret[, c("tleft", "cleft", "exact", "cright", "tright", "approxy"), drop = FALSE])
     }

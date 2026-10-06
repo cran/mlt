@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.8-3 (2026-10-05)}{
+  \subsection{Bugfix}{
+    \itemize{
+       \item \code{R(x)} now works with all elements of \code{x} being \code{NA}s,
+             spotted by Leticia Wuethrich.
+    }
+  }
+}
+
 \section{Changes in Version 1.8-2 (2026-08-21)}{
   \subsection{Other}{
     \itemize{
