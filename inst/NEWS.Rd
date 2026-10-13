@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the mlt package}
 
+\section{Changes in Version 1.8-4 (2026-10-12)}{
+  \subsection{Bugfix}{
+    \itemize{
+       \item \code{NA}s in \code{newdata} now propagate through \code{predict}.
+    }
+  }
+}
+
+
 \section{Changes in Version 1.8-3 (2026-10-05)}{
   \subsection{Bugfix}{
     \itemize{
@@ -10,6 +19,7 @@
     }
   }
 }
+
 
 \section{Changes in Version 1.8-2 (2026-08-21)}{
   \subsection{Other}{

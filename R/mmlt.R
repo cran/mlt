@@ -906,7 +906,7 @@ update.mmlt <- function(object, weights = stats::weights(object), optim = object
         ret <- t(X %*% prm)
     }
     ret0 <- ret <- as.invchol(ltMatrices(ret, byrow = TRUE, diag = FALSE, 
-                                         names = object$names))
+                                         names = unname(object$names)))
 
     if (inherits(object, "mmmlt"))
         ret <- mvtnorm::standardize(invchol = ret)

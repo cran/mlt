@@ -56,8 +56,8 @@ tmlt <- function(object, newdata = NULL, q = NULL, log = FALSE, ...) {
             ### P(Y \le y_K) = 1 but trafo can be < Inf
             ### depending on parameterisation
             if (is.factor(f <- newdata[[y]])) {
-                i <- f == levels(f)[nlevels(f)]
-                if (any(i)) 
+                i <- which(f == levels(f)[nlevels(f)])
+                if (length(i)) 
                     ret[i] <- Inf
             } else {
                 ### Y in (b[1], b[2]) => P(Y \le b[1]) = 0, P(Y \le b[2]) = 1

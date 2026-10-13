@@ -150,3 +150,9 @@ lwr <- as.double(1:3)
 upr <- as.double(2:4)
 upr[2] <- 2
 R(cleft = lwr, cright = upr)
+
+### R with missing values
+x <- gl(5, 1, ordered = TRUE)
+R(x)
+x[] <- NA
+R(x)

@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2026-08-20 r90437) -- "Unsuffered Consequences"
+R Under development (unstable) (2026-09-30 r90600) -- "Unsuffered Consequences"
 Copyright (C) 2026 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
@@ -187,6 +187,14 @@ Coefficients: 30.945 38.878 42.517 -0.015081 -0.0591 -0.12127 -0.053832 -0.47681
 > R(cleft = lwr, cright = upr)
 [1] ( 1,  2]  2       ( 3,  4]
 > 
+> ### R with missing values
+> x <- gl(5, 1, ordered = TRUE)
+> R(x)
+[1] (NA, 1] (1, 2]  (2, 3]  (3, 4]  (4, NA]
+> x[] <- NA
+> R(x)
+[1] (NA, NA] (NA, NA] (NA, NA] (NA, NA] (NA, NA]
+> 
 > proc.time()
    user  system elapsed 
-  2.140   0.067   1.063 
+  2.152   0.105   1.063 
